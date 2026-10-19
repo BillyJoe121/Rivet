@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
+import 'widgets/supplier_order_card.dart';
 
 /// Vista de inicio y gestión para el rol Proveedor / Ferretería ("FerreCasa Central").
 class SupplierHomeView extends StatefulWidget {
@@ -63,7 +64,6 @@ class _SupplierHomeViewState extends State<SupplierHomeView> {
       body: ListView(
         padding: AppSpacing.screenPadding,
         children: [
-          // Selector de vista rápida
           AppSegmentedControl<int>(
             items: const {
               0: 'Resumen',
@@ -73,9 +73,7 @@ class _SupplierHomeViewState extends State<SupplierHomeView> {
             selected: _activeTab,
             onChanged: (tab) => setState(() => _activeTab = tab),
           ),
-
           const SizedBox(height: AppSpacing.lg),
-
           if (_activeTab == 0) ..._buildSummarySection()
           else if (_activeTab == 1) ..._buildOrdersSection()
           else ..._buildProNetworkSection(),
@@ -111,7 +109,7 @@ class _SupplierHomeViewState extends State<SupplierHomeView> {
       const SizedBox(height: AppSpacing.xxl),
       Text('Pedidos Urgentes por Despachar', style: AppTypography.sectionTitle.copyWith(fontSize: 18)),
       const SizedBox(height: AppSpacing.md),
-      _buildOrderCard(
+      const SupplierOrderCard(
         id: 'PED-901',
         projectTitle: 'Obra Valle del Lili · Pintura sala',
         contractorName: 'Carlos Mendoza',
@@ -121,7 +119,7 @@ class _SupplierHomeViewState extends State<SupplierHomeView> {
         statusVariant: AppBadgeVariant.warning,
       ),
       const SizedBox(height: AppSpacing.md),
-      _buildOrderCard(
+      const SupplierOrderCard(
         id: 'PED-902',
         projectTitle: 'Obra Ciudad Jardín · Habitación',
         contractorName: 'Jorge Eliécer Silva',
@@ -139,7 +137,7 @@ class _SupplierHomeViewState extends State<SupplierHomeView> {
       const SizedBox(height: AppSpacing.xs),
       Text('Separa los materiales listos para entrega directa o retiro en bodega.', style: AppTypography.caption),
       const SizedBox(height: AppSpacing.md),
-      _buildOrderCard(
+      const SupplierOrderCard(
         id: 'PED-901',
         projectTitle: 'Obra Valle del Lili',
         contractorName: 'Carlos Mendoza',
@@ -150,7 +148,7 @@ class _SupplierHomeViewState extends State<SupplierHomeView> {
         hasActionButton: true,
       ),
       const SizedBox(height: AppSpacing.md),
-      _buildOrderCard(
+      const SupplierOrderCard(
         id: 'PED-899',
         projectTitle: 'Remodelación Granada',
         contractorName: 'Alonso Restrepo',
@@ -222,63 +220,5 @@ class _SupplierHomeViewState extends State<SupplierHomeView> {
         ),
       ),
     ];
-  }
-
-  Widget _buildOrderCard({
-    required String id,
-    required String projectTitle,
-    required String contractorName,
-    required String items,
-    required String totalCop,
-    required String status,
-    required AppBadgeVariant statusVariant,
-    bool hasActionButton = false,
-  }) {
-    return AppCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(id, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold)),
-              AppBadge(text: status, variant: statusVariant),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.xs),
-          Text(projectTitle, style: AppTypography.subheading),
-          Text('Para contratista: $contractorName', style: AppTypography.caption),
-          const SizedBox(height: AppSpacing.sm),
-          Container(
-            padding: const EdgeInsets.all(AppSpacing.sm),
-            decoration: BoxDecoration(
-              color: AppColors.surfaceSubtle,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Row(
-              children: [
-                const Icon(Icons.inventory_2_outlined, size: 16, color: AppColors.ink500),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(child: Text(items, style: AppTypography.bodySmall)),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.md),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Total pedido: $totalCop', style: AppTypography.badgeText.copyWith(color: AppColors.brand700)),
-              if (hasActionButton)
-                AppButton(
-                  text: 'Marcar despachado',
-                  size: AppButtonSize.sm,
-                  isFullWidth: false,
-                  onPressed: () {},
-                ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
+import 'widgets/add_surface_sheet.dart';
+import 'widgets/photos_privacy_step.dart';
+import 'widgets/project_review_step.dart';
 
 /// Flujo paso a paso de creación y medición de un proyecto (P-008 a P-015).
 class CreateProjectScreen extends StatefulWidget {
@@ -37,11 +40,6 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
     ),
   ];
 
-  // Controladores para agregar nueva pared
-  final _surfaceNameController = TextEditingController();
-  final _surfaceWidthController = TextEditingController();
-  final _surfaceHeightController = TextEditingController();
-
   // Paso 2: IA y Privacidad
   bool _aiMinimizationAccepted = true;
   bool _noPrivateDataConfirmed = true;
@@ -53,31 +51,21 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
     _titleController.dispose();
     _cityController.dispose();
     _neighborhoodController.dispose();
-    _surfaceNameController.dispose();
-    _surfaceWidthController.dispose();
-    _surfaceHeightController.dispose();
     super.dispose();
   }
 
-  void _addSurface() {
-    final name = _surfaceNameController.text.trim();
-    final width = double.tryParse(_surfaceWidthController.text.trim()) ?? 0;
-    final height = double.tryParse(_surfaceHeightController.text.trim()) ?? 0;
+  void _onSurfaceAdded(SurfaceItem surface) {
+    setState(() => _surfaces.add(surface));
+  }
 
-    if (name.isNotEmpty && width > 0 && height > 0) {
-      setState(() {
-        _surfaces.add(SurfaceItem(
-          id: 's-${DateTime.now().millisecondsSinceEpoch}',
-          name: name,
-          widthMeters: width,
-          heightMeters: height,
-        ));
-        _surfaceNameController.clear();
-        _surfaceWidthController.clear();
-        _surfaceHeightController.clear();
-      });
-      Navigator.pop(context);
-    }
+  void _showAddSurfaceDialog() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.surface0,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
+      builder: (_) => AddSurfaceSheet(onAddSurface: _onSurfaceAdded),
+    );
   }
 
   @override
@@ -105,8 +93,19 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
                 child: switch (_currentStep) {
                   0 => _buildStepGeneralData(),
                   1 => _buildStepSurfaces(),
-                  2 => _buildStepPhotosAndPrivacy(),
-                  _ => _buildStepReviewAndPublish(),
+                  2 => PhotosPrivacyStep(
+                      aiMinimizationAccepted: _aiMinimizationAccepted,
+                      noPrivateDataConfirmed: _noPrivateDataConfirmed,
+                      onAiMinimizationChanged: (val) => setState(() => _aiMinimizationAccepted = val),
+                      onNoPrivateDataChanged: (val) => setState(() => _noPrivateDataConfirmed = val),
+                    ),
+                  _ => ProjectReviewStep(
+                      title: _titleController.text,
+                      city: _cityController.text,
+                      neighborhood: _neighborhoodController.text,
+                      surfaces: _surfaces,
+                      totalArea: _totalArea,
+                    ),
                 },
               ),
             ),
@@ -235,147 +234,6 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
     );
   }
 
-  Widget _buildStepPhotosAndPrivacy() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Fotos y Autorización de IA (P-011)', style: AppTypography.subheading.copyWith(fontSize: 18)),
-        const SizedBox(height: AppSpacing.xs),
-        Text(
-          'Para proteger tu intimidad, las fotos se procesan para difuminar personas, cuadros y objetos personales antes de ser visibles para los pintores.',
-          style: AppTypography.bodySmall,
-        ),
-        const SizedBox(height: AppSpacing.lg),
-
-        // Imagen de muestra procesada
-        AppCard(
-          padding: EdgeInsets.zero,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                child: AspectRatio(
-                  aspectRatio: 16 / 9,
-                  child: Image.asset(
-                    'Fondos/Sala minimalista con plantas y luz suave.png',
-                    fit: BoxFit.cover,
-                    errorBuilder: (_, _, _) => Container(color: AppColors.brandLight),
-                  ),
-                ),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(AppSpacing.md),
-                child: Row(
-                  children: [
-                    Icon(Icons.auto_awesome, color: AppColors.brand700, size: 18),
-                    SizedBox(width: AppSpacing.sm),
-                    Expanded(
-                      child: Text(
-                        'Foto minimizada: objetos personales ocultos, textura de pared resaltada para cotización.',
-                        style: TextStyle(fontSize: 12, color: AppColors.ink700),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: AppSpacing.lg),
-
-        CheckboxListTile(
-          value: _aiMinimizationAccepted,
-          onChanged: (val) => setState(() => _aiMinimizationAccepted = val ?? false),
-          title: Text('Autorizo el procesamiento de IA para ocultar elementos privados', style: AppTypography.bodySmall),
-          controlAffinity: ListTileControlAffinity.leading,
-          activeColor: AppColors.brand700,
-          contentPadding: EdgeInsets.zero,
-        ),
-        CheckboxListTile(
-          value: _noPrivateDataConfirmed,
-          onChanged: (val) => setState(() => _noPrivateDataConfirmed = val ?? false),
-          title: Text('Confirmo que la foto no contiene documentos ni datos sensibles', style: AppTypography.bodySmall),
-          controlAffinity: ListTileControlAffinity.leading,
-          activeColor: AppColors.brand700,
-          contentPadding: EdgeInsets.zero,
-        ),
-      ],
-    );
-  }
-
-  Widget _buildStepReviewAndPublish() {
-    final estimatedPaintGallons = (_totalArea / 25.0).ceil();
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text('Dossier y Revisión Final (P-015)', style: AppTypography.subheading.copyWith(fontSize: 18)),
-        const SizedBox(height: AppSpacing.xs),
-        Text('Revisa cómo verán los contratistas tu solicitud.', style: AppTypography.bodySmall),
-        const SizedBox(height: AppSpacing.lg),
-
-        AppCard(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(_titleController.text, style: AppTypography.subheading),
-              Text('${_cityController.text} · ${_neighborhoodController.text}', style: AppTypography.caption),
-              const SizedBox(height: AppSpacing.md),
-              Row(
-                children: [
-                  Expanded(
-                    child: AppStatTile(
-                      label: 'ÁREA TOTAL',
-                      value: '${_totalArea.toStringAsFixed(1)} m²',
-                      icon: Icons.square_foot,
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: AppStatTile(
-                      label: 'PINTURA SUGERIDA',
-                      value: '$estimatedPaintGallons Galones',
-                      icon: Icons.format_paint,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.md),
-              Text(
-                'Superficies incluidas (${_surfaces.length}):',
-                style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: AppSpacing.xs),
-              ..._surfaces.map((s) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2),
-                    child: Text('• ${s.name} (${s.areaM2.toStringAsFixed(1)} m²)', style: AppTypography.bodySmall),
-                  )),
-            ],
-          ),
-        ),
-
-        const SizedBox(height: AppSpacing.lg),
-        const AppCard(
-          backgroundColor: AppColors.brandLight,
-          child: Row(
-            children: [
-              Icon(Icons.check_circle_outline, color: AppColors.brand700),
-              SizedBox(width: AppSpacing.md),
-              Expanded(
-                child: Text(
-                  'Publicar no tiene costo. Los pintores te enviarán propuestas separando mano de obra de insumos.',
-                  style: TextStyle(fontSize: 13, color: AppColors.brand700, fontWeight: FontWeight.w500),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
   Widget _buildBottomBar() {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -416,63 +274,6 @@ class _CreateProjectScreenState extends State<CreateProjectScreen> {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  void _showAddSurfaceDialog() {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: AppColors.surface0,
-      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(16))),
-      builder: (ctx) => Padding(
-        padding: EdgeInsets.only(
-          left: AppSpacing.lg,
-          right: AppSpacing.lg,
-          top: AppSpacing.lg,
-          bottom: MediaQuery.of(ctx).viewInsets.bottom + AppSpacing.xl,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Agregar Superficie', style: AppTypography.subheading),
-            const SizedBox(height: AppSpacing.md),
-            AppTextField(
-              label: 'Nombre de la pared / techo',
-              hint: 'Ej. Pared balcón',
-              controller: _surfaceNameController,
-            ),
-            const SizedBox(height: AppSpacing.md),
-            Row(
-              children: [
-                Expanded(
-                  child: AppTextField(
-                    label: 'Ancho (metros)',
-                    hint: 'Ej. 3.8',
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    controller: _surfaceWidthController,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: AppTextField(
-                    label: 'Alto (metros)',
-                    hint: 'Ej. 2.6',
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    controller: _surfaceHeightController,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.xl),
-            AppButton(
-              text: 'Guardar Superficie',
-              onPressed: _addSurface,
-            ),
-          ],
-        ),
       ),
     );
   }

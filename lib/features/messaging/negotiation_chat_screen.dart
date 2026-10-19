@@ -2,24 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
-
-class ChatMessage {
-  const ChatMessage({
-    required this.id,
-    required this.senderName,
-    required this.text,
-    required this.isMe,
-    required this.timestamp,
-    this.isOfferUpdate = false,
-  });
-
-  final String id;
-  final String senderName;
-  final String text;
-  final bool isMe;
-  final String timestamp;
-  final bool isOfferUpdate;
-}
+import 'widgets/chat_bubble.dart';
 
 /// Chat de negociación y contrapropuestas de cotización (P-030).
 class NegotiationChatScreen extends StatefulWidget {
@@ -103,7 +86,6 @@ class _NegotiationChatScreenState extends State<NegotiationChatScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // Banner de seguridad
             Container(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
               color: AppColors.surfaceSubtle,
@@ -120,117 +102,63 @@ class _NegotiationChatScreenState extends State<NegotiationChatScreen> {
                 ],
               ),
             ),
-
-            // Lista de Mensajes
             Expanded(
               child: ListView.builder(
                 padding: AppSpacing.screenPadding,
                 itemCount: _messages.length,
                 itemBuilder: (context, index) {
-                  final msg = _messages[index];
                   return Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                    child: Align(
-                      alignment: msg.isMe ? Alignment.centerRight : Alignment.centerLeft,
-                      child: Container(
-                        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
-                        padding: const EdgeInsets.all(AppSpacing.md),
-                        decoration: BoxDecoration(
-                          color: msg.isMe
-                              ? AppColors.brand700
-                              : msg.isOfferUpdate
-                                  ? AppColors.brandLight
-                                  : AppColors.surface0,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: msg.isMe
-                                ? Colors.transparent
-                                : msg.isOfferUpdate
-                                    ? AppColors.brand700.withValues(alpha: 0.3)
-                                    : AppColors.line300,
-                          ),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (!msg.isMe) ...[
-                              Text(
-                                msg.senderName,
-                                style: AppTypography.caption.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                  color: msg.isOfferUpdate ? AppColors.brand700 : AppColors.ink900,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                            ],
-                            Text(
-                              msg.text,
-                              style: AppTypography.bodyMedium.copyWith(
-                                color: msg.isMe ? Colors.white : AppColors.ink900,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: Text(
-                                msg.timestamp,
-                                style: AppTypography.caption.copyWith(
-                                  fontSize: 10,
-                                  color: msg.isMe ? AppColors.leaf300 : AppColors.ink500,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                    child: ChatBubble(message: _messages[index]),
                   );
                 },
               ),
             ),
-
-            // Barra de Entrada de Texto
-            Container(
-              padding: const EdgeInsets.all(AppSpacing.md),
-              decoration: const BoxDecoration(
-                color: AppColors.surface0,
-                border: Border(top: BorderSide(color: AppColors.line300)),
-              ),
-              child: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.attach_file, color: AppColors.ink500),
-                    tooltip: 'Adjuntar foto',
-                    onPressed: () {},
-                  ),
-                  Expanded(
-                    child: TextField(
-                      controller: _messageController,
-                      decoration: InputDecoration(
-                        hintText: 'Escribe un mensaje o aclaración...',
-                        border: InputBorder.none,
-                        enabledBorder: InputBorder.none,
-                        focusedBorder: InputBorder.none,
-                        fillColor: AppColors.surfaceSubtle,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.ink500),
-                      ),
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  CircleAvatar(
-                    backgroundColor: AppColors.brand700,
-                    child: IconButton(
-                      icon: const Icon(Icons.send, color: Colors.white, size: 18),
-                      onPressed: _sendMessage,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            _buildInputBar(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInputBar() {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: const BoxDecoration(
+        color: AppColors.surface0,
+        border: Border(top: BorderSide(color: AppColors.line300)),
+      ),
+      child: Row(
+        children: [
+          IconButton(
+            icon: const Icon(Icons.attach_file, color: AppColors.ink500),
+            tooltip: 'Adjuntar foto',
+            onPressed: () {},
+          ),
+          Expanded(
+            child: TextField(
+              controller: _messageController,
+              decoration: InputDecoration(
+                hintText: 'Escribe un mensaje o aclaración...',
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                fillColor: AppColors.surfaceSubtle,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.ink500),
+              ),
+              onSubmitted: (_) => _sendMessage(),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          CircleAvatar(
+            backgroundColor: AppColors.brand700,
+            child: IconButton(
+              icon: const Icon(Icons.send, color: Colors.white, size: 18),
+              onPressed: _sendMessage,
+            ),
+          ),
+        ],
       ),
     );
   }
