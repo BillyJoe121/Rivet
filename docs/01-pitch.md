@@ -1,0 +1,64 @@
+# Rivet — pitch de propuesta académica
+
+**Versión:** 12 de octubre de 2026 · **Estado:** concepto para validar · **Alcance propuesto:** servicios de pintura y estuco en una ciudad de Colombia.
+
+> Rivet es un nombre de trabajo. Su disponibilidad comercial y registral no se ha consultado. Esta propuesta no acredita demanda, resultados, alianzas, tarifas aprobadas ni una operación de pagos habilitada.
+
+## Propuesta de valor
+
+Ayudar a una persona a describir y comparar un trabajo de pintura o estuco con fotos, medidas, cantidades revisables y ofertas que separan materiales de mano de obra.
+
+## Presentación breve · 45–60 segundos
+
+Al cotizar pintura o estuco, una persona necesita explicar el espacio y comparar ofertas que cubran el mismo trabajo. Propongo Rivet, una app que organiza ese proceso entre clientes, contratistas y proveedores.
+
+El cliente registra fotos, medidas y una descripción por superficie. Revisa una versión de las fotos con menos información personal y recibe un rango orientativo de materiales. Los proveedores publican referencias y precios por tipo de comprador; el contratista revisa las cantidades y cotiza materiales y mano de obra por separado.
+
+Publicar, consultar y negociar será gratuito. La plataforma cobrará tarifas y comisiones al concretar una contratación o compra, informadas antes del pago. El cumplimiento y la entrega tendrán confirmaciones separadas. Para la materia demostraré el flujo con pagos de prueba; validaré con usuarios si mejora la preparación y comparación de cotizaciones.
+
+## Presentación ampliada · aproximadamente 2 minutos
+
+Propongo Rivet para reducir las aclaraciones y desplazamientos necesarios al cotizar trabajos de pintura y estuco. La primera versión se centrará en una ciudad de Colombia y conectará clientes, contratistas y proveedores.
+
+El cliente registra cada superficie con fotos, descripción y medidas que puede confirmar o corregir. Una ayuda de IA prepara una versión con menos información personal: el cliente la revisa, conserva visibles los defectos y conoce qué zonas fueron editadas. El expediente incluye un esquema 3D básico basado en medidas y un rango orientativo de materiales calculado con referencias técnicas. El profesional valida las cantidades; la aplicación no sustituye su inspección.
+
+El proveedor publica productos precisos y tarifas para cliente y contratista autorizado. Los contratistas presentan propuestas que separan materiales, mano de obra, cantidades y condiciones. El cliente compara el alcance y el total; también puede elegir un profesional y acordar una visita pagada.
+
+Publicar, consultar y negociar será gratuito para los tres roles. Los ingresos vendrán de una tarifa de gestión a cargo del cliente, una comisión al desembolso del contratista y una comisión sobre materiales inferior al 1%, con tasas y modalidad todavía por definir. Todos los cargos se mostrarán antes de aceptar. La fecha pactada no liberará dinero automáticamente: el cierre requiere confirmación y los desacuerdos tienen un proceso de revisión. Los materiales tendrán entrega y liquidación separadas.
+
+Existen alternativas como Timbrit, Habitissimo y Houzz Pro. Mi hipótesis es que un expediente especializado, precios identificables y ofertas comparables pueden facilitar este trabajo. Lo comprobaré con clientes, profesionales y proveedores. Para la materia presentaré pagos de prueba; la operación real requerirá validar costos, políticas y un operador compatible.
+
+## Modelo de ingresos y decisiones pendientes
+
+| Momento | Quién paga | Propuesta | Pendiente por validar |
+|---|---|---|---|
+| Publicar, ver ofertas o negociar | Ninguno | Sin cobro en los tres roles; no hay suscripción Pro. | Confirmar costo de servicios gratuitos, límites de uso de IA y sostenibilidad. |
+| Contratar | Cliente | Tarifa de gestión de contratación, mostrada antes de aceptar; su propósito propuesto es cubrir servicio e IA. | Importe, momento de cobro, cancelación, reembolso y relación con costos reales. |
+| Desembolso de mano de obra | Contratista | Comisión descontada al desembolso. No se añade una segunda tarifa de gestión al contratista. | Tasa y base exacta, pagos parciales, impuestos y consecuencias de reclamaciones. |
+| Compra de materiales | Proveedor/materiales | Comisión menor al 1% como hipótesis. | Tasa exacta, base, incidencia como deducción o recargo, comprobante y tratamiento de devoluciones. |
+
+**Ejemplo de presentación, no de tarifa:** para una cotización con mano de obra de COP 1.000.000 y materiales de COP 500.000, el resumen mostraría ambos subtotales y la tarifa de gestión del cliente antes de aceptar. El renglón de comisión de mano de obra solo puede calcularse cuando se aprueben su tasa y base. Si se usa 0,8% únicamente para ilustrar la hipótesis de materiales, la comisión sobre COP 500.000 sería COP 4.000; el flujo todavía debe aclarar quién la soporta y cómo se liquida. El 0,8% es un ejemplo, no una tarifa elegida.
+
+El costo del operador de pagos puede consumir más que una comisión inferior al 1%: la página pública de Wompi lista para su Plan Avanzado 2,65% + COP 700 + IVA por transacción exitosa. Sobre COP 100.000 son COP 3.350 antes de IVA. Wompi no está seleccionado y esa tarifa no acredita una integración que permita pagos condicionados a la obra. La economía unitaria debe incluir además IA, soporte, reembolsos y reclamaciones. [Planes y tarifas de Wompi](https://wompi.co/es/co/planes-tarifas/) (consulta: 12 de octubre de 2026).
+
+## Alcance y validación
+
+**V1 propuesta:** una ciudad; pintura y estuco; captura por pared/espacio; medidas que aporta o confirma el cliente; edición de imagen revisada por el cliente; catálogo manual con dos tarifas aprobadas; estimación de materiales apoyada en cobertura de ficha; revisión de cantidades y ofertas desglosadas; comparación y negociación; pagos y estados simulados para la presentación académica; visita cotizada como acuerdo entre las partes.
+
+**V2 posible:** reconocimiento automático de medidas o reconstrucción desde imagen, solo después de evaluar precisión, privacidad y costo. No se presupone que sustituya la confirmación humana.
+
+**Pruebas por hacer:**
+
+1. Entrevistar a personas que hayan contratado pintura o estuco recientemente y reconstruir cómo pidieron, corrigieron y compararon cotizaciones.
+2. Acompañar a contratistas en la medición y preguntar qué unidades, preparación de superficie, capas y desperdicio explican sus cantidades.
+3. Consultar proveedores sobre catálogo, vigencia de precios, rendimiento y validación de tarifas para ambos roles.
+4. Probar un prototipo con solicitudes equivalentes y observar omisiones, aclaraciones, comprensión del precio y tiempo de preparación; no presentar una muestra pequeña como prueba de demanda.
+5. Cotizar servicios de IA, pagos y soporte y modelar operaciones que no terminan en contratación, cancelaciones y disputas antes de afirmar rentabilidad.
+
+El proyecto solo podría pasar a una operación real después de validar usuarios, tarifas, protección de imágenes, reglas de reclamación y el acuerdo con un operador de pagos. No se prometen calidad del trabajo, entrega auténtica de materiales ni custodia regulada por el hecho de mostrar fichas o estados en la app.
+
+## Problema y alternativas
+
+El cliente necesita describir el trabajo sin omitir medidas o condiciones; el contratista necesita información suficiente para cotizar y explicar cambios; el proveedor necesita identificar la referencia y la tarifa aplicable. La consecuencia que se propone investigar es repetir aclaraciones o comparar precios con alcances distintos. La frecuencia y el costo de ese problema deben medirse en entrevistas y pruebas.
+
+Las recomendaciones y el contacto directo por llamadas o WhatsApp son alternativas a investigar con los participantes. Timbrit presenta solicitudes y contacto con profesionales; Habitissimo contempla presupuestos detallados; Houzz Pro ofrece mediciones y estimaciones desde planos. Rivet debe demostrar una mejora en esta tarea específica, sin asumir que las alternativas carezcan de sus funciones. [Timbrit](https://www.timbrit.com.co/) · [Habitissimo](https://soporte.habitissimo.com/hc/es/articles/204309883--Qu%C3%A9-debe-tener-un-presupuesto) · [Houzz Pro](https://pro.houzz.com/pro-help/r/how-to-use-takeoffs-on-houzz-pro).
