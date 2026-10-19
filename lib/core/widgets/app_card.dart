@@ -1,34 +1,39 @@
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 
-/// Tarjeta base estandarizada con superficie blanca y borde sutil.
+/// Tarjeta flotante orgánica con bordes redondeados (18-20px),
+/// superficie blanca pura y sombra difusa cálida sin bordes duros.
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,
     required this.child,
-    this.padding = AppSpacing.cardPadding,
+    this.padding = const EdgeInsets.all(AppSpacing.lg),
     this.onTap,
     this.backgroundColor = AppColors.surface0,
-    this.borderColor = AppColors.line300,
+    this.borderColor,
     this.borderWidth = 1.0,
     this.borderRadius,
     this.isSelected = false,
+    this.hasShadow = true,
   });
 
   final Widget child;
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
   final Color backgroundColor;
-  final Color borderColor;
+  final Color? borderColor;
   final double borderWidth;
   final BorderRadius? borderRadius;
   final bool isSelected;
+  final bool hasShadow;
 
   @override
   Widget build(BuildContext context) {
-    final effectiveRadius = borderRadius ?? AppSpacing.roundedMd;
-    final effectiveBorderColor = isSelected ? AppColors.brand700 : borderColor;
-    final effectiveBorderWidth = isSelected ? 2.0 : borderWidth;
+    final effectiveRadius = borderRadius ?? BorderRadius.circular(18);
+    final effectiveBorderColor = isSelected
+        ? AppColors.brand700
+        : (borderColor ?? AppColors.line300.withValues(alpha: 0.5));
+    final effectiveBorderWidth = isSelected ? 2.0 : (borderColor != null ? borderWidth : 0.8);
 
     Widget card = Container(
       padding: padding,
@@ -39,6 +44,16 @@ class AppCard extends StatelessWidget {
           color: effectiveBorderColor,
           width: effectiveBorderWidth,
         ),
+        boxShadow: hasShadow
+            ? [
+                BoxShadow(
+                  color: AppColors.softShadow,
+                  blurRadius: 16,
+                  offset: const Offset(0, 4),
+                  spreadRadius: 0,
+                ),
+              ]
+            : null,
       ),
       child: child,
     );

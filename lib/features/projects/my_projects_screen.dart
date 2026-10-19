@@ -7,7 +7,7 @@ import 'create_project_screen.dart';
 import 'project_detail_screen.dart';
 import '../proposals/create_proposal_screen.dart';
 
-/// Pantalla de listado y filtrado de proyectos (P-016 / P-017).
+/// Pantalla de listado y filtrado de proyectos con diseño editorial y fondo orgánico (P-016 / P-017).
 class MyProjectsScreen extends StatefulWidget {
   const MyProjectsScreen({
     super.key,
@@ -28,33 +28,32 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
   @override
   Widget build(BuildContext context) {
     final title = widget.forContractor
-        ? (widget.showBidsOnly ? 'Mis Propuestas Enviadas' : 'Oportunidades en Cali')
+        ? (widget.showBidsOnly ? 'Mis Propuestas' : 'Oportunidades')
         : 'Mis Proyectos';
 
     final projects = MockData.projects;
 
-    return Scaffold(
-      backgroundColor: AppColors.paper100,
-      appBar: AppHeader(
-        title: title,
-        showBackButton: false,
-        actions: [
-          if (!widget.forContractor)
-            IconButton(
-              icon: const Icon(Icons.add, color: AppColors.brand700),
-              tooltip: 'Crear solicitud',
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const CreateProjectScreen()),
-                );
-              },
-            ),
-        ],
-      ),
+    return RivetScaffold(
+      title: title,
+      showBackButton: false,
+      backgroundImagePath: 'Fondos/Checklist, plantas y cajas sostenibles.png',
+      actions: [
+        if (!widget.forContractor)
+          IconButton(
+            icon: const Icon(Icons.add_circle_outline, color: AppColors.brand700, size: 24),
+            tooltip: 'Crear solicitud',
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const CreateProjectScreen()),
+              );
+            },
+          ),
+      ],
       body: ListView(
-        padding: AppSpacing.screenPadding,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         children: [
+          const SizedBox(height: AppSpacing.sm),
           AppSegmentedControl<int>(
             items: const {
               0: 'Todos (2)',
@@ -97,7 +96,10 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(proj.title, style: AppTypography.subheading),
+                                  Text(
+                                    proj.title,
+                                    style: AppTypography.subheading.copyWith(fontWeight: FontWeight.w700),
+                                  ),
                                   const SizedBox(height: 2),
                                   Text('${proj.city} · ${proj.neighborhood}', style: AppTypography.caption),
                                 ],
@@ -111,7 +113,7 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: AppSpacing.md),
+                        const SizedBox(height: AppSpacing.sm),
                         Text(
                           proj.description,
                           style: AppTypography.bodySmall,
@@ -121,18 +123,18 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                         const SizedBox(height: AppSpacing.md),
                         Row(
                           children: [
-                            const Icon(Icons.square_foot, size: 16, color: AppColors.ink500),
+                            const Icon(Icons.square_foot, size: 16, color: AppColors.brand700),
                             const SizedBox(width: 4),
                             Text(
                               '${proj.totalAreaM2.toStringAsFixed(1)} m²',
-                              style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
+                              style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, color: AppColors.ink900),
                             ),
                             const SizedBox(width: AppSpacing.lg),
-                            const Icon(Icons.layers_outlined, size: 16, color: AppColors.ink500),
+                            const Icon(Icons.layers_outlined, size: 16, color: AppColors.brand700),
                             const SizedBox(width: 4),
                             Text(
                               '${proj.surfaces.length} paredes',
-                              style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
+                              style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, color: AppColors.ink900),
                             ),
                           ],
                         ),
@@ -142,6 +144,7 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                             text: 'Postular Cotización',
                             variant: AppButtonVariant.primary,
                             size: AppButtonSize.sm,
+                            trailingIcon: Icons.chevron_right,
                             onPressed: () {
                               Navigator.push(
                                 context,
@@ -157,6 +160,7 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                   ),
                 )),
           ],
+          const SizedBox(height: AppSpacing.xxl),
         ],
       ),
     );

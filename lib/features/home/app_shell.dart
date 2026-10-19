@@ -10,7 +10,7 @@ import '../contractors/contractors_directory_screen.dart';
 import '../supplier/materials_catalog_screen.dart';
 import '../account/profile_screen.dart';
 
-/// Shell principal con navegación por pestañas adaptada al rol activo.
+/// Shell principal refinado con barra de navegación limpia y elegante estilo Figma.
 class AppShell extends StatefulWidget {
   const AppShell({super.key, this.initialRole = UserRole.client});
 
@@ -39,30 +39,28 @@ class _AppShellState extends State<AppShell> {
 
   @override
   Widget build(BuildContext context) {
-    final navItems = _buildNavItems();
     final currentBody = _buildBody();
 
     return Scaffold(
+      backgroundColor: AppColors.paper100,
       body: currentBody,
       bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          color: AppColors.surface0,
-          border: Border(top: BorderSide(color: AppColors.line300, width: 1)),
+        decoration: BoxDecoration(
+          color: AppColors.paper100,
+          border: Border(top: BorderSide(color: AppColors.line300.withValues(alpha: 0.6))),
         ),
         child: SafeArea(
-          child: NavigationBar(
-            selectedIndex: _currentIndex,
-            onDestinationSelected: (idx) => setState(() => _currentIndex = idx),
-            backgroundColor: AppColors.surface0,
-            indicatorColor: AppColors.brandLight,
-            elevation: 0,
-            height: 62,
-            labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-            destinations: navItems,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: _buildNavTabs(),
+            ),
           ),
         ),
       ),
-      floatingActionButton: FloatingActionButton.extended(
+      // Botón flotante discreto y redondeado para el explorador
+      floatingActionButton: FloatingActionButton.small(
         onPressed: () {
           Navigator.push(
             context,
@@ -74,102 +72,71 @@ class _AppShellState extends State<AppShell> {
             ),
           );
         },
-        backgroundColor: AppColors.ink900,
+        backgroundColor: AppColors.brand700,
         foregroundColor: Colors.white,
-        elevation: 3,
-        icon: const Icon(Icons.grid_view_outlined, size: 18),
-        label: const Text(
-          'Explorador 45 Pantallas',
-          style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-        ),
+        tooltip: 'Explorador 45 Pantallas',
+        child: const Icon(Icons.grid_view_outlined, size: 20),
       ),
     );
   }
 
-  List<NavigationDestination> _buildNavItems() {
-    return switch (_currentRole) {
+  List<Widget> _buildNavTabs() {
+    final tabs = switch (_currentRole) {
       UserRole.client => const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home, color: AppColors.brand700),
-            label: 'Inicio',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.assignment_outlined),
-            selectedIcon: Icon(Icons.assignment, color: AppColors.brand700),
-            label: 'Proyectos',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.engineering_outlined),
-            selectedIcon: Icon(Icons.engineering, color: AppColors.brand700),
-            label: 'Pintores',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.storefront_outlined),
-            selectedIcon: Icon(Icons.storefront, color: AppColors.brand700),
-            label: 'Bodega',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person, color: AppColors.brand700),
-            label: 'Perfil',
-          ),
+          (icon: Icons.home_outlined, activeIcon: Icons.home, label: 'Inicio'),
+          (icon: Icons.description_outlined, activeIcon: Icons.description, label: 'Proyectos'),
+          (icon: Icons.local_offer_outlined, activeIcon: Icons.local_offer, label: 'Propuestas'),
+          (icon: Icons.chat_bubble_outline, activeIcon: Icons.chat_bubble, label: 'Mensajes'),
+          (icon: Icons.more_horiz, activeIcon: Icons.more_horiz, label: 'Más'),
         ],
       UserRole.contractor => const [
-          NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard, color: AppColors.brand700),
-            label: 'Inicio',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.search_outlined),
-            selectedIcon: Icon(Icons.search, color: AppColors.brand700),
-            label: 'Obras',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long, color: AppColors.brand700),
-            label: 'Ofertas',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.storefront_outlined),
-            selectedIcon: Icon(Icons.storefront, color: AppColors.brand700),
-            label: 'Bodega',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person, color: AppColors.brand700),
-            label: 'Perfil',
-          ),
+          (icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, label: 'Inicio'),
+          (icon: Icons.search_outlined, activeIcon: Icons.search, label: 'Obras'),
+          (icon: Icons.receipt_long_outlined, activeIcon: Icons.receipt_long, label: 'Ofertas'),
+          (icon: Icons.storefront_outlined, activeIcon: Icons.storefront, label: 'Bodega'),
+          (icon: Icons.more_horiz, activeIcon: Icons.more_horiz, label: 'Más'),
         ],
       UserRole.supplier => const [
-          NavigationDestination(
-            icon: Icon(Icons.store_outlined),
-            selectedIcon: Icon(Icons.store, color: AppColors.brand700),
-            label: 'Inicio',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.inventory_2_outlined),
-            selectedIcon: Icon(Icons.inventory_2, color: AppColors.brand700),
-            label: 'Catálogo',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.local_shipping_outlined),
-            selectedIcon: Icon(Icons.local_shipping, color: AppColors.brand700),
-            label: 'Pedidos',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.group_outlined),
-            selectedIcon: Icon(Icons.group, color: AppColors.brand700),
-            label: 'Red Pro',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person, color: AppColors.brand700),
-            label: 'Perfil',
-          ),
+          (icon: Icons.store_outlined, activeIcon: Icons.store, label: 'Inicio'),
+          (icon: Icons.inventory_2_outlined, activeIcon: Icons.inventory_2, label: 'Catálogo'),
+          (icon: Icons.local_shipping_outlined, activeIcon: Icons.local_shipping, label: 'Pedidos'),
+          (icon: Icons.group_outlined, activeIcon: Icons.group, label: 'Red Pro'),
+          (icon: Icons.more_horiz, activeIcon: Icons.more_horiz, label: 'Más'),
         ],
     };
+
+    return tabs.asMap().entries.map((entry) {
+      final idx = entry.key;
+      final tab = entry.value;
+      final isSelected = _currentIndex == idx;
+
+      return InkWell(
+        onTap: () => setState(() => _currentIndex = idx),
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isSelected ? tab.activeIcon : tab.icon,
+                size: 24,
+                color: isSelected ? AppColors.brand700 : AppColors.ink500,
+              ),
+              const SizedBox(height: 3),
+              Text(
+                tab.label,
+                style: AppTypography.caption.copyWith(
+                  fontSize: 11,
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                  color: isSelected ? AppColors.brand700 : AppColors.ink500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }).toList();
   }
 
   Widget _buildBody() {
@@ -193,7 +160,7 @@ class _AppShellState extends State<AppShell> {
       case UserRole.supplier:
         return switch (_currentIndex) {
           0 => SupplierHomeView(onSwitchRole: _switchRole),
-          1 => const MaterialsCatalogScreen(isProRateView: true, isSupplierAdmin: true),
+          1 => const MaterialsCatalogScreen(isProRateView: true),
           2 => const SupplierHomeView(initialTab: 1),
           3 => const SupplierHomeView(initialTab: 2),
           _ => ProfileScreen(currentRole: _currentRole, onSwitchRole: _switchRole),

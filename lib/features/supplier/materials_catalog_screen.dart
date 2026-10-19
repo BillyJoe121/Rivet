@@ -4,7 +4,7 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
 import 'material_detail_screen.dart';
 
-/// Catálogo de materiales y bodega (P-023 / P-025).
+/// Catálogo de materiales y bodega refinado estilo Figma (P-023 / P-025).
 class MaterialsCatalogScreen extends StatefulWidget {
   const MaterialsCatalogScreen({
     super.key,
@@ -31,52 +31,47 @@ class _MaterialsCatalogScreenState extends State<MaterialsCatalogScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final categories = ['Todos', 'Pintura', 'Estuco', 'Impermeabilizante', 'Herramientas'];
+    final categories = ['Todos', 'Pintura', 'Estuco', 'Impermeabilizante'];
     final allMaterials = MockData.materials;
     final filtered = _selectedCategory == 'Todos'
         ? allMaterials
         : allMaterials.where((m) => m.category == _selectedCategory).toList();
 
-    return Scaffold(
-      backgroundColor: AppColors.paper100,
-      appBar: AppHeader(
-        title: 'Bodega de Materiales',
-        subtitle: 'FerreCasa Central · Cali',
-        showBackButton: false,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.shopping_bag_outlined),
-            tooltip: 'Carrito',
-            onPressed: () {},
-          ),
-        ],
-      ),
+    return RivetScaffold(
+      title: 'Bodega de\nMateriales',
+      showBackButton: false,
+      backgroundImagePath: 'Fondos/Tienda minimalista entre plantas verdes.png',
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.shopping_bag_outlined, color: AppColors.ink900, size: 24),
+          tooltip: 'Carrito',
+          onPressed: () {},
+        ),
+      ],
       body: ListView(
-        padding: AppSpacing.screenPadding,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         children: [
-          // Interruptor de Tarifa (Cliente vs Profesional)
+          const SizedBox(height: AppSpacing.sm),
+
+          // Interruptor de Tarifa (Cliente vs Profesional) estilo Figma
           AppCard(
-            backgroundColor: _proRateActive ? AppColors.brandLight : AppColors.surface0,
-            borderColor: _proRateActive ? AppColors.brand700 : AppColors.line300,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
             child: Row(
               children: [
-                Icon(
-                  _proRateActive ? Icons.verified : Icons.lock_outline,
-                  color: _proRateActive ? AppColors.brand700 : AppColors.ink500,
-                  size: 22,
-                ),
+                const Icon(Icons.lock_outline, color: AppColors.ink500, size: 22),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        _proRateActive ? 'Tarifa Profesional Activa' : 'Tarifa Público General',
-                        style: AppTypography.subheading.copyWith(fontSize: 14),
+                        _proRateActive ? 'Tarifa Profesional' : 'Tarifa Público General',
+                        style: AppTypography.subheading.copyWith(fontSize: 15, fontWeight: FontWeight.bold),
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         _proRateActive
-                            ? 'Precios mayoristas autorizados por el proveedor.'
+                            ? 'Precios mayoristas activos para compras de obra.'
                             : 'Precios de referencia para el cliente.',
                         style: AppTypography.caption,
                       ),
@@ -94,7 +89,7 @@ class _MaterialsCatalogScreenState extends State<MaterialsCatalogScreen> {
 
           const SizedBox(height: AppSpacing.lg),
 
-          // Categorías en Pills horizontales
+          // Filtro de Categorías en Píldoras Horizontales
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
@@ -105,18 +100,20 @@ class _MaterialsCatalogScreenState extends State<MaterialsCatalogScreen> {
                   child: GestureDetector(
                     onTap: () => setState(() => _selectedCategory = cat),
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: 8),
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 8),
                       decoration: BoxDecoration(
                         color: isSelected ? AppColors.brand700 : AppColors.surface0,
-                        borderRadius: AppSpacing.roundedPill,
+                        borderRadius: BorderRadius.circular(20),
                         border: Border.all(
                           color: isSelected ? AppColors.brand700 : AppColors.line300,
+                          width: 1,
                         ),
                       ),
                       child: Text(
                         cat,
-                        style: AppTypography.badgeText.copyWith(
+                        style: AppTypography.caption.copyWith(
                           color: isSelected ? Colors.white : AppColors.ink700,
+                          fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
                         ),
                       ),
                     ),
@@ -128,7 +125,7 @@ class _MaterialsCatalogScreenState extends State<MaterialsCatalogScreen> {
 
           const SizedBox(height: AppSpacing.lg),
 
-          // Lista de Productos
+          // Lista de Productos en Tarjetas Flotantes con Chevron y Thumbnail
           ...filtered.map((mat) {
             final price = _proRateActive ? mat.proPriceCop : mat.clientPriceCop;
 
@@ -149,18 +146,16 @@ class _MaterialsCatalogScreenState extends State<MaterialsCatalogScreen> {
                 child: Row(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                       child: Container(
-                        width: 72,
-                        height: 72,
-                        color: AppColors.surfaceSubtle,
-                        child: mat.imageAsset != null
-                            ? Image.asset(
-                                mat.imageAsset!,
-                                fit: BoxFit.cover,
-                                errorBuilder: (_, _, _) => const Icon(Icons.format_paint, color: AppColors.ink500),
-                              )
-                            : const Icon(Icons.format_paint, color: AppColors.ink500),
+                        width: 68,
+                        height: 68,
+                        color: AppColors.brandLight,
+                        child: Image.asset(
+                          'Fondos/Rincón natural de pintura DIY.png',
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, _, _) => const Icon(Icons.format_paint, color: AppColors.brand700),
+                        ),
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
@@ -168,39 +163,34 @@ class _MaterialsCatalogScreenState extends State<MaterialsCatalogScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Row(
-                            children: [
-                              Text(mat.brand, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold)),
-                              const SizedBox(width: AppSpacing.xs),
-                              const Icon(Icons.circle, size: 4, color: AppColors.ink500),
-                              const SizedBox(width: AppSpacing.xs),
-                              Text(mat.unit, style: AppTypography.caption),
-                            ],
+                          Text(
+                            '${mat.brand} · ${mat.unit}',
+                            style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, color: AppColors.ink500),
                           ),
                           const SizedBox(height: 2),
-                          Text(mat.name, style: AppTypography.subheading.copyWith(fontSize: 14)),
+                          Text(
+                            mat.name,
+                            style: AppTypography.subheading.copyWith(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
                           const SizedBox(height: 4),
                           Text(
-                            '\$${_formatCurrency(price)} COP',
+                            '\$ ${_formatCurrency(price)} COP',
                             style: AppTypography.subheading.copyWith(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w800,
                               color: AppColors.brand700,
-                              fontWeight: FontWeight.bold,
                             ),
                           ),
-                          if (_proRateActive)
-                            Text(
-                              'Ahorro: \$${_formatCurrency(mat.clientPriceCop - mat.proPriceCop)}',
-                              style: AppTypography.caption.copyWith(color: AppColors.clay600, fontWeight: FontWeight.w600),
-                            ),
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right, color: AppColors.ink500),
+                    const Icon(Icons.chevron_right, size: 20, color: AppColors.ink500),
                   ],
                 ),
               ),
             );
           }),
+          const SizedBox(height: AppSpacing.xxl),
         ],
       ),
     );

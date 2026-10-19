@@ -3,7 +3,7 @@ import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
 
-/// Ficha de producto y cálculo de rendimiento técnico (P-024).
+/// Ficha de detalle de material idéntica al diseño editorial de Figma.
 class MaterialDetailScreen extends StatelessWidget {
   const MaterialDetailScreen({
     super.key,
@@ -17,133 +17,140 @@ class MaterialDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final price = isProRate ? material.proPriceCop : material.clientPriceCop;
+    final formattedPrice = '\$ ${_formatCurrency(price)}';
 
-    return Scaffold(
-      backgroundColor: AppColors.paper100,
-      appBar: AppHeader(
-        title: material.brand,
-        subtitle: material.category,
-      ),
-      body: SafeArea(
-        child: ListView(
-          padding: AppSpacing.screenPadding,
-          children: [
-            // Imagen Hero
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: AspectRatio(
-                aspectRatio: 16 / 9,
-                child: material.imageAsset != null
-                    ? Image.asset(
-                        material.imageAsset!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, _, _) => Container(color: AppColors.surfaceSubtle),
-                      )
-                    : Container(color: AppColors.surfaceSubtle),
-              ),
-            ),
+    return RivetScaffold(
+      title: 'Detalle de\nmaterial',
+      backgroundImagePath: 'Fondos/Rincón natural de pintura DIY.png',
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+        children: [
+          const SizedBox(height: AppSpacing.sm),
 
-            const SizedBox(height: AppSpacing.xl),
-
-            // Nombre y Precio
-            AppCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(material.brand, style: AppTypography.caption.copyWith(fontWeight: FontWeight.bold)),
-                      AppBadge(
-                        text: material.inStock ? 'Disponible' : 'Agotado',
-                        variant: material.inStock ? AppBadgeVariant.success : AppBadgeVariant.danger,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  Text(material.name, style: AppTypography.sectionTitle),
-                  const SizedBox(height: AppSpacing.md),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Precio ${isProRate ? 'Tarifa Profesional' : 'General'}', style: AppTypography.caption),
-                          Text(
-                            '\$${_formatCurrency(price)} COP',
-                            style: AppTypography.pageTitle.copyWith(color: AppColors.brand700, fontSize: 24),
-                          ),
-                        ],
-                      ),
-                      Text(material.unit, style: AppTypography.subheading),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: AppSpacing.xl),
-
-            // Ficha Técnica de Rendimiento (P-018 / P-024)
-            Text('Especificaciones y Rendimiento', style: AppTypography.subheading),
-            const SizedBox(height: AppSpacing.md),
-
-            Row(
-              children: [
-                Expanded(
-                  child: AppStatTile(
-                    label: 'RENDIMIENTO ESTIMADO',
-                    value: material.coverageM2 > 0 ? '${material.coverageM2} m²' : 'N/A',
-                    subtitle: 'A 2 manos en repinte',
-                    icon: Icons.square_foot,
-                  ),
+          // Imagen Central del Balde de Pintura
+          Center(
+            child: Container(
+              height: 180,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                image: const DecorationImage(
+                  image: AssetImage('Fondos/Rincón natural de pintura DIY.png'),
+                  fit: BoxFit.contain,
                 ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: AppStatTile(
-                    label: 'PROVEEDOR',
-                    value: material.supplierName,
-                    subtitle: 'Despacho directo Cali',
-                    icon: Icons.storefront,
-                  ),
+              ),
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.lg),
+
+          // Título de Producto y Marca
+          Text(
+            material.name,
+            style: AppTypography.editorialHeading.copyWith(fontSize: 24),
+          ),
+          const SizedBox(height: 4),
+          Row(
+            children: [
+              const Icon(Icons.home_outlined, size: 14, color: AppColors.ink500),
+              const SizedBox(width: 4),
+              Text(material.brand, style: AppTypography.caption.copyWith(color: AppColors.ink700)),
+              Text(' · Interior lavable · Blanco mate', style: AppTypography.caption),
+            ],
+          ),
+
+          const SizedBox(height: AppSpacing.lg),
+
+          // Píldora de Precio y Disponibilidad estilo Figma
+          AppPriceBadge(
+            priceCop: formattedPrice,
+            unitText: 'por ${material.unit.toLowerCase()}',
+            statusText: material.inStock ? 'Disponible' : 'Agotado',
+            stockText: 'Más de 50 unidades',
+          ),
+
+          const SizedBox(height: AppSpacing.lg),
+
+          // Lista de Especificaciones en Tarjeta Unificada
+          AppCard(
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                AppSpecRow(
+                  icon: Icons.brightness_low_outlined,
+                  label: 'Marca',
+                  value: material.brand,
+                ),
+                AppSpecRow(
+                  icon: Icons.work_outline,
+                  label: 'Presentación',
+                  value: material.unit,
+                ),
+                AppSpecRow(
+                  icon: Icons.verified_outlined,
+                  label: 'Rendimiento',
+                  value: '${material.coverageM2} m² por galón',
+                ),
+                const AppSpecRow(
+                  icon: Icons.shield_outlined,
+                  label: 'Uso recomendado',
+                  value: 'Interiores (muros y cielos)',
+                ),
+                const AppSpecRow(
+                  icon: Icons.local_shipping_outlined,
+                  label: 'Entrega',
+                  value: 'A domicilio o retiro',
+                ),
+                AppSpecRow(
+                  icon: Icons.storefront_outlined,
+                  label: 'Proveedor',
+                  value: material.supplierName,
+                ),
+                const AppSpecRow(
+                  icon: Icons.description_outlined,
+                  label: 'Especificaciones técnicas',
+                  value: 'Ver PDF',
+                  showDivider: false,
                 ),
               ],
             ),
+          ),
 
-            const SizedBox(height: AppSpacing.xl),
-
-            // Garantía técnica
-            const AppCard(
-              backgroundColor: AppColors.surfaceSubtle,
-              child: Row(
-                children: [
-                  Icon(Icons.shield_outlined, color: AppColors.brand700),
-                  SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: Text(
-                      'Ficha técnica provista por el fabricante. La cobertura final puede variar según la porosidad de la pared.',
-                      style: TextStyle(fontSize: 12, color: AppColors.ink700),
-                    ),
-                  ),
-                ],
+          const SizedBox(height: 100), // Espacio para botones fijos
+        ],
+      ),
+      bottomBar: Container(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+        decoration: BoxDecoration(
+          color: AppColors.paper100,
+          border: Border(top: BorderSide(color: AppColors.line300.withValues(alpha: 0.6))),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 2,
+              child: AppButton(
+                text: 'Guardar',
+                variant: AppButtonVariant.secondary,
+                trailingIcon: Icons.chevron_right,
+                onPressed: () {},
               ),
             ),
-
-            const SizedBox(height: AppSpacing.xxl),
-
-            AppButton(
-              text: 'Agregar al Pedido de Obra (\$${_formatCurrency(price)})',
-              icon: Icons.add_shopping_cart,
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('${material.name} agregado a la lista de insumos.'),
-                    backgroundColor: AppColors.brand700,
-                  ),
-                );
-                Navigator.pop(context);
-              },
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              flex: 3,
+              child: AppButton(
+                text: 'Agregar al presupuesto',
+                variant: AppButtonVariant.primary,
+                trailingIcon: Icons.chevron_right,
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${material.name} agregado al presupuesto.'),
+                      backgroundColor: AppColors.brand700,
+                    ),
+                  );
+                },
+              ),
             ),
           ],
         ),

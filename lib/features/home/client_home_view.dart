@@ -5,10 +5,8 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
 import '../projects/create_project_screen.dart';
 import '../projects/project_detail_screen.dart';
-import '../proposals/proposals_compare_screen.dart';
-import '../contractors/contractor_detail_screen.dart';
 
-/// Vista de inicio para el rol Cliente ("Hola, Juan").
+/// Vista de inicio "Explorar Rivet" idéntica a la estética editorial de Figma.
 class ClientHomeView extends StatelessWidget {
   const ClientHomeView({super.key, required this.onSwitchRole});
 
@@ -18,87 +16,69 @@ class ClientHomeView extends StatelessWidget {
   Widget build(BuildContext context) {
     final activeProject = MockData.projects.first;
 
-    return Scaffold(
-      backgroundColor: AppColors.paper100,
-      appBar: AppBar(
-        title: Row(
-          children: [
-            CircleAvatar(
-              radius: 18,
-              backgroundColor: AppColors.brand700,
-              child: const Text('JP', style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w700)),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Hola, Juan Camilo', style: AppTypography.subheading.copyWith(fontSize: 16)),
-                Text('Valle del Lili · Cali', style: AppTypography.caption),
-              ],
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.notifications_none_outlined),
-            tooltip: 'Notificaciones',
-            onPressed: () {},
-          ),
-        ],
-      ),
+    return RivetScaffold(
+      showBackButton: false,
+      title: 'Explorar Rivet',
+      backgroundImagePath: 'Fondos/Sala minimalista con plantas y luz suave.png',
       body: ListView(
-        padding: AppSpacing.screenPadding,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         children: [
-          // Banner de Creación de Proyecto
-          AppCard(
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            backgroundColor: AppColors.brand800,
-            borderColor: Colors.transparent,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const AppBadge(
-                  text: 'Cotización Gratuita',
-                  variant: AppBadgeVariant.brand,
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  '¿Tienes paredes por pintar o estucar?',
-                  style: AppTypography.subheading.copyWith(color: Colors.white, fontSize: 18),
-                ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  'Mide tu espacio, sube fotos privadas y recibe propuestas comparables sin intermediarios.',
-                  style: AppTypography.bodySmall.copyWith(color: AppColors.leaf300),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                AppButton(
-                  text: 'Crear nueva solicitud de cotización',
-                  variant: AppButtonVariant.secondary,
-                  icon: Icons.add_circle_outline,
-                  onPressed: () {
+          const SizedBox(height: AppSpacing.md),
+
+          // 1. Selector de Accesos Rápidos (Proyectos, Contratistas, Bodega)
+          Row(
+            children: [
+              Expanded(
+                child: _buildQuickActionCard(
+                  icon: Icons.home_outlined,
+                  label: 'Proyectos',
+                  onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (_) => const CreateProjectScreen()),
                     );
                   },
                 ),
-              ],
-            ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _buildQuickActionCard(
+                  icon: Icons.people_outline,
+                  label: 'Contratistas',
+                  onTap: () {},
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _buildQuickActionCard(
+                  icon: Icons.inventory_2_outlined,
+                  label: 'Bodega',
+                  onTap: () {},
+                ),
+              ),
+            ],
           ),
 
-          const SizedBox(height: AppSpacing.xxl),
+          const SizedBox(height: AppSpacing.xl),
 
-          // Proyecto en Curso con Ofertas Recibidas
+          // 2. Encabezado de Sección "Proyecto destacado"
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Mi Proyecto Activo', style: AppTypography.sectionTitle.copyWith(fontSize: 18)),
-              const AppBadge(text: '2 Ofertas Listas', variant: AppBadgeVariant.warning),
+              Text('Proyecto destacado', style: AppTypography.subheading.copyWith(fontWeight: FontWeight.bold)),
+              TextButton(
+                onPressed: () {},
+                style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                child: Text(
+                  'Ver todos',
+                  style: AppTypography.caption.copyWith(color: AppColors.brand700, fontWeight: FontWeight.w600),
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.xs),
 
+          // 3. Tarjeta de Proyecto Destacado estilo Figma
           AppCard(
             onTap: () {
               Navigator.push(
@@ -106,120 +86,129 @@ class ClientHomeView extends StatelessWidget {
                 MaterialPageRoute(builder: (_) => ProjectDetailScreen(project: activeProject)),
               );
             },
-            child: Column(
+            child: Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: SizedBox(
+                    width: 72,
+                    height: 72,
+                    child: Image.asset(
+                      'Fondos/Sala minimalista con plantas y luz suave.png',
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Remodelación de sala', style: AppTypography.subheading.copyWith(fontSize: 15)),
+                      const SizedBox(height: 2),
+                      Text('Pintura y acabados', style: AppTypography.caption),
+                      Text('Cali y alrededores', style: AppTypography.caption.copyWith(color: AppColors.ink500)),
+                      const SizedBox(height: 4),
+                      Text('\$ 2.500.000 – 3.800.000 COP · 62 m²',
+                          style: AppTypography.caption.copyWith(fontWeight: FontWeight.w700, color: AppColors.brand700)),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.chevron_right, size: 20, color: AppColors.ink500),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // 4. Grid de Tarjetas de Fotos (Contratistas y Ferreterías)
+          Row(
+            children: [
+              Expanded(
+                child: _buildPhotoTeaserCard(
+                  imagePath: 'Fondos/Rodillo sobre pincelada verde.png',
+                  title: 'Contratistas verificados',
+                  subtitle: 'Profesionales con experiencia',
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _buildPhotoTeaserCard(
+                  imagePath: 'Fondos/Tienda minimalista entre plantas verdes.png',
+                  title: 'Materiales y proveedores',
+                  subtitle: 'Todo para tu renovación',
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: AppSpacing.lg),
+
+          // 5. Banner Informativo Biofílico
+          Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(
+              color: AppColors.brandLight,
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(activeProject.title, style: AppTypography.subheading),
-                          const SizedBox(height: 2),
-                          Text('${activeProject.neighborhood} · Creado hace 2 días', style: AppTypography.caption),
-                        ],
-                      ),
-                    ),
-                    const AppBadge(text: 'Publicado', variant: AppBadgeVariant.brand),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.md),
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppStatTile(
-                        label: 'ÁREA TOTAL',
-                        value: '${activeProject.totalAreaM2.toStringAsFixed(1)} m²',
-                        icon: Icons.square_foot,
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: AppStatTile(
-                        label: 'SUPERFICIES',
-                        value: '${activeProject.surfaces.length} zonas',
-                        icon: Icons.layers_outlined,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.md),
-                AppButton(
-                  text: 'Comparar las 2 ofertas recibidas',
-                  variant: AppButtonVariant.primary,
-                  icon: Icons.compare_arrows,
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const ProposalsCompareScreen()),
-                    );
-                  },
+                const Icon(Icons.info_outline, color: AppColors.brand700, size: 20),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: Text(
+                    'Puedes explorar proyectos, contratistas y materiales libremente. Regístrate para publicar, cotizar, contactar o comprar.',
+                    style: AppTypography.caption.copyWith(color: AppColors.brand700, height: 1.4),
+                  ),
                 ),
               ],
             ),
           ),
 
           const SizedBox(height: AppSpacing.xxl),
-
-          // Profesionales destacados en la zona
-          Text('Pintores verificados en Cali', style: AppTypography.sectionTitle.copyWith(fontSize: 18)),
-          const SizedBox(height: AppSpacing.xs),
-          Text('Evaluados por clientes reales en mano de obra y cumplimiento.', style: AppTypography.caption),
-          const SizedBox(height: AppSpacing.md),
-
-          ...MockData.contractors.map((c) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                child: AppCard(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => ContractorDetailScreen(contractor: c)),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 26,
-                        backgroundColor: AppColors.brandLight,
-                        child: Text(
-                          c.name.split(' ').map((n) => n[0]).take(2).join(),
-                          style: const TextStyle(color: AppColors.brand700, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(c.name, style: AppTypography.subheading),
-                                const SizedBox(width: 4),
-                                const Icon(Icons.verified, color: AppColors.brand700, size: 16),
-                              ],
-                            ),
-                            Text(c.trade, style: AppTypography.caption),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                const Icon(Icons.star, color: AppColors.clay600, size: 14),
-                                const SizedBox(width: 2),
-                                Text('${c.rating}', style: AppTypography.badgeText),
-                                Text(' (${c.reviewCount} trabajos)', style: AppTypography.caption),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      const Icon(Icons.chevron_right, color: AppColors.ink500),
-                    ],
-                  ),
-                ),
-              )),
         ],
       ),
+    );
+  }
+
+  Widget _buildQuickActionCard({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return AppCard(
+      onTap: onTap,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+      child: Column(
+        children: [
+          Icon(icon, size: 24, color: AppColors.brand700),
+          const SizedBox(height: AppSpacing.xs),
+          Text(label, style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, color: AppColors.ink900)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPhotoTeaserCard({
+    required String imagePath,
+    required String title,
+    required String subtitle,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(16),
+          child: AspectRatio(
+            aspectRatio: 1.25,
+            child: Image.asset(imagePath, fit: BoxFit.cover),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(title, style: AppTypography.caption.copyWith(fontWeight: FontWeight.w700, color: AppColors.ink900)),
+        Text(subtitle, style: AppTypography.caption.copyWith(color: AppColors.ink500, fontSize: 11)),
+      ],
     );
   }
 }

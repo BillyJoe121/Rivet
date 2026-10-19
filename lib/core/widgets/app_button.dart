@@ -4,7 +4,8 @@ import '../theme/theme.dart';
 enum AppButtonVariant { primary, secondary, outline, subtle, ghost, danger }
 enum AppButtonSize { sm, md, lg }
 
-/// Botón interactivo accesible con soporte para estados de carga, iconos y variantes.
+/// Botón interactivo accesible con forma de píldora elegante (`pill`),
+/// tipografía refinada y soporte para icono de avance (`chevron_right`).
 class AppButton extends StatelessWidget {
   const AppButton({
     super.key,
@@ -30,9 +31,9 @@ class AppButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final height = switch (size) {
-      AppButtonSize.sm => 40.0,
-      AppButtonSize.md => 48.0,
-      AppButtonSize.lg => 56.0,
+      AppButtonSize.sm => 42.0,
+      AppButtonSize.md => 52.0, // Altura táctil prémium de Figma
+      AppButtonSize.lg => 58.0,
     };
 
     final fontSize = switch (size) {
@@ -41,8 +42,11 @@ class AppButton extends StatelessWidget {
       AppButtonSize.lg => 16.0,
     };
 
+    final effectiveRadius = BorderRadius.circular(height / 2);
+
     final textStyle = AppTypography.buttonText.copyWith(
       fontSize: fontSize,
+      fontWeight: FontWeight.w600,
       color: _getTextColor(),
     );
 
@@ -77,15 +81,15 @@ class AppButton extends StatelessWidget {
 
     Widget button = Material(
       color: background,
-      borderRadius: AppSpacing.roundedSm,
+      borderRadius: effectiveRadius,
       child: InkWell(
         onTap: isLoading ? null : onPressed,
-        borderRadius: AppSpacing.roundedSm,
+        borderRadius: effectiveRadius,
         child: Container(
           height: height,
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
           decoration: BoxDecoration(
-            borderRadius: AppSpacing.roundedSm,
+            borderRadius: effectiveRadius,
             border: border,
           ),
           alignment: Alignment.center,
@@ -106,7 +110,7 @@ class AppButton extends StatelessWidget {
     }
     return switch (variant) {
       AppButtonVariant.primary => AppColors.brand700,
-      AppButtonVariant.secondary => AppColors.clay600,
+      AppButtonVariant.secondary => AppColors.surface0,
       AppButtonVariant.outline => Colors.transparent,
       AppButtonVariant.subtle => AppColors.brandLight,
       AppButtonVariant.ghost => Colors.transparent,
@@ -120,8 +124,8 @@ class AppButton extends StatelessWidget {
     }
     return switch (variant) {
       AppButtonVariant.primary => Colors.white,
-      AppButtonVariant.secondary => Colors.white,
-      AppButtonVariant.outline => AppColors.ink900,
+      AppButtonVariant.secondary => AppColors.brand700,
+      AppButtonVariant.outline => AppColors.brand700,
       AppButtonVariant.subtle => AppColors.brand700,
       AppButtonVariant.ghost => AppColors.brand700,
       AppButtonVariant.danger => Colors.white,
@@ -130,7 +134,10 @@ class AppButton extends StatelessWidget {
 
   Border? _getBorder() {
     if (variant == AppButtonVariant.outline) {
-      return Border.all(color: AppColors.line300, width: 1.2);
+      return Border.all(color: AppColors.brand700, width: 1.2);
+    }
+    if (variant == AppButtonVariant.secondary) {
+      return Border.all(color: AppColors.line300, width: 1.0);
     }
     return null;
   }
