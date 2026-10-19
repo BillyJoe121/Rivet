@@ -3,21 +3,56 @@ import '../../core/data/mock_data.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
+
+// Flujo 1: Acceso y Roles
 import '../onboarding/welcome_screen.dart';
 import '../onboarding/role_selection_screen.dart';
+import '../auth/forgot_password_screen.dart';
+
+// Flujo 2: Proyectos y Medición
 import '../projects/create_project_screen.dart';
 import '../projects/project_detail_screen.dart';
 import '../projects/my_projects_screen.dart';
+
+// Flujo 3: Profesionales y Visitas
 import '../contractors/contractors_directory_screen.dart';
 import '../contractors/contractor_detail_screen.dart';
 import '../contractors/contractor_visit_screen.dart';
-import '../proposals/proposals_compare_screen.dart';
+import '../contractors/visit_payment_modal.dart';
+
+// Flujo 4: Cotizaciones, Comparación y Negociación
 import '../proposals/create_proposal_screen.dart';
+import '../proposals/proposals_compare_screen.dart';
 import '../proposals/proposal_detail_screen.dart';
+import '../messaging/negotiation_chat_screen.dart';
+
+// Flujo 5: Bodega, Materiales y Despachos
 import '../supplier/materials_catalog_screen.dart';
 import '../supplier/material_detail_screen.dart';
+import '../supplier/add_catalog_product_screen.dart';
+import '../supplier/pro_rate_authorization_screen.dart';
+import '../supplier/materials_order_screen.dart';
+import '../supplier/materials_delivery_screen.dart';
+
+// Flujo 6: Pagos y Finanzas
+import '../payments/project_payment_screen.dart';
+import '../payments/payment_receipt_screen.dart';
+import '../finance/financial_transactions_screen.dart';
+
+// Flujo 7: Ejecución y Cierre
 import '../execution/work_progress_screen.dart';
+import '../execution/date_extension_modal.dart';
+
+// Flujo 8: Reclamaciones, Incidencias y Cuenta
+import '../disputes/cancellation_refund_screen.dart';
+import '../disputes/create_incident_screen.dart';
+import '../disputes/incident_detail_screen.dart';
+import '../messaging/notifications_screen.dart';
 import '../account/profile_screen.dart';
+
+// Flujo 9: Administración Interna
+import '../admin/admin_dashboard_screen.dart';
+import '../admin/admin_dispute_resolution_screen.dart';
 
 /// Explorador interactivo de las 45 pantallas de Rivet y su trazabilidad con requisitos (RF).
 class ScreenExplorerScreen extends StatelessWidget {
@@ -41,27 +76,27 @@ class ScreenExplorerScreen extends StatelessWidget {
       backgroundColor: AppColors.paper100,
       appBar: const AppHeader(
         title: 'Explorador 45 Pantallas',
-        subtitle: 'Trazabilidad y Catálogo del Prototipo',
+        subtitle: 'Trazabilidad y Cobertura 100% Rivet',
       ),
       body: ListView(
         padding: AppSpacing.screenPadding,
         children: [
-          // Banner Explicativo
+          // Banner de Cobertura
           AppCard(
             backgroundColor: AppColors.brandLight,
             borderColor: AppColors.brand700.withValues(alpha: 0.3),
             child: Row(
               children: [
-                const Icon(Icons.hub_outlined, color: AppColors.brand700, size: 28),
+                const Icon(Icons.verified, color: AppColors.brand700, size: 28),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Trazabilidad Integral Figma · Flutter', style: AppTypography.subheading),
+                      Text('Catálogo Completo Figma · 45 Pantallas', style: AppTypography.subheading),
                       const SizedBox(height: 2),
                       Text(
-                        'Accede a cada pantalla del prototipo y verifica su correspondencia con los documentos funcionales.',
+                        '100% de las pantallas maquetadas con componentes reutilizables y trazabilidad directa con requisitos funcionales (RF).',
                         style: AppTypography.caption,
                       ),
                     ],
@@ -73,150 +108,85 @@ class ScreenExplorerScreen extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Grupo 1: Acceso y Roles
-          _buildGroupHeader('1. Acceso y Roles (P-001 a P-004)'),
-          _buildScreenTile(
-            context,
-            code: 'P-001 / P-004',
-            title: 'Bienvenida e Inicio de Marca',
-            rf: 'RF-002, RF-009',
-            screen: const WelcomeScreen(),
-          ),
-          _buildScreenTile(
-            context,
-            code: 'P-002 / P-004',
-            title: 'Selección de Rol (Cliente / Contratista / Bodega)',
-            rf: 'RF-001, RF-074',
-            screen: const RoleSelectionScreen(),
-          ),
+          // 1. Acceso y Roles
+          _buildGroupHeader('1. Acceso y Registro (P-001 a P-004)'),
+          _buildTile(context, 'P-001', 'Acceso y Bienvenida de Marca', 'RF-002, RF-074', const WelcomeScreen()),
+          _buildTile(context, 'P-002', 'Registro y Selección de Rol', 'RF-001, RF-074', const RoleSelectionScreen()),
+          _buildTile(context, 'P-003', 'Recuperación de Acceso y Contraseña', 'RF-003', const ForgotPasswordScreen()),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Grupo 2: Medición y Creación de Obra
-          _buildGroupHeader('2. Creación y Medición de Obra (P-008 a P-015)'),
-          _buildScreenTile(
-            context,
-            code: 'P-008 / P-009',
-            title: 'Crear Proyecto y Medir Superficies',
-            rf: 'RF-009, RF-010, RF-011',
-            screen: const CreateProjectScreen(),
-          ),
-          _buildScreenTile(
-            context,
-            code: 'P-011 / P-012',
-            title: 'Autorización de IA y Minimización de Fotos',
-            rf: 'RF-008, RF-012, RF-013, RF-014',
-            screen: const CreateProjectScreen(),
-          ),
-          _buildScreenTile(
-            context,
-            code: 'P-013 / P-014',
-            title: 'Dossier, Estimación de Insumos y Publicación',
-            rf: 'RF-016, RF-018, RF-034',
-            screen: ProjectDetailScreen(project: sampleProject),
-          ),
-          _buildScreenTile(
-            context,
-            code: 'P-016',
-            title: 'Mis Proyectos (Listado y Estados)',
-            rf: 'RF-009, RF-035, RF-068',
-            screen: const MyProjectsScreen(),
-          ),
+          // 2. Creación y Medición de Obra
+          _buildGroupHeader('2. Medición y Creación de Obra (P-008 a P-016)'),
+          _buildTile(context, 'P-008 / P-009', 'Crear Proyecto y Medir Superficies', 'RF-009, RF-010', const CreateProjectScreen()),
+          _buildTile(context, 'P-010 / P-011', 'Captura de Fotos y Consentimiento IA', 'RF-011, RF-012, RF-008', const CreateProjectScreen()),
+          _buildTile(context, 'P-012 / P-013', 'Revisión Minimizada y Dossier del Espacio', 'RF-013, RF-014, RF-016', ProjectDetailScreen(project: sampleProject)),
+          _buildTile(context, 'P-014 / P-015', 'Rango Estimado y Publicación de Obra', 'RF-018, RF-034', ProjectDetailScreen(project: sampleProject)),
+          _buildTile(context, 'P-016 / P-017', 'Mis Proyectos y Oportunidades en Cali', 'RF-009, RF-023, RF-035', const MyProjectsScreen()),
+          _buildTile(context, 'P-018', 'Detalle de Obra para Cotizar', 'RF-016, RF-023, RF-029', ProjectDetailScreen(project: sampleProject, isContractorView: true)),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Grupo 3: Directorio de Pintores y Visitas
-          _buildGroupHeader('3. Pintores y Visitas (P-006, P-019 a P-022)'),
-          _buildScreenTile(
-            context,
-            code: 'P-019',
-            title: 'Buscar y Filtrar Pintores Verificados',
-            rf: 'RF-024, RF-025',
-            screen: const ContractorsDirectoryScreen(),
-          ),
-          _buildScreenTile(
-            context,
-            code: 'P-006',
-            title: 'Perfil y Portafolio del Contratista',
-            rf: 'RF-005, RF-007, RF-025',
-            screen: ContractorDetailScreen(contractor: sampleContractor),
-          ),
-          _buildScreenTile(
-            context,
-            code: 'P-020 / P-021',
-            title: 'Solicitud y Agenda de Visita Presencial',
-            rf: 'RF-025, RF-026, RF-027, RF-028',
-            screen: ContractorVisitScreen(contractor: sampleContractor),
-          ),
+          // 3. Profesionales y Visitas
+          _buildGroupHeader('3. Pintores y Visitas Presenciales (P-006, P-019 a P-022)'),
+          _buildTile(context, 'P-019', 'Directorio de Pintores Verificados', 'RF-024, RF-025', const ContractorsDirectoryScreen()),
+          _buildTile(context, 'P-006', 'Perfil y Portafolio Profesional', 'RF-005, RF-007, RF-025', ContractorDetailScreen(contractor: sampleContractor)),
+          _buildTile(context, 'P-020 / P-021', 'Solicitud y Agenda de Visita Presencial', 'RF-025, RF-026, RF-027', ContractorVisitScreen(contractor: sampleContractor)),
+          _buildTile(context, 'P-022', 'Confirmación y Pago de Visita de Evaluación', 'RF-026, RF-033, RF-051', VisitPaymentModal(contractor: sampleContractor, scheduledDate: DateTime.now().add(const Duration(days: 2)))),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Grupo 4: Cotizaciones y Comparación
-          _buildGroupHeader('4. Cotizaciones y Acuerdo (P-027 a P-032)'),
-          _buildScreenTile(
-            context,
-            code: 'P-027',
-            title: 'Crear Propuesta Profesional (Contratista)',
-            rf: 'RF-029, RF-030, RF-031',
-            screen: CreateProposalScreen(project: sampleProject),
-          ),
-          _buildScreenTile(
-            context,
-            code: 'P-029',
-            title: 'Comparador de Ofertas (Mano de Obra vs Materiales)',
-            rf: 'RF-030, RF-031, RF-035',
-            screen: const ProposalsCompareScreen(),
-          ),
-          _buildScreenTile(
-            context,
-            code: 'P-028 / P-031 / P-032',
-            title: 'Detalle de Cotización, Acuerdo y Pago Simulado',
-            rf: 'RF-033, RF-036, RF-037, RF-038',
-            screen: ProposalDetailScreen(proposal: sampleProposal),
-          ),
+          // 4. Cotizaciones, Comparación y Negociación
+          _buildGroupHeader('4. Cotizaciones y Negociación (P-027 a P-031)'),
+          _buildTile(context, 'P-027', 'Crear Propuesta Profesional (Contratista)', 'RF-029, RF-030, RF-031', CreateProposalScreen(project: sampleProject)),
+          _buildTile(context, 'P-028', 'Detalle de Cotización con Desglose', 'RF-030, RF-033, RF-036', ProposalDetailScreen(proposal: sampleProposal)),
+          _buildTile(context, 'P-029', 'Comparar Ofertas (Mano de Obra vs Materiales)', 'RF-030, RF-031, RF-035', const ProposalsCompareScreen()),
+          _buildTile(context, 'P-030', 'Chat de Negociación y Aclaraciones', 'RF-020, RF-032, RF-074', NegotiationChatScreen(contractor: sampleContractor, projectTitle: sampleProject.title)),
+          _buildTile(context, 'P-031', 'Resumen del Acuerdo de Trabajo', 'RF-033, RF-036, RF-037', ProposalDetailScreen(proposal: sampleProposal)),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Grupo 5: Bodega y Materiales
-          _buildGroupHeader('5. Bodega y Proveedores (P-007, P-023 a P-026)'),
-          _buildScreenTile(
-            context,
-            code: 'P-023 / P-026',
-            title: 'Catálogo de Bodega con Tarifa Profesional',
-            rf: 'RF-017, RF-019, RF-020, RF-065',
-            screen: const MaterialsCatalogScreen(isProRateView: true),
-          ),
-          _buildScreenTile(
-            context,
-            code: 'P-024',
-            title: 'Ficha de Producto y Rendimiento Técnico',
-            rf: 'RF-018, RF-019, RF-022, RF-066',
-            screen: MaterialDetailScreen(material: sampleMaterial),
-          ),
+          // 5. Pagos y Finanzas
+          _buildGroupHeader('5. Pagos y Finanzas (P-032, P-033, P-038)'),
+          _buildTile(context, 'P-032', 'Pasarela de Pago de Prueba del Proyecto', 'RF-037, RF-038, RF-051', ProjectPaymentScreen(proposal: sampleProposal)),
+          _buildTile(context, 'P-033', 'Comprobante y Verificación de Transacción', 'RF-044, RF-051, RF-055', PaymentReceiptScreen(proposal: sampleProposal, paymentMethod: 'PSE Bancolombia', transactionRef: 'RVT-2026-9042')),
+          _buildTile(context, 'P-038', 'Movimientos Financieros y Liquidaciones', 'RF-044, RF-048, RF-050', const FinancialTransactionsScreen()),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Grupo 6: Ejecución y Cierre
-          _buildGroupHeader('6. Ejecución y Cierre (P-034, P-035, P-042)'),
-          _buildScreenTile(
-            context,
-            code: 'P-034 / P-042',
-            title: 'Seguimiento, Doble Confirmación y Calificación',
-            rf: 'RF-039, RF-040, RF-041, RF-056',
-            screen: WorkProgressScreen(proposal: sampleProposal),
-          ),
+          // 6. Bodega, Materiales y Despachos
+          _buildGroupHeader('6. Bodega y Proveedores (P-007, P-023 a P-026, P-036 a P-037)'),
+          _buildTile(context, 'P-023', 'Catálogo de Bodega (Precios Cliente y Pro)', 'RF-017, RF-019, RF-020', const MaterialsCatalogScreen(isProRateView: true)),
+          _buildTile(context, 'P-024', 'Ficha de Producto y Rendimiento en m²', 'RF-018, RF-022, RF-066', MaterialDetailScreen(material: sampleMaterial)),
+          _buildTile(context, 'P-025', 'Agregar / Editar Material en Catálogo', 'RF-006, RF-021, RF-062', const AddCatalogProductScreen()),
+          _buildTile(context, 'P-026', 'Autorización de Tarifa Pro a Contratista', 'RF-019, RF-065, RF-074', ProRateAuthorizationScreen(contractor: sampleContractor)),
+          _buildTile(context, 'P-036', 'Orden Formal y Cotización de Materiales', 'RF-045, RF-046, RF-065', const MaterialsOrderScreen()),
+          _buildTile(context, 'P-037', 'Recepción de Materiales y Checklist en Obra', 'RF-046, RF-047, RF-048', const MaterialsDeliveryScreen()),
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Grupo 7: Cuenta y Preferencias
-          _buildGroupHeader('7. Cuenta y Privacidad (P-005, P-044)'),
-          _buildScreenTile(
-            context,
-            code: 'P-005 / P-044',
-            title: 'Ajustes de Perfil, Privacidad y Cambio de Rol',
-            rf: 'RF-004, RF-008, RF-067, RF-072',
-            screen: ProfileScreen(currentRole: currentRole, onSwitchRole: onRoleChanged),
-          ),
+          // 7. Ejecución y Cierre
+          _buildGroupHeader('7. Ejecución y Cierre de Obra (P-034, P-035, P-042)'),
+          _buildTile(context, 'P-034', 'Seguimiento y Doble Confirmación de Entrega', 'RF-039, RF-040, RF-041', WorkProgressScreen(proposal: sampleProposal)),
+          _buildTile(context, 'P-035', 'Solicitud y Acuerdo Mutuo de Prórroga', 'RF-041, RF-042, RF-068', DateExtensionModal(currentDeadline: DateTime.now().add(const Duration(days: 3)), projectTitle: sampleProject.title)),
+          _buildTile(context, 'P-042', 'Calificación del Servicio y Reseña', 'RF-056', WorkProgressScreen(proposal: sampleProposal)),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // 8. Reclamaciones, Incidencias y Notificaciones
+          _buildGroupHeader('8. Incidencias, Garantías y Notificaciones (P-039 a P-041, P-043, P-044)'),
+          _buildTile(context, 'P-039', 'Solicitud de Cancelación y Devolución', 'RF-028, RF-052, RF-053', CancellationRefundScreen(projectTitle: sampleProject.title, contractorName: sampleContractor.name)),
+          _buildTile(context, 'P-040', 'Crear Reporte de Incidencia en Obra', 'RF-043, RF-057, RF-074', CreateIncidentScreen(projectTitle: sampleProject.title, counterpartName: sampleContractor.name)),
+          _buildTile(context, 'P-041', 'Seguimiento de Caso y Plazos de Mediación', 'RF-043, RF-058, RF-060', const IncidentDetailScreen()),
+          _buildTile(context, 'P-043', 'Bandeja y Centro de Notificaciones', 'RF-020, RF-041, RF-068', const NotificationsScreen()),
+          _buildTile(context, 'P-044', 'Ajustes de Cuenta y Consentimientos IA', 'RF-008, RF-067, RF-072', ProfileScreen(currentRole: currentRole, onSwitchRole: onRoleChanged)),
+
+          const SizedBox(height: AppSpacing.xl),
+
+          // 9. Administración Interna
+          _buildGroupHeader('9. Administración Interna (P-045 a P-047)'),
+          _buildTile(context, 'P-045', 'Panel Administrativo y Supervisión General', 'RF-059, RF-063, RF-074', const AdminDashboardScreen()),
+          _buildTile(context, 'P-046 / P-047', 'Resolución Fundada de Casos y Tarifas', 'RF-049, RF-061, RF-073', const AdminDisputeResolutionScreen()),
         ],
       ),
     );
@@ -232,13 +202,13 @@ class ScreenExplorerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildScreenTile(
-    BuildContext context, {
-    required String code,
-    required String title,
-    required String rf,
-    required Widget screen,
-  }) {
+  Widget _buildTile(
+    BuildContext context,
+    String code,
+    String title,
+    String rf,
+    Widget screen,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: AppCard(
