@@ -4,7 +4,7 @@ import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
 import 'contractor_visit_screen.dart';
 
-/// Perfil detallado del profesional y portafolio de obras (P-006).
+/// Perfil detallado del profesional y portafolio con diseño editorial y fondo orgánico (P-006).
 class ContractorDetailScreen extends StatelessWidget {
   const ContractorDetailScreen({super.key, required this.contractor});
 
@@ -12,16 +12,15 @@ class ContractorDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.paper100,
-      appBar: AppHeader(
-        title: 'Perfil Profesional',
-        subtitle: contractor.name,
-      ),
+    return RivetScaffold(
+      title: 'Perfil\nProfesional',
+      backgroundImagePath: 'Fondos/Rodillo sobre pincelada verde.png',
       body: ListView(
-        padding: AppSpacing.screenPadding,
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         children: [
-          // Tarjeta Cabecera
+          const SizedBox(height: AppSpacing.sm),
+
+          // Tarjeta Cabecera del Contratista
           AppCard(
             child: Column(
               children: [
@@ -38,20 +37,21 @@ class ContractorDetailScreen extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(contractor.name, style: AppTypography.sectionTitle),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 6),
                     const Icon(Icons.verified, color: AppColors.brand700, size: 20),
                   ],
                 ),
-                Text(contractor.trade, style: AppTypography.caption.copyWith(fontSize: 13)),
+                const SizedBox(height: 2),
+                Text(contractor.trade, style: AppTypography.caption.copyWith(fontSize: 13, color: AppColors.ink700)),
                 Text(contractor.zone, style: AppTypography.caption),
                 const SizedBox(height: AppSpacing.lg),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     _buildMetric('Calificación', '${contractor.rating} ★'),
-                    Container(height: 30, width: 1, color: AppColors.line300),
+                    Container(height: 28, width: 1, color: AppColors.line300),
                     _buildMetric('Trabajos', '${contractor.completedJobs}'),
-                    Container(height: 30, width: 1, color: AppColors.line300),
+                    Container(height: 28, width: 1, color: AppColors.line300),
                     _buildMetric('Opiniones', '${contractor.reviewCount}'),
                   ],
                 ),
@@ -61,17 +61,17 @@ class ContractorDetailScreen extends StatelessWidget {
 
           const SizedBox(height: AppSpacing.xl),
 
-          // Biografía y experiencia
-          Text('Sobre el profesional', style: AppTypography.subheading),
+          // Biografía y Experiencia
+          Text('Sobre el profesional', style: AppTypography.subheading.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: AppSpacing.sm),
           AppCard(
-            child: Text(contractor.bio, style: AppTypography.bodyMedium),
+            child: Text(contractor.bio, style: AppTypography.bodyMedium.copyWith(height: 1.5)),
           ),
 
           const SizedBox(height: AppSpacing.xl),
 
           // Portafolio de Obras Anteriores
-          Text('Portafolio de Trabajos Recientes', style: AppTypography.subheading),
+          Text('Portafolio de Trabajos Recientes', style: AppTypography.subheading.copyWith(fontWeight: FontWeight.bold)),
           const SizedBox(height: AppSpacing.xs),
           Text('Fotografías reales verificadas en obras anteriores.', style: AppTypography.caption),
           const SizedBox(height: AppSpacing.md),
@@ -80,7 +80,7 @@ class ContractorDetailScreen extends StatelessWidget {
             ...contractor.portfolioImages.map((img) => Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.md),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(16),
                     child: AspectRatio(
                       aspectRatio: 16 / 9,
                       child: Image.asset(
@@ -98,22 +98,27 @@ class ContractorDetailScreen extends StatelessWidget {
               ),
             ),
 
-          const SizedBox(height: AppSpacing.xl),
-
-          // Botón para agendar visita
-          AppButton(
-            text: 'Solicitar Visita Presencial de Evaluación',
-            icon: Icons.calendar_month_outlined,
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => ContractorVisitScreen(contractor: contractor),
-                ),
-              );
-            },
-          ),
+          const SizedBox(height: 90), // Espacio para el botón fijo inferior
         ],
+      ),
+      bottomBar: Container(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+        decoration: BoxDecoration(
+          color: AppColors.paper100,
+          border: Border(top: BorderSide(color: AppColors.line300.withValues(alpha: 0.6))),
+        ),
+        child: AppButton(
+          text: 'Solicitar Visita Presencial de Evaluación',
+          trailingIcon: Icons.chevron_right,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ContractorVisitScreen(contractor: contractor),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -122,6 +127,7 @@ class ContractorDetailScreen extends StatelessWidget {
     return Column(
       children: [
         Text(value, style: AppTypography.subheading.copyWith(color: AppColors.brand700, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 2),
         Text(label, style: AppTypography.caption),
       ],
     );
