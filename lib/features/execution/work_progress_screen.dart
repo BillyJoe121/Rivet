@@ -97,28 +97,31 @@ class _WorkProgressScreenState extends State<WorkProgressScreen> {
             const SizedBox(height: AppSpacing.md),
 
             AppCard(
-              child: Column(
-                children: [
-                  CheckboxListTile(
-                    value: _contractorApproved,
-                    onChanged: (val) => setState(() => _contractorApproved = val ?? false),
-                    title: const Text('Confirmación del Contratista: Trabajo terminado y entregado'),
-                    subtitle: const Text('Registrado por Carlos Mendoza', style: TextStyle(fontSize: 12)),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    activeColor: AppColors.brand700,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                  const Divider(color: AppColors.line300),
-                  CheckboxListTile(
-                    value: _clientApproved,
-                    onChanged: (val) => setState(() => _clientApproved = val ?? false),
-                    title: const Text('Confirmación del Cliente: Recibí el trabajo a conformidad'),
-                    subtitle: const Text('Marca para autorizar el desembolso', style: TextStyle(fontSize: 12)),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    activeColor: AppColors.brand700,
-                    contentPadding: EdgeInsets.zero,
-                  ),
-                ],
+              child: Material(
+                color: Colors.transparent,
+                child: Column(
+                  children: [
+                    CheckboxListTile(
+                      value: _contractorApproved,
+                      onChanged: (val) => setState(() => _contractorApproved = val ?? false),
+                      title: const Text('Confirmación del Contratista: Trabajo terminado y entregado'),
+                      subtitle: const Text('Registrado por Carlos Mendoza', style: TextStyle(fontSize: 12)),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: AppColors.brand700,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                    const Divider(color: AppColors.line300),
+                    CheckboxListTile(
+                      value: _clientApproved,
+                      onChanged: (val) => setState(() => _clientApproved = val ?? false),
+                      title: const Text('Confirmación del Cliente: Recibí el trabajo a conformidad'),
+                      subtitle: const Text('Marca para autorizar el desembolso', style: TextStyle(fontSize: 12)),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: AppColors.brand700,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ],
+                ),
               ),
             ),
 

@@ -109,15 +109,18 @@ class _CancellationRefundScreenState extends State<CancellationRefundScreen> {
 
             AppCard(
               backgroundColor: AppColors.surfaceSubtle,
-              child: CheckboxListTile(
-                value: _termsAcknowledged,
-                onChanged: (val) => setState(() => _termsAcknowledged = val ?? false),
-                title: Text(
-                  'Entiendo que los materiales ya entregados o abiertos no son reembolsables por bodega.',
-                  style: AppTypography.bodySmall,
+              child: Material(
+                color: Colors.transparent,
+                child: CheckboxListTile(
+                  value: _termsAcknowledged,
+                  onChanged: (val) => setState(() => _termsAcknowledged = val ?? false),
+                  title: Text(
+                    'Entiendo que los materiales ya entregados o abiertos no son reembolsables por bodega.',
+                    style: AppTypography.bodySmall,
+                  ),
+                  activeColor: AppColors.brand700,
+                  contentPadding: EdgeInsets.zero,
                 ),
-                activeColor: AppColors.brand700,
-                contentPadding: EdgeInsets.zero,
               ),
             ),
 

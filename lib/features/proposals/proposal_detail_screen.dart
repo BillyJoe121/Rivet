@@ -169,16 +169,19 @@ class _ProposalDetailScreenState extends State<ProposalDetailScreen> {
               backgroundColor: AppColors.surfaceSubtle,
               child: Column(
                 children: [
-                  CheckboxListTile(
-                    value: _agreementAccepted,
-                    onChanged: (val) => setState(() => _agreementAccepted = val ?? false),
-                    title: Text(
-                      'Acepto los términos de mano de obra y materiales fijados en esta propuesta.',
-                      style: AppTypography.bodySmall,
+                  Material(
+                    color: Colors.transparent,
+                    child: CheckboxListTile(
+                      value: _agreementAccepted,
+                      onChanged: (val) => setState(() => _agreementAccepted = val ?? false),
+                      title: Text(
+                        'Acepto los términos de mano de obra y materiales fijados en esta propuesta.',
+                        style: AppTypography.bodySmall,
+                      ),
+                      controlAffinity: ListTileControlAffinity.leading,
+                      activeColor: AppColors.brand700,
+                      contentPadding: EdgeInsets.zero,
                     ),
-                    controlAffinity: ListTileControlAffinity.leading,
-                    activeColor: AppColors.brand700,
-                    contentPadding: EdgeInsets.zero,
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
