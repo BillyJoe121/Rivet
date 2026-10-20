@@ -2,9 +2,15 @@ import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
+import '../supplier/manage_catalog_screen.dart';
+import '../supplier/supplier_products_screen.dart';
+import '../supplier/supplier_profile_screen.dart';
+import 'widgets/supplier_home_summary.dart';
 import 'widgets/supplier_order_card.dart';
 
 /// Vista de inicio y gestión para el rol Proveedor / Ferretería ("FerreCasa Central").
+/// La pestaña 0 es el inicio de Figma; las pestañas 1 (despachos) y 2 (red Pro) conservan
+/// sus secciones y se abren desde los accesos rápidos.
 class SupplierHomeView extends StatefulWidget {
   const SupplierHomeView({
     super.key,
@@ -20,6 +26,10 @@ class SupplierHomeView extends StatefulWidget {
 }
 
 class _SupplierHomeViewState extends State<SupplierHomeView> {
+  static const int _summaryTab = 0;
+  static const int _ordersTab = 1;
+  static const int _proNetworkTab = 2;
+
   late int _activeTab;
 
   @override
@@ -28,8 +38,32 @@ class _SupplierHomeViewState extends State<SupplierHomeView> {
     _activeTab = widget.initialTab;
   }
 
+  void _push(Widget screen) {
+    Navigator.of(context).push(MaterialPageRoute(builder: (_) => screen));
+  }
+
+  void _onQuickAccess(int index) {
+    switch (index) {
+      case 0:
+        _push(const SupplierProductsScreen());
+      case 1:
+        setState(() => _activeTab = _proNetworkTab);
+      case 2:
+        setState(() => _activeTab = _ordersTab);
+      case 3:
+        _push(const ManageCatalogScreen());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (_activeTab == _summaryTab) {
+      return SupplierHomeSummary(
+        onProfileTap: () => _push(const SupplierProfileScreen()),
+        onQuickAccessTap: _onQuickAccess,
+        onManageTap: () => _push(const ManageCatalogScreen()),
+      );
+    }
     return Scaffold(
       backgroundColor: AppColors.paper100,
       appBar: AppBar(
@@ -66,69 +100,18 @@ class _SupplierHomeViewState extends State<SupplierHomeView> {
         children: [
           AppSegmentedControl<int>(
             items: const {
-              0: 'Resumen',
-              1: 'Despachos (2)',
-              2: 'Red Pro (1)',
+              _summaryTab: 'Resumen',
+              _ordersTab: 'Despachos (2)',
+              _proNetworkTab: 'Red Pro (1)',
             },
             selected: _activeTab,
             onChanged: (tab) => setState(() => _activeTab = tab),
           ),
           const SizedBox(height: AppSpacing.lg),
-          if (_activeTab == 0) ..._buildSummarySection()
-          else if (_activeTab == 1) ..._buildOrdersSection()
-          else ..._buildProNetworkSection(),
+          if (_activeTab == _ordersTab) ..._buildOrdersSection() else ..._buildProNetworkSection(),
         ],
       ),
     );
-  }
-
-  List<Widget> _buildSummarySection() {
-    return [
-      Row(
-        children: [
-          Expanded(
-            child: AppStatTile(
-              label: 'PEDIDOS HOY',
-              value: '4 pedidos',
-              subtitle: '\$1.180.000 COP',
-              highlight: true,
-              icon: Icons.local_shipping_outlined,
-            ),
-          ),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: AppStatTile(
-              label: 'CONTRATISTAS PRO',
-              value: '18 activos',
-              subtitle: '1 pendiente',
-              icon: Icons.badge_outlined,
-            ),
-          ),
-        ],
-      ),
-      const SizedBox(height: AppSpacing.xxl),
-      Text('Pedidos Urgentes por Despachar', style: AppTypography.sectionTitle.copyWith(fontSize: 18)),
-      const SizedBox(height: AppSpacing.md),
-      const SupplierOrderCard(
-        id: 'PED-901',
-        projectTitle: 'Obra Valle del Lili · Pintura sala',
-        contractorName: 'Carlos Mendoza',
-        items: '1 Cuñete Viniltex Blanco + 1 Balde Estuco Corona',
-        totalCop: '304.000 COP',
-        status: 'Por despachar',
-        statusVariant: AppBadgeVariant.warning,
-      ),
-      const SizedBox(height: AppSpacing.md),
-      const SupplierOrderCard(
-        id: 'PED-902',
-        projectTitle: 'Obra Ciudad Jardín · Habitación',
-        contractorName: 'Jorge Eliécer Silva',
-        items: '2 Galones Viniltex Verde + 1 Kit Rodillo',
-        totalCop: '150.000 COP',
-        status: 'En ruta',
-        statusVariant: AppBadgeVariant.brand,
-      ),
-    ];
   }
 
   List<Widget> _buildOrdersSection() {

@@ -22,10 +22,7 @@ class ChatMessage {
 
 /// Burbuja de mensaje individual en el hilo de negociación.
 class ChatBubble extends StatelessWidget {
-  const ChatBubble({
-    super.key,
-    required this.message,
-  });
+  const ChatBubble({super.key, required this.message});
 
   final ChatMessage message;
 
@@ -34,21 +31,23 @@ class ChatBubble extends StatelessWidget {
     return Align(
       alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.78),
+        constraints: BoxConstraints(
+          maxWidth: MediaQuery.of(context).size.width * 0.78,
+        ),
         padding: const EdgeInsets.all(AppSpacing.md),
         decoration: BoxDecoration(
           color: message.isMe
               ? AppColors.brand700
               : message.isOfferUpdate
-                  ? AppColors.brandLight
-                  : AppColors.surface0,
+              ? AppColors.brandLight
+              : AppColors.surface0,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: message.isMe
                 ? Colors.transparent
                 : message.isOfferUpdate
-                    ? AppColors.brand700.withValues(alpha: 0.3)
-                    : AppColors.line300,
+                ? AppColors.brand700.withValues(alpha: 0.3)
+                : AppColors.line300,
           ),
         ),
         child: Column(
@@ -59,7 +58,9 @@ class ChatBubble extends StatelessWidget {
                 message.senderName,
                 style: AppTypography.caption.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: message.isOfferUpdate ? AppColors.brand700 : AppColors.ink900,
+                  color: message.isOfferUpdate
+                      ? AppColors.brand700
+                      : AppColors.ink900,
                 ),
               ),
               const SizedBox(height: 2),

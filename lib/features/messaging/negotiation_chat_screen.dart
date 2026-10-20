@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
-import '../../core/models/models.dart';
-import '../../core/theme/theme.dart';
-import '../../core/widgets/widgets.dart';
-import 'widgets/chat_bubble.dart';
 
-/// Chat de negociación y contrapropuestas de cotización (P-030).
-class NegotiationChatScreen extends StatefulWidget {
+import '../../core/models/models.dart';
+import '../home/widgets/kit/kit.dart';
+import 'messaging_mock.dart';
+import 'widgets/msg_bubbles.dart';
+import 'widgets/msg_outline_button.dart';
+
+/// Negociación y conversación del proyecto con el contratista (22:145219):
+/// resumen del proyecto, hilo de mensajes, propuesta revisada y acciones.
+class NegotiationChatScreen extends StatelessWidget {
   const NegotiationChatScreen({
     super.key,
     required this.contractor,
@@ -16,149 +19,138 @@ class NegotiationChatScreen extends StatefulWidget {
   final String projectTitle;
 
   @override
-  State<NegotiationChatScreen> createState() => _NegotiationChatScreenState();
-}
-
-class _NegotiationChatScreenState extends State<NegotiationChatScreen> {
-  final _messageController = TextEditingController();
-  final List<ChatMessage> _messages = [
-    const ChatMessage(
-      id: 'm1',
-      senderName: 'Carlos Mendoza',
-      text: 'Hola Juan, revisé el dossier de tu sala. El área es de 42 m² y las dos paredes principales tienen buena base.',
-      isMe: false,
-      timestamp: '10:15 AM',
-    ),
-    const ChatMessage(
-      id: 'm2',
-      senderName: 'Juan Camilo',
-      text: 'Hola Carlos. ¿La propuesta incluye el resane de la grieta bajo la ventana?',
-      isMe: true,
-      timestamp: '10:18 AM',
-    ),
-    const ChatMessage(
-      id: 'm3',
-      senderName: 'Carlos Mendoza',
-      text: 'Sí, claro. Utilizaremos masilla elastomérica con cinta de fibra para evitar que vuelva a marcarse con el calor.',
-      isMe: false,
-      timestamp: '10:21 AM',
-      isOfferUpdate: true,
-    ),
-  ];
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
-  }
-
-  void _sendMessage() {
-    final text = _messageController.text.trim();
-    if (text.isEmpty) return;
-
-    setState(() {
-      _messages.add(ChatMessage(
-        id: 'm-${DateTime.now().millisecondsSinceEpoch}',
-        senderName: 'Juan Camilo',
-        text: text,
-        isMe: true,
-        timestamp: 'Ahora',
-      ));
-      _messageController.clear();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.paper100,
-      appBar: AppHeader(
-        title: widget.contractor.name,
-        subtitle: widget.projectTitle,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.info_outline, color: AppColors.ink700),
-            tooltip: 'Detalle de la oferta',
-            onPressed: () {},
+    final contractorName = contractor.name;
+    return ProScreen(
+      backgroundAsset: ProAssets.headerRenovation,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          ProBackHeader(
+            title: 'Negociación y conversación',
+            lucideChevron: true,
+            height: 198,
+            onBack: () => Navigator.of(context).maybePop(),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildProjectCard(contractorName),
+                const SizedBox(height: 6),
+                for (final entry in negotiationBeforeOffer) ...[
+                  MsgThreadRow(
+                    entry: entry,
+                    name: entry.isMe ? 'Juan Pérez' : contractorName,
+                  ),
+                  const SizedBox(height: 6),
+                ],
+                const MsgOfferCard(),
+                const SizedBox(height: 6),
+                for (final entry in negotiationAfterOffer) ...[
+                  MsgThreadRow(
+                    entry: entry,
+                    name: entry.isMe ? 'Juan Pérez' : contractorName,
+                    compact: true,
+                  ),
+                  const SizedBox(height: 6),
+                ],
+                _buildComposerField(),
+                const SizedBox(height: 6),
+                MsgOutlineButton(label: 'Adjuntar fotos'),
+                const SizedBox(height: 7),
+                ProPrimaryButton.large('Ver acuerdo de trabajo'),
+              ],
+            ),
           ),
         ],
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.sm),
-              color: AppColors.surfaceSubtle,
-              child: Row(
-                children: [
-                  const Icon(Icons.shield_outlined, size: 16, color: AppColors.ink500),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      'Acuerda cambios de alcance aquí para que queden registrados en el acuerdo oficial.',
-                      style: AppTypography.caption,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView.builder(
-                padding: AppSpacing.screenPadding,
-                itemCount: _messages.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                    child: ChatBubble(message: _messages[index]),
-                  );
-                },
-              ),
-            ),
-            _buildInputBar(),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _buildInputBar() {
-    return Container(
-      padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: const BoxDecoration(
-        color: AppColors.surface0,
-        border: Border(top: BorderSide(color: AppColors.line300)),
-      ),
+  Widget _buildProjectCard(String contractorName) {
+    return ProCard(
+      padding: const EdgeInsets.all(7),
+      radius: ProRadii.card,
+      borderWidth: ProStroke.hairline,
       child: Row(
         children: [
-          IconButton(
-            icon: const Icon(Icons.attach_file, color: AppColors.ink500),
-            tooltip: 'Adjuntar foto',
-            onPressed: () {},
+          ProImage(
+            ProAssets.livingRoomTall,
+            width: 71,
+            height: 71,
+            radius: ProRadii.sm,
           ),
+          const SizedBox(width: 9),
           Expanded(
-            child: TextField(
-              controller: _messageController,
-              decoration: InputDecoration(
-                hintText: 'Escribe un mensaje o aclaración...',
-                border: InputBorder.none,
-                enabledBorder: InputBorder.none,
-                focusedBorder: InputBorder.none,
-                fillColor: AppColors.surfaceSubtle,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.ink500),
-              ),
-              onSubmitted: (_) => _sendMessage(),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  projectTitle,
+                  style: ProText.r(
+                    12,
+                    weight: FontWeight.w600,
+                    lineHeight: 14.4,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: '$contractorName\n',
+                        style: ProText.r(
+                          11,
+                          color: ProColors.ink500,
+                          lineHeight: 12.65,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '$negotiationAmount        ▦ $negotiationDays',
+                        style: ProText.r(
+                          11,
+                          color: ProColors.ink900,
+                          lineHeight: 12.65,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          CircleAvatar(
-            backgroundColor: AppColors.brand700,
-            child: IconButton(
-              icon: const Icon(Icons.send, color: Colors.white, size: 18),
-              onPressed: _sendMessage,
-            ),
-          ),
+          const ProIcon(LucideIcon.chevronRight, size: 14),
         ],
+      ),
+    );
+  }
+
+  Widget _buildComposerField() {
+    return ProCard(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      radius: ProRadii.md,
+      borderWidth: ProStroke.divider,
+      child: SizedBox(
+        height: 36,
+        child: Row(
+          children: [
+            const ProIcon(LucideIcon.paperclip, size: 19),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                'Escribe un mensaje...',
+                style: ProText.r(
+                  13,
+                  color: ProColors.ink500,
+                  lineHeight: 17.55,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
