@@ -55,7 +55,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   shape: BoxShape.circle,
                 ),
                 alignment: Alignment.center,
-                child: const Icon(Icons.lock_reset, size: 28, color: AppColors.brand700),
+                child: const Icon(
+                  Icons.lock_reset,
+                  size: 28,
+                  color: AppColors.brand700,
+                ),
               ),
               const SizedBox(height: AppSpacing.lg),
               Text(
@@ -97,9 +101,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   borderColor: AppColors.brand700.withValues(alpha: 0.3),
                   child: Column(
                     children: [
-                      const Icon(Icons.mark_email_read_outlined, size: 40, color: AppColors.brand700),
+                      const Icon(
+                        Icons.mark_email_read_outlined,
+                        size: 40,
+                        color: AppColors.brand700,
+                      ),
                       const SizedBox(height: AppSpacing.md),
-                      Text('Solicitud procesada', style: AppTypography.subheading),
+                      Text(
+                        'Solicitud procesada',
+                        style: AppTypography.subheading,
+                      ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
                         'Si la cuenta se encuentra registrada en Rivet, recibirás las instrucciones en unos minutos. Por privacidad, no revelamos públicamente la existencia de cuentas.',

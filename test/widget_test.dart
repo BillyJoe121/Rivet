@@ -5,6 +5,6 @@ void main() {
   testWidgets('RivetApp smoke test', (WidgetTester tester) async {
     await tester.pumpWidget(const RivetApp());
     expect(find.text('Rivet'), findsOneWidget);
-    expect(find.text('Cotizaciones y renovación para tu hogar'), findsOneWidget);
+    expect(find.text('Iniciar'), findsOneWidget);
   });
 }
