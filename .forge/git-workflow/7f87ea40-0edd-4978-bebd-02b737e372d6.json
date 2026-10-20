@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "gitTaskId": "7f87ea40-0edd-4978-bebd-02b737e372d6",
+  "host": "claude",
+  "task": "",
+  "choice": "worktree",
+  "phase": "chosen",
+  "branch": "feature/ui-design-tokens-widgets",
+  "base": {
+    "name": "feature/design-system-and-core-components",
+    "ref": "refs/heads/feature/design-system-and-core-components",
+    "sha": "dbbe01b1ba865c354cb5b04790f080fdcd312c7a"
+  },
+  "baselineHead": "dbbe01b1ba865c354cb5b04790f080fdcd312c7a",
+  "baselinePaths": [],
+  "worktreePath": "C:\\Users\\joshe\\Downloads\\Apps\\Rivet-wt-design",
+  "branchDecisionVersion": "0d98d96bd1d1da5e1daf625800e2cfc5e54c9ad3d8bf3d107e6d924831450322",
+  "deliveryPermission": null,
+  "updatedAt": "2026-10-20T03:06:26.453Z"
+}

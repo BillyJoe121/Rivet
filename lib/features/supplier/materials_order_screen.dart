@@ -89,24 +89,27 @@ class _MaterialsOrderScreenState extends State<MaterialsOrderScreen> {
               groupValue: _deliveryNeeded,
               onChanged: (val) => setState(() => _deliveryNeeded = val ?? true),
               child: AppCard(
-                child: Column(
-                  children: [
-                    RadioListTile<bool>(
-                      value: true,
-                      title: const Text('Despacho directo a la obra (+ \$25.000 COP)'),
-                      subtitle: const Text('Entrega programada en camión cerrado'),
-                      activeColor: AppColors.brand700,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                    const Divider(color: AppColors.line300),
-                    RadioListTile<bool>(
-                      value: false,
-                      title: const Text('Retiro en bodega principal (\$0)'),
-                      subtitle: const Text('FerreCasa Sede Norte'),
-                      activeColor: AppColors.brand700,
-                      contentPadding: EdgeInsets.zero,
-                    ),
-                  ],
+                child: Material(
+                  color: Colors.transparent,
+                  child: Column(
+                    children: [
+                      RadioListTile<bool>(
+                        value: true,
+                        title: const Text('Despacho directo a la obra (+ \$25.000 COP)'),
+                        subtitle: const Text('Entrega programada en camión cerrado'),
+                        activeColor: AppColors.brand700,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                      const Divider(color: AppColors.line300),
+                      RadioListTile<bool>(
+                        value: false,
+                        title: const Text('Retiro en bodega principal (\$0)'),
+                        subtitle: const Text('FerreCasa Sede Norte'),
+                        activeColor: AppColors.brand700,
+                        contentPadding: EdgeInsets.zero,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

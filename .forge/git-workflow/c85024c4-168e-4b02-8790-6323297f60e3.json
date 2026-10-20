@@ -1,0 +1,20 @@
+{
+  "schemaVersion": 1,
+  "gitTaskId": "c85024c4-168e-4b02-8790-6323297f60e3",
+  "host": "claude",
+  "task": "Igualar al Figma pantallas de contratista, proveedor, mensajería, cuenta, finanzas y admin",
+  "choice": "worktree",
+  "phase": "chosen",
+  "branch": "feature/ui-pro-supplier-screens",
+  "base": {
+    "name": "feature/design-system-and-core-components",
+    "ref": "refs/heads/feature/design-system-and-core-components",
+    "sha": "dbbe01b1ba865c354cb5b04790f080fdcd312c7a"
+  },
+  "baselineHead": "dbbe01b1ba865c354cb5b04790f080fdcd312c7a",
+  "baselinePaths": [],
+  "worktreePath": "C:\\Users\\joshe\\Downloads\\Apps\\Rivet-wt-pro",
+  "branchDecisionVersion": "87ba6ed9decd2df2baa4520adb18b1ea948cb96ff2d4d20c6e99b69540757957",
+  "deliveryPermission": null,
+  "updatedAt": "2026-10-20T03:06:48.541Z"
+}

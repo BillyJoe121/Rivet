@@ -63,16 +63,19 @@ class _MaterialsDeliveryScreenState extends State<MaterialsDeliveryScreen> {
             const SizedBox(height: AppSpacing.md),
 
             AppCard(
-              child: Column(
-                children: _checklist.keys.map((item) {
-                  return CheckboxListTile(
-                    value: _checklist[item],
-                    onChanged: (val) => setState(() => _checklist[item] = val ?? false),
-                    title: Text(item, style: AppTypography.bodyMedium),
-                    activeColor: AppColors.brand700,
-                    contentPadding: EdgeInsets.zero,
-                  );
-                }).toList(),
+              child: Material(
+                color: Colors.transparent,
+                child: Column(
+                  children: _checklist.keys.map((item) {
+                    return CheckboxListTile(
+                      value: _checklist[item],
+                      onChanged: (val) => setState(() => _checklist[item] = val ?? false),
+                      title: Text(item, style: AppTypography.bodyMedium),
+                      activeColor: AppColors.brand700,
+                      contentPadding: EdgeInsets.zero,
+                    );
+                  }).toList(),
+                ),
               ),
             ),
 
@@ -80,15 +83,18 @@ class _MaterialsDeliveryScreenState extends State<MaterialsDeliveryScreen> {
 
             AppCard(
               backgroundColor: AppColors.surfaceSubtle,
-              child: CheckboxListTile(
-                value: _noDamagesConfirmed,
-                onChanged: (val) => setState(() => _noDamagesConfirmed = val ?? false),
-                title: Text(
-                  'Confirmo que los baldes no presentan fisuras ni derrames y los sellos están intactos.',
-                  style: AppTypography.bodySmall,
+              child: Material(
+                color: Colors.transparent,
+                child: CheckboxListTile(
+                  value: _noDamagesConfirmed,
+                  onChanged: (val) => setState(() => _noDamagesConfirmed = val ?? false),
+                  title: Text(
+                    'Confirmo que los baldes no presentan fisuras ni derrames y los sellos están intactos.',
+                    style: AppTypography.bodySmall,
+                  ),
+                  activeColor: AppColors.brand700,
+                  contentPadding: EdgeInsets.zero,
                 ),
-                activeColor: AppColors.brand700,
-                contentPadding: EdgeInsets.zero,
               ),
             ),
 
