@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 
-/// Indicador horizontal de progreso para flujos de varios pasos.
+/// Indicador de pasos medido de "Crear proyecto" (nodo 22:143813) y
+/// "Superficies" (nodo 22:143884).
+///
+/// Cada paso ocupa el mismo ancho: círculo de 28 con el número en
+/// Roboto 600 14/16.8 y, 5 px debajo, la etiqueta Roboto 400 10/12
+/// centrada. El paso actual lleva el gradiente de marca (número blanco,
+/// etiqueta de marca); los demás, fondo neutro y etiqueta `ink500`.
 class AppStepProgress extends StatelessWidget {
   const AppStepProgress({
     super.key,
@@ -12,80 +18,60 @@ class AppStepProgress extends StatelessWidget {
   final List<String> steps;
   final int currentStep; // 0-indexed
 
+  // Fondo de los pasos no activos; sin token propio en el tema.
+  static const Color _idleFill = Color(0xFFDFE5E4);
+
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          children: List.generate(steps.length * 2 - 1, (index) {
-            if (index.isOdd) {
-              final stepIndex = index ~/ 2;
-              final isPassed = stepIndex < currentStep;
-              return Expanded(
-                child: Container(
-                  height: 2,
-                  color: isPassed ? AppColors.brand700 : AppColors.line300,
-                ),
-              );
-            }
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (var i = 0; i < steps.length; i++) Expanded(child: _step(i)),
+        ],
+      ),
+    );
+  }
 
-            final stepIndex = index ~/ 2;
-            final isCompleted = stepIndex < currentStep;
-            final isCurrent = stepIndex == currentStep;
-
-            return Container(
-              width: 26,
-              height: 26,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isCompleted
-                    ? AppColors.brand700
-                    : isCurrent
-                        ? AppColors.brandLight
-                        : AppColors.surface0,
-                border: Border.all(
-                  color: (isCompleted || isCurrent)
-                      ? AppColors.brand700
-                      : AppColors.line300,
-                  width: 1.5,
-                ),
+  Widget _step(int index) {
+    final isCurrent = index == currentStep;
+    final isCompleted = index < currentStep;
+    return Semantics(
+      label: 'Paso ${index + 1} de ${steps.length}: ${steps[index]}'
+          '${isCurrent ? ', actual' : isCompleted ? ', completado' : ''}',
+      excludeSemantics: true,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: isCurrent ? AppColors.brandGradient : null,
+              color: isCurrent ? null : _idleFill,
+            ),
+            child: Text(
+              '${index + 1}',
+              style: AppTypography.titleSmall.copyWith(
+                color: isCurrent ? AppColors.surface0 : AppColors.ink900,
               ),
-              alignment: Alignment.center,
-              child: isCompleted
-                  ? const Icon(Icons.check, size: 14, color: Colors.white)
-                  : Text(
-                      '${stepIndex + 1}',
-                      style: AppTypography.badgeText.copyWith(
-                        color: isCurrent ? AppColors.brand700 : AppColors.ink500,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
-                      ),
-                    ),
-            );
-          }),
-        ),
-        const SizedBox(height: AppSpacing.xs),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: steps.asMap().entries.map((entry) {
-            final isCurrent = entry.key == currentStep;
-            return Expanded(
-              child: Text(
-                entry.value,
-                textAlign: TextAlign.center,
-                style: AppTypography.caption.copyWith(
-                  fontSize: 11,
-                  fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
-                  color: isCurrent ? AppColors.brand700 : AppColors.ink500,
-                ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            );
-          }).toList(),
-        ),
-      ],
+            ),
+          ),
+          const SizedBox(height: 5),
+          Text(
+            steps[index],
+            textAlign: TextAlign.center,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.badgeText.copyWith(
+              color: isCurrent ? AppColors.brand700 : AppColors.ink500,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

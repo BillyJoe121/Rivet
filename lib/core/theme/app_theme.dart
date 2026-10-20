@@ -4,7 +4,7 @@ import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
 
-/// Tema global de Material 3 configurado con los tokens de Rivet.
+/// Tema global de Material 3 configurado con los tokens medidos del Figma.
 abstract final class AppTheme {
   static ThemeData get lightTheme {
     final colorScheme = ColorScheme(
@@ -22,6 +22,7 @@ abstract final class AppTheme {
 
     return ThemeData(
       useMaterial3: true,
+      fontFamily: AppTypography.sans,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: AppColors.paper100,
       appBarTheme: AppBarTheme(
@@ -29,8 +30,8 @@ abstract final class AppTheme {
         foregroundColor: AppColors.ink900,
         elevation: 0,
         scrolledUnderElevation: 0,
-        centerTitle: true,
-        titleTextStyle: AppTypography.sectionTitle,
+        centerTitle: false,
+        titleTextStyle: AppTypography.pageTitle,
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         iconTheme: const IconThemeData(color: AppColors.ink900),
       ),
@@ -39,8 +40,8 @@ abstract final class AppTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: AppSpacing.roundedMd,
-          side: const BorderSide(color: AppColors.line300, width: 1),
+          borderRadius: AppSpacing.roundedLg,
+          side: const BorderSide(color: AppColors.line300, width: AppSpacing.strokeCard),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -53,23 +54,23 @@ abstract final class AppTheme {
         hintStyle: AppTypography.bodyMedium.copyWith(color: AppColors.ink500),
         labelStyle: AppTypography.bodyMedium.copyWith(color: AppColors.ink700),
         border: OutlineInputBorder(
-          borderRadius: AppSpacing.roundedSm,
+          borderRadius: AppSpacing.roundedMd,
           borderSide: const BorderSide(color: AppColors.line300),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: AppSpacing.roundedSm,
+          borderRadius: AppSpacing.roundedMd,
           borderSide: const BorderSide(color: AppColors.line300),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: AppSpacing.roundedSm,
+          borderRadius: AppSpacing.roundedMd,
           borderSide: const BorderSide(color: AppColors.brand700, width: 2),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: AppSpacing.roundedSm,
+          borderRadius: AppSpacing.roundedMd,
           borderSide: const BorderSide(color: AppColors.danger700),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: AppSpacing.roundedSm,
+          borderRadius: AppSpacing.roundedMd,
           borderSide: const BorderSide(color: AppColors.danger700, width: 2),
         ),
       ),
@@ -79,7 +80,7 @@ abstract final class AppTheme {
           foregroundColor: Colors.white,
           minimumSize: const Size(48, AppSpacing.minTouchTarget),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-          shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedSm),
+          shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedButton),
           textStyle: AppTypography.buttonText,
           elevation: 0,
         ),
@@ -90,7 +91,7 @@ abstract final class AppTheme {
           minimumSize: const Size(48, AppSpacing.minTouchTarget),
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
           side: const BorderSide(color: AppColors.line300),
-          shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedSm),
+          shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedButton),
           textStyle: AppTypography.buttonText,
         ),
       ),
@@ -98,7 +99,7 @@ abstract final class AppTheme {
         style: TextButton.styleFrom(
           foregroundColor: AppColors.brand700,
           textStyle: AppTypography.buttonText,
-          shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedSm),
+          shape: RoundedRectangleBorder(borderRadius: AppSpacing.roundedButton),
         ),
       ),
       dividerTheme: const DividerThemeData(

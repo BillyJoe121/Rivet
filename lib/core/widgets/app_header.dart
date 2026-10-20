@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
+import 'rivet_header.dart';
 
-/// Barra de navegación superior unificada para todas las vistas.
+/// Cabecera para `Scaffold.appBar` con el mismo estilo editorial del Figma
+/// que [RivetHeader]: chevron de marca a la izquierda y título Lora 28
+/// alineado a la izquierda, sin imagen de fondo.
 class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   const AppHeader({
     super.key,
@@ -24,56 +27,53 @@ class AppHeader extends StatelessWidget implements PreferredSizeWidget {
   final PreferredSizeWidget? bottom;
   final Color? backgroundColor;
 
+  static const double _barHeight = 52; // 10 + 33.6 de título + 8
+
   @override
   Size get preferredSize => Size.fromHeight(
-        kToolbarHeight + (subtitle != null ? 14 : 0) + (bottom?.preferredSize.height ?? 0),
+        _barHeight + (subtitle != null ? 20 : 0) + (bottom?.preferredSize.height ?? 0),
       );
 
   @override
   Widget build(BuildContext context) {
-    Widget? effectiveLeading = leading;
-    if (effectiveLeading == null && showBackButton) {
-      final canPop = Navigator.canPop(context);
-      if (canPop || onBack != null) {
-        effectiveLeading = IconButton(
-          icon: const Icon(Icons.arrow_back, color: AppColors.ink900),
-          tooltip: 'Volver',
-          onPressed: onBack ?? () => Navigator.maybePop(context),
-        );
-      }
-    }
+    final canGoBack = showBackButton && (onBack != null || Navigator.canPop(context));
 
-    Widget titleWidget = Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Text(
-          title,
-          style: AppTypography.subheading.copyWith(fontSize: 16),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+    return Material(
+      color: backgroundColor ?? AppColors.paper100,
+      child: SafeArea(
+        bottom: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(AppSpacing.headerGutter, 10, AppSpacing.headerGutter, 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (leading != null) ...[leading!, const SizedBox(width: 10)]
+                  else if (canGoBack) ...[RivetBackButton(onPressed: onBack), const SizedBox(width: 10)],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(title, style: AppTypography.pageTitle, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 4),
+                          Text(subtitle!, style: AppTypography.label, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ],
+                      ],
+                    ),
+                  ),
+                  ...?actions,
+                ],
+              ),
+            ),
+            ?bottom,
+          ],
         ),
-        if (subtitle != null) ...[
-          const SizedBox(height: 2),
-          Text(
-            subtitle!,
-            style: AppTypography.caption,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ],
-    );
-
-    return AppBar(
-      backgroundColor: backgroundColor ?? AppColors.paper100,
-      elevation: 0,
-      scrolledUnderElevation: 0,
-      centerTitle: true,
-      leading: effectiveLeading,
-      title: titleWidget,
-      actions: actions,
-      bottom: bottom,
+      ),
     );
   }
 }

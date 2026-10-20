@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme/theme.dart';
 
-/// Ítem de lista de especificación técnica o detalle estructurado con
-/// icono lineal, título, valor alineado y chevron de navegación fino.
+/// Fila de especificación medida de "Detalle de material" (nodo 22:144798
+/// "Opción"): alto mínimo 38, padding 5×4, 10 px entre elementos, icono de
+/// línea de 23 en color de marca, etiqueta Roboto 600 12/15.6 `ink900`,
+/// valor Roboto 600 12/14.4 `ink700`, `chevron-right` de 15 y separador
+/// inferior de 0.5 en `line300` a todo el ancho.
 class AppSpecRow extends StatelessWidget {
   const AppSpecRow({
     super.key,
@@ -21,49 +25,54 @@ class AppSpecRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        InkWell(
-          onTap: onTap,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 14),
-            child: Row(
-              children: [
-                Icon(icon, size: 20, color: AppColors.brand700),
-                const SizedBox(width: AppSpacing.md),
-                Text(
-                  label,
-                  style: AppTypography.bodyMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: AppColors.ink900,
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  value,
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: AppColors.ink700,
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.xs),
-                const Icon(
-                  Icons.chevron_right,
-                  size: 18,
-                  color: AppColors.ink500,
-                ),
-              ],
-            ),
-          ),
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 38),
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 5),
+        // Separador como decoración frontal: no suma alto a la fila.
+        foregroundDecoration: BoxDecoration(
+          border: showDivider
+              ? const Border(
+                  bottom: BorderSide(color: AppColors.line300, width: 0.5),
+                )
+              : null,
         ),
-        if (showDivider)
-          const Divider(
-            height: 1,
-            thickness: 0.8,
-            color: AppColors.line300,
-            indent: 16,
-            endIndent: 16,
-          ),
-      ],
+        child: Row(
+          children: [
+            Icon(icon, size: 23, color: AppColors.brand700),
+            const SizedBox(width: 10),
+            // Etiqueta a la izquierda y valor pegado al chevron; cada uno
+            // puede ocupar hasta la mitad del espacio libre.
+            Expanded(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: Text(
+                      label,
+                      style: AppTypography.labelStrong.copyWith(height: 15.6 / 12),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Flexible(
+                    child: Text(
+                      value,
+                      textAlign: TextAlign.right,
+                      style: AppTypography.labelStrong.copyWith(
+                        color: AppColors.ink700,
+                        height: 14.4 / 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Icon(LucideIcons.chevronRight, size: 15, color: AppColors.brand700),
+          ],
+        ),
+      ),
     );
   }
 }

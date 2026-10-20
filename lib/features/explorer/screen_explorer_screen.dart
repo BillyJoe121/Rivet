@@ -3,6 +3,9 @@ import '../../core/data/mock_data.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
+import 'component_gallery_screen.dart';
+import 'list_gallery_screen.dart';
+import 'modal_gallery_screen.dart';
 
 // Flujo 1: Acceso y Roles
 import '../onboarding/welcome_screen.dart';
@@ -107,6 +110,12 @@ class ScreenExplorerScreen extends StatelessWidget {
           ),
 
           const SizedBox(height: AppSpacing.xl),
+
+          // 0. Sistema de diseño (componentes del núcleo)
+          _buildGroupHeader('0. Sistema de diseño (componentes)'),
+          _buildTile(context, 'DS-01', 'Botones, tarjetas y campos', 'Núcleo', const ComponentGalleryScreen()),
+          _buildTile(context, 'DS-02', 'Modales y hojas', 'Núcleo', const ModalGalleryScreen()),
+          _buildTile(context, 'DS-03', 'Listas, avatares y búsqueda', 'Núcleo', const ListGalleryScreen()),
 
           // 1. Acceso y Roles
           _buildGroupHeader('1. Acceso y Registro (P-001 a P-004)'),

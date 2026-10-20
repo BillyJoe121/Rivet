@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 
-/// Control segmentado estándar para alternar pestañas y filtros sin saltos visuales.
+/// Pestañas en píldora medidas de "Mis propuestas" (nodo 22:145919).
+///
+/// Cada opción ocupa el mismo ancho, con 4 px entre ellas, alto 36 y
+/// radio 24. La activa lleva el gradiente de marca con texto blanco
+/// Roboto 600 12/14.4; las demás, fondo `brandLight` y texto `ink500`
+/// Roboto 400 12/14.4.
 class AppSegmentedControl<T> extends StatelessWidget {
   const AppSegmentedControl({
     super.key,
@@ -14,52 +19,57 @@ class AppSegmentedControl<T> extends StatelessWidget {
   final T selected;
   final ValueChanged<T> onChanged;
 
+  static const double _height = 36;
+  static const BorderRadius _radius = BorderRadius.all(Radius.circular(24));
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(4),
-      decoration: BoxDecoration(
-        color: AppColors.surfaceSubtle,
-        borderRadius: AppSpacing.roundedSm,
-        border: Border.all(color: AppColors.line300, width: 1),
-      ),
-      child: Row(
-        children: items.entries.map((entry) {
-          final isCurrent = entry.key == selected;
-          return Expanded(
-            child: GestureDetector(
-              onTap: () => onChanged(entry.key),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 180),
-                curve: Curves.easeInOut,
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isCurrent ? AppColors.surface0 : Colors.transparent,
-                  borderRadius: BorderRadius.circular(AppSpacing.radiusSm - 1),
-                  boxShadow: isCurrent
-                      ? [
-                          BoxShadow(
-                            color: AppColors.ink900.withValues(alpha: 0.06),
-                            blurRadius: 4,
-                            offset: const Offset(0, 1),
-                          )
-                        ]
-                      : null,
-                ),
+    final entries = items.entries.toList();
+    return Row(
+      children: [
+        for (var i = 0; i < entries.length; i++) ...[
+          if (i > 0) const SizedBox(width: 4),
+          Expanded(child: _segment(entries[i])),
+        ],
+      ],
+    );
+  }
+
+  Widget _segment(MapEntry<T, String> entry) {
+    final isCurrent = entry.key == selected;
+    return Semantics(
+      button: true,
+      selected: isCurrent,
+      child: Material(
+        type: MaterialType.transparency,
+        child: Ink(
+          height: _height,
+          decoration: BoxDecoration(
+            gradient: isCurrent ? AppColors.brandGradient : null,
+            color: isCurrent ? null : AppColors.brandLight,
+            borderRadius: _radius,
+          ),
+          child: InkWell(
+            onTap: () => onChanged(entry.key),
+            borderRadius: _radius,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Center(
                 child: Text(
                   entry.value,
-                  style: AppTypography.buttonText.copyWith(
-                    fontSize: 13,
-                    fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w500,
-                    color: isCurrent ? AppColors.ink900 : AppColors.ink700,
-                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: isCurrent
+                      ? AppTypography.buttonText.copyWith(color: AppColors.surface0)
+                      : AppTypography.label,
                 ),
               ),
             ),
-          );
-        }).toList(),
+          ),
+        ),
       ),
     );
   }
 }
+

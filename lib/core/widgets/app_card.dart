@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 
-/// Tarjeta flotante orgánica con bordes redondeados (18-20px),
-/// superficie blanca pura y sombra difusa cálida sin bordes duros.
+/// Tarjeta de lista medida del Figma (nodo 2027:231 "Pedido"): superficie
+/// blanca, borde interior de 0.6 en `line300`, radio 16, padding 10 y sin
+/// sombra. El diseño es plano; la sombra solo aparece con [hasShadow].
 class AppCard extends StatelessWidget {
   const AppCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(AppSpacing.lg),
+    this.padding = AppSpacing.cardPadding,
     this.onTap,
     this.backgroundColor = AppColors.surface0,
     this.borderColor,
-    this.borderWidth = 1.0,
+    this.borderWidth = AppSpacing.strokeCard,
     this.borderRadius,
     this.isSelected = false,
-    this.hasShadow = true,
+    this.hasShadow = false,
   });
 
   final Widget child;
@@ -29,46 +30,49 @@ class AppCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveRadius = borderRadius ?? BorderRadius.circular(18);
-    final effectiveBorderColor = isSelected
-        ? AppColors.brand700
-        : (borderColor ?? AppColors.line300.withValues(alpha: 0.5));
-    final effectiveBorderWidth = isSelected ? 2.0 : (borderColor != null ? borderWidth : 0.8);
+    final effectiveRadius = borderRadius ?? AppSpacing.roundedLg;
+    // Selección medida en el selector de rol del Registro (nodo 14:30):
+    // borde de marca de 1 px.
+    final side = isSelected
+        ? const BorderSide(color: AppColors.brand700, width: AppSpacing.strokeDivider)
+        : BorderSide(color: borderColor ?? AppColors.line300, width: borderWidth);
 
-    Widget card = Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: effectiveRadius,
-        border: Border.all(
-          color: effectiveBorderColor,
-          width: effectiveBorderWidth,
-        ),
-        boxShadow: hasShadow
-            ? [
-                BoxShadow(
-                  color: AppColors.softShadow,
-                  blurRadius: 16,
-                  offset: const Offset(0, 4),
-                  spreadRadius: 0,
-                ),
-              ]
-            : null,
-      ),
-      child: child,
+    // El trazo es interior (como en Figma) y se pinta encima sin desplazar
+    // el contenido.
+    final stroke = BoxDecoration(
+      borderRadius: effectiveRadius,
+      border: Border.fromBorderSide(side),
     );
+    final surface = BoxDecoration(
+      color: backgroundColor,
+      borderRadius: effectiveRadius,
+    );
+    final shadow = hasShadow ? AppSpacing.shadowCard : null;
 
-    if (onTap != null) {
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: effectiveRadius,
-          child: card,
-        ),
+    if (onTap == null) {
+      return Container(
+        padding: padding,
+        decoration: surface.copyWith(boxShadow: shadow),
+        foregroundDecoration: stroke,
+        child: child,
       );
     }
 
-    return card;
+    // Con acción, la onda se pinta dentro de la superficie y respeta el radio.
+    return Container(
+      decoration: BoxDecoration(borderRadius: effectiveRadius, boxShadow: shadow),
+      foregroundDecoration: stroke,
+      child: Material(
+        type: MaterialType.transparency,
+        child: Ink(
+          decoration: surface,
+          child: InkWell(
+            onTap: onTap,
+            borderRadius: effectiveRadius,
+            child: Padding(padding: padding, child: child),
+          ),
+        ),
+      ),
+    );
   }
 }
