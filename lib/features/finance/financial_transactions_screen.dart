@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
-import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
+import '../home/widgets/kit/kit.dart';
+import 'widgets/finance_widgets.dart';
 
 class TransactionEntry {
   const TransactionEntry({
@@ -13,6 +14,7 @@ class TransactionEntry {
     required this.status,
     required this.variant,
     this.isIncome = false,
+    this.icon = LucideIcon.creditCard,
   });
 
   final String id;
@@ -23,6 +25,7 @@ class TransactionEntry {
   final String status;
   final AppBadgeVariant variant;
   final bool isIncome;
+  final LucideIcon icon;
 }
 
 /// Historial de movimientos financieros y liquidaciones (P-038).
@@ -42,6 +45,7 @@ class FinancialTransactionsScreen extends StatelessWidget {
         date: '18 Oct 2026',
         status: 'En Custodia',
         variant: AppBadgeVariant.warning,
+        icon: LucideIcon.user,
       ),
       TransactionEntry(
         id: 'TX-402',
@@ -51,6 +55,7 @@ class FinancialTransactionsScreen extends StatelessWidget {
         date: '18 Oct 2026',
         status: 'Despachado',
         variant: AppBadgeVariant.brand,
+        icon: LucideIcon.package,
       ),
       TransactionEntry(
         id: 'TX-398',
@@ -60,92 +65,68 @@ class FinancialTransactionsScreen extends StatelessWidget {
         date: '15 Oct 2026',
         status: 'Completado',
         variant: AppBadgeVariant.success,
+        icon: LucideIcon.mapPin,
       ),
     ];
 
-    return Scaffold(
-      backgroundColor: AppColors.paper100,
-      appBar: const AppHeader(
-        title: 'Movimientos y Finanzas',
-        subtitle: 'Entorno Simulado V1',
-      ),
-      body: ListView(
-        padding: AppSpacing.screenPadding,
+    return ProScreen(
+      backgroundAsset: ProAssets.headerShop,
+      navWhenPushed: ProNavDestination.more,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Tarjeta de Balance
-          AppCard(
-            backgroundColor: AppColors.brand800,
-            borderColor: Colors.transparent,
+          const ProBackHeader(
+            title: 'Movimientos y Finanzas',
+            lucideChevron: true,
+            height: 120,
+            padding: EdgeInsets.fromLTRB(24, 10, 24, 8),
+            gap: 6,
+            titleWidth: 300,
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 8,
               children: [
-                Text(
-                  'SALDO EN CUSTODIA SIMULADA',
-                  style: AppTypography.caption.copyWith(color: AppColors.leaf300, fontWeight: FontWeight.bold),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                    decoration: BoxDecoration(
+                      color: ProColors.brandLight,
+                      borderRadius: BorderRadius.circular(ProRadii.xl),
+                    ),
+                    child: Text(
+                      'Entorno Simulado V1',
+                      style: ProText.r(11, color: ProColors.brand700, lineHeight: 13.2),
+                    ),
+                  ),
                 ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  '\$1.200.000 COP',
-                  style: AppTypography.pageTitle.copyWith(color: Colors.white, fontSize: 26),
+                const FinanceBalanceCard(
+                  title: 'SALDO EN CUSTODIA SIMULADA',
+                  amount: '\$1.200.000 COP',
+                  note: 'El saldo se liberará a los profesionales una vez apruebes el acabado final.',
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  'El saldo se liberará a los profesionales una vez apruebes el acabado final.',
-                  style: AppTypography.caption.copyWith(color: AppColors.leaf300),
-                ),
+                const SizedBox(height: 6),
+                Text('Registro de Operaciones (P-038)', style: ProText.subheading),
+                Text('Detalle de desembolsos, órdenes de material y visitas.', style: ProText.bodySmall),
+                for (final tx in transactions)
+                  FinanceTransactionCard(
+                    icon: tx.icon,
+                    concept: tx.concept,
+                    party: tx.party,
+                    date: tx.date,
+                    amount: '\$${_formatCurrency(tx.amountCop)}',
+                    status: tx.status,
+                    variant: tx.variant,
+                    isIncome: tx.isIncome,
+                  ),
+                const SizedBox(height: 14),
               ],
             ),
           ),
-
-          const SizedBox(height: AppSpacing.xl),
-
-          Text('Registro de Operaciones (P-038)', style: AppTypography.subheading),
-          const SizedBox(height: AppSpacing.xs),
-          Text('Detalle de desembolsos, órdenes de material y visitas.', style: AppTypography.caption),
-          const SizedBox(height: AppSpacing.md),
-
-          ...transactions.map((tx) => Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: AppCard(
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(AppSpacing.sm),
-                        decoration: BoxDecoration(
-                          color: AppColors.surfaceSubtle,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Icon(
-                          tx.isIncome ? Icons.arrow_downward : Icons.arrow_upward,
-                          size: 18,
-                          color: tx.isIncome ? AppColors.success700 : AppColors.ink700,
-                        ),
-                      ),
-                      const SizedBox(width: AppSpacing.md),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(tx.concept, style: AppTypography.subheading.copyWith(fontSize: 14)),
-                            Text('${tx.party} · ${tx.date}', style: AppTypography.caption),
-                          ],
-                        ),
-                      ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '\$${_formatCurrency(tx.amountCop)}',
-                            style: AppTypography.subheading.copyWith(fontSize: 14, fontWeight: FontWeight.bold),
-                          ),
-                          const SizedBox(height: 2),
-                          AppBadge(text: tx.status, variant: tx.variant),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              )),
         ],
       ),
     );

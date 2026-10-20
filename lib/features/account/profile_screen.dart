@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import '../../core/models/models.dart';
-import '../../core/theme/theme.dart';
-import '../../core/widgets/widgets.dart';
 
-/// Pantalla de perfil, preferencias y selector de rol (P-005 / P-044).
+import '../../core/models/models.dart';
+import '../home/widgets/kit/kit.dart';
+import 'account_mock.dart';
+import 'privacy_preferences_screen.dart';
+import 'widgets/account_role_sheet.dart';
+
+/// "Mi perfil": datos personales del usuario. Tocar el avatar abre el
+/// selector de rol activo.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({
     super.key,
@@ -16,153 +20,98 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final (name, email, initials) = switch (currentRole) {
-      UserRole.client => ('Juan Camilo Pérez', 'juan.perez@ejemplo.com', 'JP'),
-      UserRole.contractor => ('Carlos Mendoza', 'carlos.mendoza.pinturas@ejemplo.com', 'CM'),
-      UserRole.supplier => ('FerreCasa Central', 'ventas@ferrecasacali.com', 'FC'),
-    };
+    final profile = AccountProfile.forRole(currentRole);
+    void openPreferences() => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => PrivacyPreferencesScreen(currentRole: currentRole)),
+        );
 
-    return Scaffold(
-      backgroundColor: AppColors.paper100,
-      appBar: const AppHeader(
-        title: 'Mi Cuenta',
-        showBackButton: false,
+    return ProScreen(
+      backgroundAsset: ProAssets.headerLivingRoom,
+      navWhenPushed: ProNavDestination.more,
+      footer: Padding(
+        padding: const EdgeInsets.fromLTRB(22, 0, 22, 8),
+        child: ProPrimaryButton.large('Guardar cambios', onTap: () => Navigator.of(context).maybePop()),
       ),
-      body: ListView(
-        padding: AppSpacing.screenPadding,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Tarjeta de Identidad
-          AppCard(
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 30,
-                  backgroundColor: AppColors.brand700,
-                  child: Text(
-                    initials,
-                    style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+          const ProBackHeader(
+            title: 'Mi perfil',
+            lucideChevron: true,
+            padding: EdgeInsets.fromLTRB(24, 10, 24, 8),
+            gap: 6,
+          ),
+          const SizedBox(height: 31),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 22),
+            child: ProCard(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Text(name, style: AppTypography.subheading),
-                      Text(email, style: AppTypography.caption),
-                      const SizedBox(height: 4),
-                      AppBadge(
-                        text: 'Rol Activo: ${currentRole.label}',
-                        variant: AppBadgeVariant.brand,
+                      Semantics(
+                        button: true,
+                        label: 'Cambiar rol activo',
+                        child: GestureDetector(
+                          onTap: () => showAccountRoleSheet(
+                            context,
+                            currentRole: currentRole,
+                            onSwitchRole: onSwitchRole,
+                          ),
+                          child: ProInitialsAvatar(
+                            profile.initials,
+                            size: 88,
+                            textStyle: ProText.serif(29, weight: FontWeight.w400, color: ProColors.surface0, lineHeight: 34.8),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          profile.name,
+                          style: ProText.serif(22, color: ProColors.ink700, lineHeight: 26.4),
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: AppSpacing.xl),
-
-          // Selector Rápido de Rol Activo
-          Text('Cambiar Rol Activo en Rivet', style: AppTypography.subheading),
-          const SizedBox(height: AppSpacing.xs),
-          Text('Permite probar y navegar la app desde las tres perspectivas.', style: AppTypography.caption),
-          const SizedBox(height: AppSpacing.md),
-
-          ...UserRole.values.map((role) {
-            final isCurrent = role == currentRole;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-              child: AppCard(
-                isSelected: isCurrent,
-                onTap: () => onSwitchRole(role),
-                child: Row(
-                  children: [
-                    Icon(
-                      switch (role) {
-                        UserRole.client => Icons.home_work_outlined,
-                        UserRole.contractor => Icons.format_paint_outlined,
-                        UserRole.supplier => Icons.storefront_outlined,
-                      },
-                      color: isCurrent ? AppColors.brand700 : AppColors.ink700,
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(role.label, style: AppTypography.subheading.copyWith(fontSize: 14)),
-                          Text(role.description, style: AppTypography.caption),
-                        ],
-                      ),
-                    ),
-                    if (isCurrent)
-                      const Icon(Icons.check_circle, color: AppColors.brand700, size: 20),
-                  ],
-                ),
-              ),
-            );
-          }),
-
-          const SizedBox(height: AppSpacing.xl),
-
-          // Ajustes y Privacidad (P-044)
-          Text('Privacidad y Consentimientos (P-044)', style: AppTypography.subheading),
-          const SizedBox(height: AppSpacing.md),
-
-          AppCard(
-            child: Column(
-              children: [
-                _buildSettingsRow(
-                  Icons.auto_awesome_outlined,
-                  'Minimización con IA',
-                  'Activa (oculta caras y objetos)',
-                ),
-                const Divider(color: AppColors.line300),
-                _buildSettingsRow(
-                  Icons.lock_outline,
-                  'Dirección privada',
-                  'Solo visible al agendar visita',
-                ),
-                const Divider(color: AppColors.line300),
-                _buildSettingsRow(
-                  Icons.delete_outline,
-                  'Eliminación de cuenta y datos',
-                  'Solicitar según política',
-                  isDestructive: true,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildSettingsRow(IconData icon, String title, String subtitle, {bool isDestructive = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-      child: Row(
-        children: [
-          Icon(icon, size: 20, color: isDestructive ? AppColors.danger700 : AppColors.ink700),
-          const SizedBox(width: AppSpacing.md),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: AppTypography.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: isDestructive ? AppColors.danger700 : AppColors.ink900,
+                  const SizedBox(height: 14),
+                  ProChip(
+                    '✓ Perfil completo',
+                    background: ProColors.successLight,
+                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                    textStyle: ProText.r(11, color: ProColors.brand700, lineHeight: 13.2),
                   ),
-                ),
-                Text(subtitle, style: AppTypography.caption),
-              ],
+                  const SizedBox(height: 14),
+                  Text('Información personal', style: ProText.serif(19, color: ProColors.ink700, lineHeight: 22.8)),
+                  const SizedBox(height: 14),
+                  Column(
+                    spacing: 14,
+                    children: [
+                      for (final (icon, title, value) in [
+                        (LucideIcon.user, 'Nombre visible', profile.name),
+                        (LucideIcon.mail, 'Correo electrónico', profile.email),
+                        (LucideIcon.phone, 'Número de contacto', profile.phone),
+                        (LucideIcon.mapPin, 'Ciudad / zona', profile.zone),
+                      ])
+                        SizedBox(
+                          height: 40,
+                          child: ProOptionRow(icon: icon, title: title, subtitle: value, onTap: openPreferences),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  const ProNote(
+                    text: 'Tu dirección exacta se mantiene privada. Solo compartiremos tu zona con profesionales y '
+                        'proveedores.',
+                  ),
+                ],
+              ),
             ),
           ),
-          const Icon(Icons.chevron_right, size: 18, color: AppColors.ink500),
+          const SizedBox(height: 22),
         ],
       ),
     );

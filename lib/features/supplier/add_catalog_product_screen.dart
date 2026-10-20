@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
-import '../../core/models/models.dart';
-import '../../core/theme/theme.dart';
-import '../../core/widgets/widgets.dart';
 
-/// Pantalla para agregar o actualizar un producto al catálogo de bodega (P-025).
+import '../../core/models/models.dart';
+import '../home/widgets/kit/kit.dart';
+import 'catalog_product_info.dart';
+import 'widgets/catalog_common.dart';
+import 'widgets/catalog_detail_parts.dart';
+
+/// Agregar material al catálogo (frame 66:14377). Con [existingProduct] precarga sus datos.
 class AddCatalogProductScreen extends StatefulWidget {
   const AddCatalogProductScreen({super.key, this.existingProduct});
 
@@ -14,196 +17,211 @@ class AddCatalogProductScreen extends StatefulWidget {
 }
 
 class _AddCatalogProductScreenState extends State<AddCatalogProductScreen> {
-  final _skuController = TextEditingController(text: 'PINT-VTX-01');
-  final _nameController = TextEditingController(text: 'Viniltex Satinado Antibacterial');
-  final _brandController = TextEditingController(text: 'Pintuco');
-  final _clientPriceController = TextEditingController(text: '72000');
-  final _proPriceController = TextEditingController(text: '61000');
-  final _coverageController = TextEditingController(text: '28');
-  String _category = 'Pintura';
-  String _unit = 'Galón';
+  late final TextEditingController _nameController;
+  late final TextEditingController _brandController;
+  late final TextEditingController _clientPriceController;
+  late final TextEditingController _proPriceController;
+  final _skuController = TextEditingController(text: 'PV-003');
+  final _presentationController = TextEditingController(text: 'Galón (1 gal)');
+  final _descriptionController = TextEditingController(text: 'Pintura interior lavable, blanco mate. Para muros y cielos.');
+  final _quantityController = TextEditingController(text: '60 unidades');
+  final _minStockController = TextEditingController(text: '10 unidades');
+
+  @override
+  void initState() {
+    super.initState();
+    final product = widget.existingProduct;
+    _nameController = TextEditingController(text: product?.name ?? 'Pintura vinilo premium');
+    _brandController = TextEditingController(text: product?.brand ?? 'Rivet');
+    _clientPriceController = TextEditingController(text: '\$ ${formatCop(product?.clientPriceCop ?? 87000)}');
+    _proPriceController = TextEditingController(text: '\$ ${formatCop(product?.proPriceCop ?? 82000)}');
+  }
 
   @override
   void dispose() {
-    _skuController.dispose();
-    _nameController.dispose();
-    _brandController.dispose();
-    _clientPriceController.dispose();
-    _proPriceController.dispose();
-    _coverageController.dispose();
+    for (final controller in [
+      _nameController,
+      _brandController,
+      _skuController,
+      _presentationController,
+      _descriptionController,
+      _quantityController,
+      _clientPriceController,
+      _proPriceController,
+      _minStockController,
+    ]) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final isEditing = widget.existingProduct != null;
-
-    return Scaffold(
-      backgroundColor: AppColors.paper100,
-      appBar: AppHeader(
-        title: isEditing ? 'Editar Producto' : 'Agregar Material',
-        subtitle: 'FerreCasa Central · Catálogo',
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: AppSpacing.screenPadding,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Ficha de Inventario (P-025)', style: AppTypography.subheading.copyWith(fontSize: 18)),
-              const SizedBox(height: AppSpacing.xs),
-              Text(
-                'Define las tarifas diferenciadas para venta a clientes y contratistas vinculados.',
-                style: AppTypography.bodySmall,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-
-              AppCard(
-                child: Column(
+    return ProScreen(
+      backgroundAsset: ProAssets.headerPaintCorner,
+      navWhenPushed: ProNavDestination.home,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: 100,
+            child: Stack(
+              children: [
+                const Positioned(left: 24, top: 8, child: ProBackButton()),
+                const Positioned(
+                  left: 39,
+                  top: 28,
+                  child: SizedBox(width: 232, child: ProPageTitle('Agregar material')),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: ProLayout.screenPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 5,
+              children: [
+                CatalogFormField(label: 'Nombre *', controller: _nameController),
+                Row(
+                  spacing: 8,
                   children: [
-                    AppTextField(
-                      label: 'Código SKU o Referencia',
-                      controller: _skuController,
-                      hint: 'Ej. PINT-VTX-01',
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    AppTextField(
-                      label: 'Nombre Comercial',
-                      controller: _nameController,
-                      hint: 'Ej. Viniltex Blanco',
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AppTextField(
-                            label: 'Marca / Fabricante',
-                            controller: _brandController,
-                            hint: 'Ej. Pintuco, Corona',
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Categoría', style: AppTypography.subheading.copyWith(fontSize: 14)),
-                              const SizedBox(height: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
-                                decoration: BoxDecoration(
-                                  color: AppColors.surface0,
-                                  borderRadius: AppSpacing.roundedSm,
-                                  border: Border.all(color: AppColors.line300),
-                                ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: _category,
-                                    isExpanded: true,
-                                    items: ['Pintura', 'Estuco', 'Impermeabilizante', 'Herramientas']
-                                        .map((c) => DropdownMenuItem(value: c, child: Text(c, style: AppTypography.bodyMedium)))
-                                        .toList(),
-                                    onChanged: (val) => setState(() => _category = val ?? _category),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.md),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Presentación / Unidad', style: AppTypography.subheading.copyWith(fontSize: 14)),
-                              const SizedBox(height: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 12),
-                                decoration: BoxDecoration(
-                                  color: AppColors.surface0,
-                                  borderRadius: AppSpacing.roundedSm,
-                                  border: Border.all(color: AppColors.line300),
-                                ),
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: _unit,
-                                    isExpanded: true,
-                                    items: ['Galón', 'Cuñete (5 gal)', 'Balde (20 kg)', 'Bulto 25kg', 'Kit']
-                                        .map((u) => DropdownMenuItem(value: u, child: Text(u, style: AppTypography.bodyMedium)))
-                                        .toList(),
-                                    onChanged: (val) => setState(() => _unit = val ?? _unit),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: AppTextField(
-                            label: 'Rendimiento (m²)',
-                            controller: _coverageController,
-                            keyboardType: TextInputType.number,
-                            suffixText: 'm²',
-                          ),
-                        ),
-                      ],
+                    Expanded(child: CatalogFormField(label: 'Categoría *', value: 'Pinturas  ⌄')),
+                    Expanded(child: CatalogFormField(label: 'Marca *', controller: _brandController)),
+                  ],
+                ),
+                Row(
+                  spacing: 8,
+                  children: [
+                    Expanded(child: CatalogFormField(label: 'SKU o referencia *', controller: _skuController)),
+                    Expanded(child: CatalogFormField(label: 'Presentación *', controller: _presentationController)),
+                  ],
+                ),
+                Text(
+                  '✓ Referencia disponible, sin duplicados.',
+                  style: ProText.r(11, color: ProColors.brand700, lineHeight: 13.75),
+                ),
+                CatalogFormField(
+                  label: 'Descripción *',
+                  controller: _descriptionController,
+                  height: 70,
+                  maxLines: 2,
+                ),
+                Row(
+                  spacing: 8,
+                  children: [
+                    Expanded(child: CatalogFormField(label: 'Unidad de venta *', value: 'Galón  ⌄')),
+                    Expanded(child: CatalogFormField(label: 'Cantidad disponible *', controller: _quantityController)),
+                  ],
+                ),
+                Row(
+                  spacing: 8,
+                  children: [
+                    Expanded(child: CatalogFormField(label: 'Precio cliente * · COP', controller: _clientPriceController)),
+                    Expanded(
+                      child: CatalogFormField(label: 'Precio contratista * · COP', controller: _proPriceController),
                     ),
                   ],
                 ),
-              ),
-
-              const SizedBox(height: AppSpacing.xl),
-
-              Text('Tarifas Comerciales', style: AppTypography.subheading),
-              const SizedBox(height: AppSpacing.xs),
-              Text('El contratista verá su tarifa autorizada al armar su propuesta.', style: AppTypography.caption),
-              const SizedBox(height: AppSpacing.md),
-
-              Row(
-                children: [
-                  Expanded(
-                    child: AppTextField(
-                      label: 'Precio Público General',
-                      controller: _clientPriceController,
-                      keyboardType: TextInputType.number,
-                      suffixText: 'COP',
+                Text(
+                  '✓ Precios por galón. Exclusivo solo con vínculo aprobado.',
+                  style: ProText.r(11, color: ProColors.brand700, lineHeight: 13.75),
+                ),
+                Row(
+                  spacing: 8,
+                  children: [
+                    Expanded(child: CatalogFormField(label: 'Stock mínimo *', controller: _minStockController)),
+                    Expanded(
+                      child: CatalogFormField(label: 'Opciones de entrega *', value: '✓ Retiro  ✓ Domicilio'),
                     ),
-                  ),
-                  const SizedBox(width: AppSpacing.md),
-                  Expanded(
-                    child: AppTextField(
-                      label: 'Tarifa Profesional (Pro)',
-                      controller: _proPriceController,
-                      keyboardType: TextInputType.number,
-                      suffixText: 'COP',
+                  ],
+                ),
+                Row(
+                  spacing: 8,
+                  children: [
+                    CatalogImage(
+                      image: ProAssets.rivetPaint,
+                      width: 70,
+                      height: 55,
+                      fit: BoxFit.contain,
+                      radius: 10,
                     ),
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: AppSpacing.xxl),
-
-              AppButton(
-                text: isEditing ? 'Guardar Cambios' : 'Publicar en Catálogo',
-                icon: Icons.check,
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('¡Material guardado en el catálogo con éxito!'),
-                      backgroundColor: AppColors.brand700,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: 3,
+                        children: [
+                          Text(
+                            'Imagen del producto *',
+                            style: ProText.r(12, weight: FontWeight.w600, lineHeight: 15),
+                          ),
+                          Text(
+                            'pintura-premium.jpg · JPG · 1,2 MB',
+                            style: ProText.r(11, color: ProColors.ink500, lineHeight: 13.75),
+                          ),
+                          const _ChangeImageButton(),
+                        ],
+                      ),
                     ),
-                  );
-                  Navigator.pop(context);
-                },
-              ),
-            ],
+                  ],
+                ),
+                Text(
+                  'Retiro gratis. Domicilio: costo y fecha al cotizar.',
+                  style: ProText.r(11, color: ProColors.ink500, lineHeight: 13.75),
+                ),
+                Row(
+                  spacing: 8,
+                  children: [
+                    Expanded(
+                      child: CatalogActionButton(
+                        label: 'Cancelar',
+                        outlined: true,
+                        onTap: () => Navigator.of(context).maybePop(),
+                      ),
+                    ),
+                    Expanded(
+                      child: CatalogActionButton(
+                        label: 'Guardar material',
+                        onTap: () => Navigator.of(context).maybePop(),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
-        ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Botón "Cambiar imagen" de 34 px con contorno de marca (sin acción por ahora).
+class _ChangeImageButton extends StatelessWidget {
+  const _ChangeImageButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 34,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      decoration: BoxDecoration(
+        color: ProColors.paper100,
+        borderRadius: BorderRadius.circular(ProRadii.button),
+        border: Border.all(color: ProColors.brand700, width: 1),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Cambiar imagen',
+              textAlign: TextAlign.center,
+              style: ProText.r(12, weight: FontWeight.w600, color: ProColors.brand700, lineHeight: 14.4),
+            ),
+          ),
+          const ProChevron(),
+        ],
       ),
     );
   }

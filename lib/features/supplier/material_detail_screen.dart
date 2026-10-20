@@ -1,167 +1,118 @@
 import 'package:flutter/material.dart';
-import '../../core/models/models.dart';
-import '../../core/theme/theme.dart';
-import '../../core/widgets/widgets.dart';
 
-/// Ficha de detalle de material idéntica al diseño editorial de Figma.
+import '../../core/models/models.dart';
+import '../home/widgets/kit/kit.dart';
+import 'catalog_mock.dart';
+import 'catalog_product_info.dart';
+import 'supplier_profile_screen.dart';
+import 'widgets/catalog_common.dart';
+import 'widgets/catalog_detail_parts.dart';
+
+/// Ficha de detalle de material (frame 22:144770). [info] aporta los textos de Figma;
+/// sin él se usan los datos del modelo.
 class MaterialDetailScreen extends StatelessWidget {
   const MaterialDetailScreen({
     super.key,
     required this.material,
     this.isProRate = false,
+    this.info,
   });
 
   final MaterialProduct material;
   final bool isProRate;
+  final CatalogProductInfo? info;
 
   @override
   Widget build(BuildContext context) {
     final price = isProRate ? material.proPriceCop : material.clientPriceCop;
-    final formattedPrice = '\$ ${_formatCurrency(price)}';
+    final priceText = '\$ ${formatCop(price)}${info?.priceSuffix ?? ''}';
+    final coverage = info?.coverageLabel ?? (material.coverageM2 > 0 ? '${material.coverageM2} m² por galón' : '—');
 
-    return RivetScaffold(
-      title: 'Detalle de\nmaterial',
-      backgroundImagePath: 'Fondos/Rincón natural de pintura DIY.png',
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+    return ProScreen(
+      navWhenPushed: ProNavDestination.home,
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: AppSpacing.sm),
-
-          // Imagen Central del Balde de Pintura
-          Center(
-            child: Container(
-              height: 180,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(16),
-                image: const DecorationImage(
-                  image: AssetImage('Fondos/Rincón natural de pintura DIY.png'),
-                  fit: BoxFit.contain,
-                ),
-              ),
-            ),
-          ),
-
-          const SizedBox(height: AppSpacing.lg),
-
-          // Título de Producto y Marca
-          Text(
-            material.name,
-            style: AppTypography.editorialHeading.copyWith(fontSize: 24),
-          ),
-          const SizedBox(height: 4),
-          Row(
-            children: [
-              const Icon(Icons.home_outlined, size: 14, color: AppColors.ink500),
-              const SizedBox(width: 4),
-              Text(material.brand, style: AppTypography.caption.copyWith(color: AppColors.ink700)),
-              Text(' · Interior lavable · Blanco mate', style: AppTypography.caption),
-            ],
-          ),
-
-          const SizedBox(height: AppSpacing.lg),
-
-          // Píldora de Precio y Disponibilidad estilo Figma
-          AppPriceBadge(
-            priceCop: formattedPrice,
-            unitText: 'por ${material.unit.toLowerCase()}',
-            statusText: material.inStock ? 'Disponible' : 'Agotado',
-            stockText: 'Más de 50 unidades',
-          ),
-
-          const SizedBox(height: AppSpacing.lg),
-
-          // Lista de Especificaciones en Tarjeta Unificada
-          AppCard(
-            padding: EdgeInsets.zero,
-            child: Column(
+          SizedBox(
+            height: 128,
+            child: Stack(
               children: [
-                AppSpecRow(
-                  icon: Icons.brightness_low_outlined,
-                  label: 'Marca',
-                  value: material.brand,
-                ),
-                AppSpecRow(
-                  icon: Icons.work_outline,
-                  label: 'Presentación',
-                  value: material.unit,
-                ),
-                AppSpecRow(
-                  icon: Icons.verified_outlined,
-                  label: 'Rendimiento',
-                  value: '${material.coverageM2} m² por galón',
-                ),
-                const AppSpecRow(
-                  icon: Icons.shield_outlined,
-                  label: 'Uso recomendado',
-                  value: 'Interiores (muros y cielos)',
-                ),
-                const AppSpecRow(
-                  icon: Icons.local_shipping_outlined,
-                  label: 'Entrega',
-                  value: 'A domicilio o retiro',
-                ),
-                AppSpecRow(
-                  icon: Icons.storefront_outlined,
-                  label: 'Proveedor',
-                  value: material.supplierName,
-                ),
-                const AppSpecRow(
-                  icon: Icons.description_outlined,
-                  label: 'Especificaciones técnicas',
-                  value: 'Ver PDF',
-                  showDivider: false,
+                const Positioned(left: 24, top: 8, child: ProBackButton(lucide: true)),
+                Positioned(
+                  left: 45,
+                  top: 12,
+                  width: 227,
+                  child: Text('Detalle de material', style: ProText.pageTitle),
                 ),
               ],
             ),
           ),
-
-          const SizedBox(height: 100), // Espacio para botones fijos
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: ProLayout.screenPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: 4,
+              children: [
+                CatalogImage(image: info?.image, width: 368, height: 90, fit: BoxFit.contain, radius: 10),
+                Text(material.name, style: ProText.serif(21, color: ProColors.ink700, lineHeight: 25.2)),
+                Text('⌂ ${material.brand}', style: ProText.r(12, color: ProColors.ink700, lineHeight: 14.4)),
+                Text(
+                  info?.description ?? material.category,
+                  style: ProText.r(12, color: ProColors.ink700, lineHeight: 14.4),
+                ),
+                CatalogPriceCard(
+                  price: priceText,
+                  unit: 'por ${material.unit.toLowerCase()}',
+                  available: material.inStock,
+                  stock: info?.stockLabel,
+                ),
+                CatalogSpecCard(
+                  rows: [
+                    CatalogSpecRow(icon: LucideIcon.badge, label: 'Marca', value: material.brand),
+                    CatalogSpecRow(icon: LucideIcon.briefcase, label: 'Presentación', value: material.unit),
+                    CatalogSpecRow(icon: LucideIcon.shieldCheck, label: 'Rendimiento', value: coverage),
+                    CatalogSpecRow(
+                      icon: LucideIcon.shield,
+                      label: 'Uso recomendado',
+                      subtitle: info?.usage ?? material.category,
+                    ),
+                  ],
+                ),
+                const CatalogPlainRow(icon: LucideIcon.truck, title: 'Entrega', subtitle: 'A domicilio o retiro en tienda'),
+                CatalogPlainRow(
+                  icon: LucideIcon.store,
+                  title: 'Proveedor',
+                  subtitle: '${material.supplierName} · ${CatalogMock.supplierLocation}',
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const SupplierProfileScreen()),
+                  ),
+                ),
+                const CatalogPlainRow(icon: LucideIcon.fileText, title: 'Especificaciones técnicas'),
+                const SizedBox(height: 9),
+                Row(
+                  spacing: 8,
+                  children: [
+                    const Expanded(child: CatalogActionButton(label: 'Guardar', outlined: true)),
+                    Expanded(
+                      child: CatalogActionButton(
+                        label: 'Agregar al presupuesto',
+                        onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('${material.name} agregado al presupuesto.'),
+                            backgroundColor: ProColors.brand700,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
         ],
       ),
-      bottomBar: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-        decoration: BoxDecoration(
-          color: AppColors.paper100,
-          border: Border(top: BorderSide(color: AppColors.line300.withValues(alpha: 0.6))),
-        ),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 2,
-              child: AppButton(
-                text: 'Guardar',
-                variant: AppButtonVariant.secondary,
-                trailingIcon: Icons.chevron_right,
-                onPressed: () {},
-              ),
-            ),
-            const SizedBox(width: AppSpacing.md),
-            Expanded(
-              flex: 3,
-              child: AppButton(
-                text: 'Agregar al presupuesto',
-                variant: AppButtonVariant.primary,
-                trailingIcon: Icons.chevron_right,
-                onPressed: () {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('${material.name} agregado al presupuesto.'),
-                      backgroundColor: AppColors.brand700,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
     );
-  }
-
-  static String _formatCurrency(int amount) {
-    return amount.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
   }
 }
