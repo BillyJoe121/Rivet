@@ -154,7 +154,16 @@ class AuthInput extends StatelessWidget {
       cursorColor: RvColors.brand700,
       cursorWidth: 2.0,
       cursorRadius: const Radius.circular(2.0),
-      decoration: InputDecoration.collapsed(
+      decoration: InputDecoration(
+        isCollapsed: true,
+        filled: false,
+        contentPadding: EdgeInsets.zero,
+        border: InputBorder.none,
+        enabledBorder: InputBorder.none,
+        focusedBorder: InputBorder.none,
+        disabledBorder: InputBorder.none,
+        errorBorder: InputBorder.none,
+        focusedErrorBorder: InputBorder.none,
         hintText: hint,
         hintStyle: style.copyWith(color: AuthColors.placeholder),
       ),
