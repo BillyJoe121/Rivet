@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../projects/widgets/client_kit/client_kit.dart';
 
@@ -120,6 +121,7 @@ class AuthInput extends StatelessWidget {
     this.keyboardType,
     this.controller,
     this.focusNode,
+    this.inputFormatters,
     this.onChanged,
     this.textInputAction = TextInputAction.next,
     this.onSubmitted,
@@ -130,6 +132,7 @@ class AuthInput extends StatelessWidget {
   final TextInputType? keyboardType;
   final TextEditingController? controller;
   final FocusNode? focusNode;
+  final List<TextInputFormatter>? inputFormatters;
   final ValueChanged<String>? onChanged;
   final TextInputAction textInputAction;
   final ValueChanged<String>? onSubmitted;
@@ -140,6 +143,7 @@ class AuthInput extends StatelessWidget {
     return TextField(
       controller: controller,
       focusNode: focusNode,
+      inputFormatters: inputFormatters,
       obscureText: obscure,
       obscuringCharacter: '•',
       keyboardType: keyboardType,
