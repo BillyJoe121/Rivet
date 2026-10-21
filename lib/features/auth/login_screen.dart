@@ -1,4 +1,6 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/models/models.dart';
 import '../../core/utils/app_page_route.dart';
@@ -13,7 +15,7 @@ import 'widgets/login_card.dart';
 /// Inicio de sesión conectado a Supabase Auth (Sprint 1).
 ///
 /// Protegido contra desbordamientos de teclado mediante viewport adaptable,
-/// validación de credenciales estricta y transiciones fluidas.
+/// validación de credenciales estricta, focus traversal fluido y micro-animación de sacudida (shake).
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key, this.role = UserRole.client});
 
@@ -23,9 +25,14 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+
+  late final AnimationController _shakeController;
 
   bool _keepSession = true;
   bool _obscure = true;
@@ -33,9 +40,21 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
 
   @override
+  void initState() {
+    super.initState();
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+  }
+
+  @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _shakeController.dispose();
     super.dispose();
   }
 
@@ -83,7 +102,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _showError(String message) {
+    HapticFeedback.mediumImpact();
     setState(() => _errorMessage = message);
+    _shakeController.forward(from: 0.0);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -154,27 +175,40 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 130),
-                  LoginCard(
-                    emailController: _emailController,
-                    passwordController: _passwordController,
-                    obscurePassword: _obscure,
-                    onToggleObscure: () => setState(() => _obscure = !_obscure),
-                    keepSession: _keepSession,
-                    onKeepSessionChanged: (val) => setState(() => _keepSession = val),
-                    errorMessage: _errorMessage,
-                    isLoading: _isLoading,
-                    onLogin: _handleLogin,
-                    onCreateAccount: () => AppNavigator.push(
-                      context,
-                      SignupScreen(initialRole: widget.role),
-                    ),
-                    onForgotPassword: () => AppNavigator.push(
-                      context,
-                      const ForgotPasswordScreen(),
-                    ),
-                    onSocialSelected: () => AppNavigator.pushAndRemoveUntil(
-                      context,
-                      AppShell(initialRole: widget.role),
+                  AnimatedBuilder(
+                    animation: _shakeController,
+                    builder: (context, child) {
+                      final offset = math.sin(_shakeController.value * math.pi * 4) * 8.0;
+                      return Transform.translate(
+                        offset: Offset(offset, 0),
+                        child: child,
+                      );
+                    },
+                    child: LoginCard(
+                      emailController: _emailController,
+                      passwordController: _passwordController,
+                      emailFocusNode: _emailFocusNode,
+                      passwordFocusNode: _passwordFocusNode,
+                      obscurePassword: _obscure,
+                      onToggleObscure: () => setState(() => _obscure = !_obscure),
+                      keepSession: _keepSession,
+                      onKeepSessionChanged: (val) => setState(() => _keepSession = val),
+                      errorMessage: _errorMessage,
+                      onDismissError: () => setState(() => _errorMessage = null),
+                      isLoading: _isLoading,
+                      onLogin: _handleLogin,
+                      onCreateAccount: () => AppNavigator.push(
+                        context,
+                        SignupScreen(initialRole: widget.role),
+                      ),
+                      onForgotPassword: () => AppNavigator.push(
+                        context,
+                        const ForgotPasswordScreen(),
+                      ),
+                      onSocialSelected: () => AppNavigator.pushAndRemoveUntil(
+                        context,
+                        AppShell(initialRole: widget.role),
+                      ),
                     ),
                   ),
                 ],

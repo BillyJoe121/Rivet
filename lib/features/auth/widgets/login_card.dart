@@ -33,13 +33,18 @@ class KeepSessionRow extends StatelessWidget {
               onTap: () => onKeepSessionChanged(!keepSession),
               child: Row(
                 children: [
-                  Container(
+                  AnimatedContainer(
+                    duration: const Duration(milliseconds: 180),
+                    curve: Curves.easeOutCubic,
                     width: 20,
                     height: 20,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: keepSession ? RvColors.brand700 : RvColors.surface0,
-                      border: Border.all(color: RvColors.brand700),
+                      border: Border.all(
+                        color: keepSession ? RvColors.brand700 : AuthColors.fieldStroke,
+                        width: 1.5,
+                      ),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: keepSession
@@ -85,12 +90,17 @@ class LoginCard extends StatelessWidget {
     required this.onCreateAccount,
     required this.onForgotPassword,
     required this.onSocialSelected,
+    this.emailFocusNode,
+    this.passwordFocusNode,
     this.errorMessage,
+    this.onDismissError,
     this.isLoading = false,
   });
 
   final TextEditingController emailController;
   final TextEditingController passwordController;
+  final FocusNode? emailFocusNode;
+  final FocusNode? passwordFocusNode;
   final bool obscurePassword;
   final VoidCallback onToggleObscure;
   final bool keepSession;
@@ -100,6 +110,7 @@ class LoginCard extends StatelessWidget {
   final VoidCallback onForgotPassword;
   final VoidCallback onSocialSelected;
   final String? errorMessage;
+  final VoidCallback? onDismissError;
   final bool isLoading;
 
   @override
@@ -127,37 +138,55 @@ class LoginCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                if (errorMessage != null) ...[
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    margin: const EdgeInsets.only(bottom: 12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFDE8E8),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFF8B4B4)),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.error_outline, color: Color(0xFF9B1C1C), size: 20),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            errorMessage!,
-                            style: rvText(13, color: const Color(0xFF9B1C1C), lineHeight: 16),
+                AnimatedCrossFade(
+                  firstChild: const SizedBox.shrink(),
+                  secondChild: errorMessage != null
+                      ? Container(
+                          padding: const EdgeInsets.all(12),
+                          margin: const EdgeInsets.only(bottom: 12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFFDE8E8),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: const Color(0xFFF8B4B4)),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline,
+                                  color: Color(0xFF9B1C1C), size: 20),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  errorMessage ?? '',
+                                  style: rvText(13,
+                                      color: const Color(0xFF9B1C1C),
+                                      lineHeight: 16),
+                                ),
+                              ),
+                              if (onDismissError != null)
+                                GestureDetector(
+                                  onTap: onDismissError,
+                                  child: const Icon(Icons.close,
+                                      size: 16, color: Color(0xFF9B1C1C)),
+                                ),
+                            ],
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                  crossFadeState: errorMessage != null
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  duration: const Duration(milliseconds: 200),
+                ),
                 LoginField(
                   icon: RvIcons.mail,
                   label: 'Correo electrónico',
                   input: AuthInput(
                     controller: emailController,
+                    focusNode: emailFocusNode,
                     hint: 'tu@correo.com',
                     keyboardType: TextInputType.emailAddress,
                     textInputAction: TextInputAction.next,
+                    onSubmitted: (_) => passwordFocusNode?.requestFocus(),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -166,6 +195,7 @@ class LoginCard extends StatelessWidget {
                   label: 'Contraseña',
                   input: AuthInput(
                     controller: passwordController,
+                    focusNode: passwordFocusNode,
                     hint: '••••••••',
                     obscure: obscurePassword,
                     textInputAction: TextInputAction.done,

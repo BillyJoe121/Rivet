@@ -119,6 +119,7 @@ class AuthInput extends StatelessWidget {
     this.obscure = false,
     this.keyboardType,
     this.controller,
+    this.focusNode,
     this.onChanged,
     this.textInputAction = TextInputAction.next,
     this.onSubmitted,
@@ -128,6 +129,7 @@ class AuthInput extends StatelessWidget {
   final bool obscure;
   final TextInputType? keyboardType;
   final TextEditingController? controller;
+  final FocusNode? focusNode;
   final ValueChanged<String>? onChanged;
   final TextInputAction textInputAction;
   final ValueChanged<String>? onSubmitted;
@@ -137,6 +139,7 @@ class AuthInput extends StatelessWidget {
     final style = rvText(15, lineHeight: 17.58, color: AuthColors.labelInk);
     return TextField(
       controller: controller,
+      focusNode: focusNode,
       obscureText: obscure,
       obscuringCharacter: '•',
       keyboardType: keyboardType,
