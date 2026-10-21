@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 import '../../core/utils/app_page_route.dart';
+import '../auth/login_screen.dart';
 import '../projects/widgets/client_kit/client_kit.dart';
-import 'role_selection_screen.dart';
 import 'widgets/welcome_start_button.dart';
 
 /// Pantalla inicial (Figma 49:3): fondo de marca, logotipo "Rivet" centrado
-/// y botón píldora "Iniciar" que lleva a la selección de rol.
+/// y botón píldora "Iniciar" que lleva directamente a autenticación.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
@@ -34,10 +34,10 @@ class WelcomeScreen extends StatelessWidget {
             const SizedBox(height: 24),
             WelcomeStartButton(
               onPressed: () {
-                debugPrint('[WelcomeScreen] Botón Iniciar presionado');
+                debugPrint('[WelcomeScreen] Botón Iniciar presionado -> LoginScreen');
                 Navigator.of(context).push(
                   RivetPageRoute(
-                    builder: (_) => const RoleSelectionScreen(),
+                    builder: (_) => const LoginScreen(),
                   ),
                 );
               },
