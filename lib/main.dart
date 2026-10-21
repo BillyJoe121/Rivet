@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'core/config/supabase_config.dart';
 import 'core/theme/theme.dart';
 import 'features/onboarding/welcome_screen.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SupabaseConfig.initialize();
   runApp(const RivetApp());
 }
 
@@ -17,7 +19,9 @@ class RivetApp extends StatelessWidget {
       title: 'Rivet · Cotizaciones para tu obra',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
+      scrollBehavior: const RivetScrollBehavior(),
       home: const WelcomeScreen(),
     );
   }
 }
+

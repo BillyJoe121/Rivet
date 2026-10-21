@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
 import '../../core/models/models.dart';
+import '../../core/utils/app_page_route.dart';
+import '../auth/auth_service.dart';
+import '../auth/domain/entities/rivet_user.dart';
 import '../home/widgets/kit/kit.dart';
+import '../onboarding/welcome_screen.dart';
 import 'account_mock.dart';
 import 'privacy_preferences_screen.dart';
 import 'widgets/account_role_sheet.dart';
 
-/// "Mi perfil": datos personales del usuario. Tocar el avatar abre el
-/// selector de rol activo.
-class ProfileScreen extends StatelessWidget {
+/// "Mi perfil": datos personales del usuario conectado a Supabase.
+/// Muestra los datos reales del usuario autenticado y permite cerrar sesión.
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({
     super.key,
     required this.currentRole,
@@ -19,11 +23,75 @@ class ProfileScreen extends StatelessWidget {
   final ValueChanged<UserRole> onSwitchRole;
 
   @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  RivetUser? _realUser;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfile();
+  }
+
+  Future<void> _loadProfile() async {
+    try {
+      final user = await AuthService.instance.getCurrentUser();
+      if (mounted) {
+        setState(() {
+          _realUser = user;
+        });
+      }
+    } catch (_) {}
+  }
+
+  Future<void> _handleSignOut() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('¿Cerrar sesión?'),
+        content: const Text('¿Estás seguro de que deseas salir de tu cuenta en Rivet?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: ProColors.brand700),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Cerrar sesión', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true) {
+      await AuthService.instance.signOut();
+      if (!mounted) return;
+      AppNavigator.pushAndRemoveUntil(context, const WelcomeScreen());
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final profile = AccountProfile.forRole(currentRole);
+    final fallbackMock = AccountProfile.forRole(widget.currentRole);
+
+    final displayName = (_realUser?.fullName.isNotEmpty ?? false)
+        ? _realUser!.fullName
+        : fallbackMock.name;
+    final displayEmail = (_realUser?.email.isNotEmpty ?? false)
+        ? _realUser!.email
+        : fallbackMock.email;
+    final displayPhone = (_realUser?.phone.isNotEmpty ?? false)
+        ? _realUser!.phone
+        : fallbackMock.phone;
+
+    final initials = displayName.trim().split(' ').map((p) => p.isNotEmpty ? p[0] : '').take(2).join().toUpperCase();
+
     void openPreferences() => Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => PrivacyPreferencesScreen(currentRole: currentRole)),
+          MaterialPageRoute(builder: (_) => PrivacyPreferencesScreen(currentRole: widget.currentRole)),
         );
 
     return ProScreen(
@@ -31,7 +99,22 @@ class ProfileScreen extends StatelessWidget {
       navWhenPushed: ProNavDestination.more,
       footer: Padding(
         padding: const EdgeInsets.fromLTRB(22, 0, 22, 8),
-        child: ProPrimaryButton.large('Guardar cambios', onTap: () => Navigator.of(context).maybePop()),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ProPrimaryButton.large('Guardar cambios', onTap: () => Navigator.of(context).maybePop()),
+            const SizedBox(height: 8),
+            TextButton.icon(
+              onPressed: _handleSignOut,
+              icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+              label: const Text(
+                'Cerrar sesión',
+                style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600),
+              ),
+            ),
+          ],
+        ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -58,11 +141,11 @@ class ProfileScreen extends StatelessWidget {
                         child: GestureDetector(
                           onTap: () => showAccountRoleSheet(
                             context,
-                            currentRole: currentRole,
-                            onSwitchRole: onSwitchRole,
+                            currentRole: widget.currentRole,
+                            onSwitchRole: widget.onSwitchRole,
                           ),
                           child: ProInitialsAvatar(
-                            profile.initials,
+                            initials.isNotEmpty ? initials : 'RV',
                             size: 88,
                             textStyle: ProText.serif(29, weight: FontWeight.w400, color: ProColors.surface0, lineHeight: 34.8),
                           ),
@@ -70,16 +153,26 @@ class ProfileScreen extends StatelessWidget {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: Text(
-                          profile.name,
-                          style: ProText.serif(22, color: ProColors.ink700, lineHeight: 26.4),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              displayName,
+                              style: ProText.serif(22, color: ProColors.ink700, lineHeight: 26.4),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              widget.currentRole == UserRole.contractor ? 'Contratista profesional' : 'Cliente propietario',
+                              style: ProText.r(13, color: ProColors.ink500),
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 14),
                   ProChip(
-                    '✓ Perfil completo',
+                    '✓ Perfil activo en Supabase',
                     background: ProColors.successLight,
                     padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
                     textStyle: ProText.r(11, color: ProColors.brand700, lineHeight: 13.2),
@@ -91,10 +184,10 @@ class ProfileScreen extends StatelessWidget {
                     spacing: 14,
                     children: [
                       for (final (icon, title, value) in [
-                        (LucideIcon.user, 'Nombre visible', profile.name),
-                        (LucideIcon.mail, 'Correo electrónico', profile.email),
-                        (LucideIcon.phone, 'Número de contacto', profile.phone),
-                        (LucideIcon.mapPin, 'Ciudad / zona', profile.zone),
+                        (LucideIcon.user, 'Nombre visible', displayName),
+                        (LucideIcon.mail, 'Correo electrónico', displayEmail),
+                        (LucideIcon.phone, 'Número de contacto', displayPhone),
+                        (LucideIcon.mapPin, 'Ciudad / zona', fallbackMock.zone),
                       ])
                         SizedBox(
                           height: 40,
@@ -104,8 +197,7 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   const ProNote(
-                    text: 'Tu dirección exacta se mantiene privada. Solo compartiremos tu zona con profesionales y '
-                        'proveedores.',
+                    text: 'Tu dirección exacta se mantiene privada. Solo compartiremos tu zona con profesionales garantizados.',
                   ),
                 ],
               ),

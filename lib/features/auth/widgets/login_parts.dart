@@ -16,13 +16,13 @@ class LoginTabs extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 32),
       child: Row(
         children: [
-          SizedBox(
-            width: 120,
+          IntrinsicWidth(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   'Iniciar sesión',
+                  maxLines: 1,
                   style: rvText(
                     18,
                     weight: FontWeight.w700,
@@ -31,7 +31,7 @@ class LoginTabs extends StatelessWidget {
                     family: RvFonts.serif,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 6),
                 Container(
                   height: 2,
                   decoration: BoxDecoration(

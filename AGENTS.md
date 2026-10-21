@@ -14,25 +14,28 @@ Rivet es una plataforma móvil en Flutter (Dart) que conecta a propietarios de o
 ## Backlog de Tareas — Sprint 1 (20 Oct – 27 Oct)
 
 ### 🎨 Tareas de Estilo y UX
-- [ ] **Corregir scroll con efecto raro**: Normalizar el `ScrollPhysics` (usar `BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics())` o estándar de plataforma) evitando saltos y overscroll deformado en Android/iOS.
-- [ ] **Corregir y pulir inputs**:
-  - Validar alturas, padding interno, bordes de enfoque (`focusedBorder`), cursor tint y contraste de placeholders.
-  - Asegurar que al abrir el teclado el viewport use `SingleChildScrollView` con padding para evitar errores de `Bottom overflowed by XX pixels`.
-- [ ] **Quitar selector de 3 usuarios**: Retirar definitivamente la vista previa de 3 roles (`RoleSelectionScreen` con proveedor); solo existen **Cliente** y **Contratista**.
-- [ ] **Transiciones y animaciones de pantalla**: Implementar transiciones suaves y fluidas (`PageRouteBuilder` con fade/slide sutil) al navegar entre bienvenida, auth y home.
-- [ ] **Simplificar pantallas cargadas**: Reducir densidad cognitiva dividiendo formularios largos en pasos o resúmenes colapsables.
-- [ ] **Flujo intuitivo y honestidad visual**: Todo elemento interactivo debe responder con feedback visual (splash/hover) y todo elemento estático debe ser claramente informativo; nada debe parecer un botón si no lo es.
+- [x] **Corregir scroll con efecto raro**: Normalizado con `RivetScrollBehavior` (`BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics())`) aplicado globalmente en `MaterialApp`.
+- [x] **Corregir y pulir inputs**:
+  - Validado en `AppTextField`: contraste WCAG, bordes de enfoque (`focusedBorder`), cursor tint de marca (`brand700`), cursor de 2.0px.
+  - Viewport seguro en `LoginScreen` y `SignupScreen` con `SingleChildScrollView` y padding `bottomInset` que previene desbordamientos de teclado (`Bottom overflowed by XX pixels`).
+  - Corregido desbordamiento de 19px en `LoginTabs` mediante `IntrinsicWidth`.
+- [x] **Quitar selector de 3 usuarios**: Retirado el rol de proveedor en `RoleSelectionScreen`, `AccountTypeSelector` y `account_role_sheet.dart`; solo existen **Cliente** y **Contratista**.
+- [x] **Transiciones y animaciones de pantalla**: Implementado `RivetPageRoute` y `AppNavigator` con transición suave combinada de `Fade` y `Slide` (curva `Curves.easeOutCubic`) entre bienvenida, selección de rol, auth y home.
+- [x] **Simplificar pantallas cargadas**: Estructura de formularios limpia y espaciada con tarjetas modulares y pasos claros.
+- [x] **Flujo intuitivo y honestidad visual**: `InkWell` y `Material` interactivo con splash/highlight en botones y tarjetas de rol; estado de carga `isLoading` en `AuthGradientButton`.
 
 ### ⚙️ Tareas Funcionales y de Seguridad
-- [ ] **Conexión oficial con Supabase**:
-  - Integrar `supabase_flutter` con variables de entorno seguras (`.env`).
-  - Inicializar cliente en `main.dart`.
-- [ ] **Lógica de autenticación completa**:
+- [x] **Conexión oficial con Supabase**:
+  - Integrado `supabase_flutter` y `flutter_dotenv` con credenciales seguras en `.env` (ignorado en `.gitignore`).
+  - Inicializado en `main.dart` con `SupabaseConfig.initialize()`.
+  - Script de base de datos generado en `supabase/schema_sprint1.sql` con tabla `profiles`, trigger de `auth.users` y políticas RLS.
+- [x] **Lógica de autenticación completa**:
   - Registro con rol asignado (`client` o `contractor`) en la tabla `profiles`.
-  - Inicio de sesión con correo y contraseña.
-  - Recuperación de contraseña mediante correo transaccional.
-- [ ] **Reglas de validación estrictas**:
-  - **Correo electrónico**: Expresión regular RFC 5322 estándar.
-  - **Contraseña segura**: Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial.
-  - **Número de celular**: Formato nacional estándar (10 dígitos en Colombia).
-- [ ] **Seguridad contra SQL Injection**: Uso exclusivo del Query Builder parametrizado de Supabase y validación previa en los modelos Dart.
+  - Inicio de sesión con correo y contraseña conectando a Supabase Auth.
+  - Recuperación de contraseña mediante correo transaccional en `ForgotPasswordScreen`.
+  - Arquitectura limpia desacoplada: `RivetUser`, `AuthRepository`, `SupabaseAuthDataSource` y `AuthService`.
+- [x] **Reglas de validación estrictas**:
+  - **Correo electrónico**: Expresión regular RFC 5322 estándar en `Validators.email`.
+  - **Contraseña segura**: Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial en `Validators.password`.
+  - **Número de celular**: Formato nacional estándar (10 dígitos en Colombia iniciando en 3) en `Validators.phone`.
+- [x] **Seguridad contra SQL Injection**: Uso exclusivo del Query Builder parametrizado de Supabase (`.from('profiles').select().eq(...)`) y modelos fuertemente tipados.

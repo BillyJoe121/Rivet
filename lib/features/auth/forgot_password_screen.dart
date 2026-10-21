@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../core/theme/theme.dart';
+import '../../core/utils/validators.dart';
 import '../../core/widgets/widgets.dart';
+import 'auth_service.dart';
 
 /// Pantalla de recuperación de acceso (P-003).
-/// Envía instrucciones sin revelar si el usuario existe (seguridad y privacidad).
+/// Envía instrucciones por correo mediante Supabase Auth sin revelar si el usuario existe (seguridad y privacidad).
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -12,22 +14,39 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  final _contactController = TextEditingController();
+  final _emailController = TextEditingController();
   bool _submitted = false;
   bool _isLoading = false;
 
   @override
   void dispose() {
-    _contactController.dispose();
+    _emailController.dispose();
     super.dispose();
   }
 
   Future<void> _handleSubmit() async {
-    final contact = _contactController.text.trim();
-    if (contact.isEmpty) return;
+    final email = _emailController.text.trim();
+    final emailError = Validators.email(email);
+
+    if (emailError != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(emailError),
+          backgroundColor: AppColors.ink900,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
 
     setState(() => _isLoading = true);
-    await Future.delayed(const Duration(milliseconds: 700));
+
+    try {
+      await AuthService.instance.sendPasswordResetEmail(email);
+    } catch (_) {
+      // Principio OWASP de privacidad: siempre confirmamos el envío para evitar enumeración de cuentas.
+    }
+
     if (!mounted) return;
     setState(() {
       _isLoading = false;
@@ -69,7 +88,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                'Ingresa tu correo electrónico o número de celular registrado para recibir un enlace de restablecimiento seguro.',
+                'Ingresa tu correo electrónico registrado para recibir un enlace de restablecimiento seguro.',
                 style: AppTypography.bodyMedium,
                 textAlign: TextAlign.center,
               ),
@@ -80,9 +99,9 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                   child: Column(
                     children: [
                       AppTextField(
-                        label: 'Correo o número de teléfono',
-                        hint: 'ejemplo@correo.com o 3101234567',
-                        controller: _contactController,
+                        label: 'Correo electrónico',
+                        hint: 'ejemplo@correo.com',
+                        controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         prefixIcon: Icons.contact_mail_outlined,
                       ),
@@ -108,12 +127,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       ),
                       const SizedBox(height: AppSpacing.md),
                       Text(
-                        'Solicitud procesada',
+                        'Instrucciones enviadas',
                         style: AppTypography.subheading,
                       ),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        'Si la cuenta se encuentra registrada en Rivet, recibirás las instrucciones en unos minutos. Por privacidad, no revelamos públicamente la existencia de cuentas.',
+                        'Si la cuenta está registrada en Rivet, recibirás un correo con el enlace seguro en los próximos minutos.',
                         style: AppTypography.bodySmall,
                         textAlign: TextAlign.center,
                       ),
@@ -122,7 +141,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 AppButton(
-                  text: 'Volver al Inicio',
+                  text: 'Volver al Inicio de Sesión',
                   variant: AppButtonVariant.outline,
                   onPressed: () => Navigator.pop(context),
                 ),

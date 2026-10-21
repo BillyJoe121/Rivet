@@ -9,78 +9,100 @@ abstract final class AuthColors {
   static const softTile = Color(0xFFF3F4F0);
   static const labelInk = Color(0xFF142D3D);
   static const mutedInk = Color(0xFF607587);
-  static const placeholder = Color(0xFF9CA8B1);
+  // Contraste mejorado para accesibilidad WCAG 2.2
+  static const placeholder = Color(0xFF6E7E8B);
 }
 
-/// Botón principal de acceso: alto 60 (o 56), radio 32, gradiente de tres
-/// paradas, sombra de marca, etiqueta Roboto 600 17 centrada y flecha en un
-/// círculo blanco al 15 %.
+/// Botón principal de acceso con soporte de estado de carga y feedback táctil (splash).
 class AuthGradientButton extends StatelessWidget {
   const AuthGradientButton({
     super.key,
     required this.label,
     required this.onPressed,
     this.height = 60,
+    this.isLoading = false,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final double height;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      child: GestureDetector(
-        onTap: onPressed,
-        child: Container(
-          height: height,
-          padding: const EdgeInsets.symmetric(horizontal: 24),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(32),
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment(0.7, 1),
-              colors: [Color(0xFF278D82), Color(0xFF08655D), Color(0xFF003D38)],
-              stops: [0, 0.46, 1],
-            ),
-            boxShadow: const [
-              BoxShadow(
-                color: Color(0x1F004E49),
-                offset: Offset(0, 5),
-                blurRadius: 16,
+      enabled: !isLoading && onPressed != null,
+      label: label,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(32),
+          onTap: isLoading ? null : onPressed,
+          splashColor: Colors.white.withValues(alpha: 0.2),
+          highlightColor: Colors.white.withValues(alpha: 0.1),
+          child: Ink(
+            height: height,
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(32),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: const Alignment(0.7, 1),
+                colors: isLoading
+                    ? [const Color(0xFF1A6B63), const Color(0xFF064F48), const Color(0xFF002B27)]
+                    : [const Color(0xFF278D82), const Color(0xFF08655D), const Color(0xFF003D38)],
+                stops: const [0, 0.46, 1],
               ),
-            ],
-          ),
-          child: Row(
-            children: [
-              const SizedBox(width: 32),
-              Expanded(
-                child: Text(
-                  label,
-                  textAlign: TextAlign.center,
-                  style: rvText(
-                    17,
-                    weight: FontWeight.w600,
-                    lineHeight: 19.92,
+              boxShadow: const [
+                BoxShadow(
+                  color: Color(0x1F004E49),
+                  offset: Offset(0, 5),
+                  blurRadius: 16,
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                const SizedBox(width: 32),
+                Expanded(
+                  child: isLoading
+                      ? const Center(
+                          child: SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: RvColors.surface0,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          label,
+                          textAlign: TextAlign.center,
+                          style: rvText(
+                            17,
+                            weight: FontWeight.w600,
+                            lineHeight: 19.92,
+                            color: RvColors.surface0,
+                          ),
+                        ),
+                ),
+                Container(
+                  width: 32,
+                  height: 32,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: const Color(0x26FFFFFF),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const RvIcon(
+                    RvIcons.arrowRight,
                     color: RvColors.surface0,
                   ),
                 ),
-              ),
-              Container(
-                width: 32,
-                height: 32,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: const Color(0x26FFFFFF),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: const RvIcon(
-                  RvIcons.arrowRight,
-                  color: RvColors.surface0,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -97,12 +119,18 @@ class AuthInput extends StatelessWidget {
     this.obscure = false,
     this.keyboardType,
     this.controller,
+    this.onChanged,
+    this.textInputAction = TextInputAction.next,
+    this.onSubmitted,
   });
 
   final String hint;
   final bool obscure;
   final TextInputType? keyboardType;
   final TextEditingController? controller;
+  final ValueChanged<String>? onChanged;
+  final TextInputAction textInputAction;
+  final ValueChanged<String>? onSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -112,8 +140,13 @@ class AuthInput extends StatelessWidget {
       obscureText: obscure,
       obscuringCharacter: '•',
       keyboardType: keyboardType,
+      textInputAction: textInputAction,
+      onChanged: onChanged,
+      onSubmitted: onSubmitted,
       style: style,
       cursorColor: RvColors.brand700,
+      cursorWidth: 2.0,
+      cursorRadius: const Radius.circular(2.0),
       decoration: InputDecoration.collapsed(
         hintText: hint,
         hintStyle: style.copyWith(color: AuthColors.placeholder),

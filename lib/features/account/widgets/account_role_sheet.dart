@@ -23,9 +23,9 @@ Future<void> showAccountRoleSheet(
           spacing: 8,
           children: [
             Text('Cambiar rol activo', style: ProText.serifTitle),
-            Text('Permite probar y navegar la app desde las tres perspectivas.', style: ProText.caption),
+            Text('Permite probar y navegar la app como Cliente o Contratista.', style: ProText.caption),
             const SizedBox(height: 4),
-            for (final role in UserRole.values)
+            for (final role in const [UserRole.client, UserRole.contractor])
               ProCard(
                 borderColor: role == currentRole ? ProColors.brand700 : ProColors.line300,
                 onTap: () {

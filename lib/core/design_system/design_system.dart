@@ -3,3 +3,6 @@
 
 export '../theme/theme.dart';
 export '../widgets/widgets.dart';
+export '../utils/validators.dart';
+export '../utils/app_page_route.dart';
+

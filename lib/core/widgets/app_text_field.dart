@@ -96,10 +96,13 @@ class _AppTextFieldState extends State<AppTextField> {
             ? AppColors.brand700
             : _fieldBorder;
 
+    final borderWidth = _focusNode.hasFocus ? 1.5 : AppSpacing.strokeDivider;
+
     final input = TextField(
       controller: _controller,
       focusNode: _focusNode,
       keyboardType: widget.keyboardType,
+      textInputAction: multiline ? TextInputAction.newline : TextInputAction.next,
       obscureText: widget.isPassword && _obscureText,
       maxLines: widget.isPassword ? 1 : widget.maxLines,
       enabled: widget.enabled,
@@ -112,6 +115,8 @@ class _AppTextFieldState extends State<AppTextField> {
         color: widget.enabled ? AppColors.ink900 : AppColors.ink500,
       ),
       cursorColor: AppColors.brand700,
+      cursorWidth: 2.0,
+      cursorRadius: const Radius.circular(2.0),
       decoration: InputDecoration(
         isCollapsed: true,
         filled: false,
@@ -123,7 +128,7 @@ class _AppTextFieldState extends State<AppTextField> {
         errorBorder: InputBorder.none,
         focusedErrorBorder: InputBorder.none,
         hintText: widget.hint,
-        hintStyle: AppTypography.bodyLarge.copyWith(color: AppColors.ink300),
+        hintStyle: AppTypography.bodyLarge.copyWith(color: AppColors.ink500),
         hintMaxLines: widget.maxLines,
       ),
     );
@@ -164,7 +169,7 @@ class _AppTextFieldState extends State<AppTextField> {
       // Trazo interior como en Figma: no desplaza el contenido.
       foregroundDecoration: BoxDecoration(
         borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
-        border: Border.all(color: borderColor, width: AppSpacing.strokeDivider),
+        border: Border.all(color: borderColor, width: borderWidth),
       ),
       child: Row(
         crossAxisAlignment:

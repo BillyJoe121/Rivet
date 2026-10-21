@@ -208,12 +208,6 @@ class AccountTypeSelector extends StatelessWidget {
       desc: 'Recibe\nsolicitudes',
       icon: RvIcons.toolbox,
     ),
-    (
-      role: UserRole.supplier,
-      label: 'Proveedor',
-      desc: 'Publica\ntu catálogo',
-      icon: RvIcons.package18x18,
-    ),
   ];
 
   @override

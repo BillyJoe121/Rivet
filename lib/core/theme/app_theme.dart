@@ -110,3 +110,16 @@ abstract final class AppTheme {
     );
   }
 }
+
+/// Comportamiento de scroll unificado con física Bouncing natural y sin deformaciones.
+class RivetScrollBehavior extends MaterialScrollBehavior {
+  const RivetScrollBehavior();
+
+  @override
+  ScrollPhysics getScrollPhysics(BuildContext context) {
+    return const BouncingScrollPhysics(
+      parent: AlwaysScrollableScrollPhysics(),
+    );
+  }
+}
+

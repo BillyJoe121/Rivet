@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/utils/app_page_route.dart';
 import '../projects/widgets/client_kit/client_kit.dart';
 import 'role_selection_screen.dart';
 
@@ -30,28 +31,35 @@ class WelcomeScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            Semantics(
-              button: true,
-              child: GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const RoleSelectionScreen()),
-                ),
+            Material(
+              color: RvColors.paper100,
+              borderRadius: BorderRadius.circular(999),
+              elevation: 4,
+              shadowColor: const Color(0x26000000),
+              child: InkWell(
+                borderRadius: BorderRadius.circular(999),
+                splashColor: RvColors.brand700.withValues(alpha: 0.15),
+                highlightColor: RvColors.brand700.withValues(alpha: 0.08),
+                onTap: () {
+                  debugPrint('[WelcomeScreen] Botón Iniciar presionado');
+                  Navigator.of(context).push(
+                    RivetPageRoute(
+                      builder: (_) => const RoleSelectionScreen(),
+                    ),
+                  );
+                },
                 child: Container(
-                  width: 112,
-                  height: 55,
+                  width: 140,
+                  height: 56,
                   alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: RvColors.paper100,
-                    borderRadius: BorderRadius.circular(999),
-                    boxShadow: const [
-                      BoxShadow(color: Color(0x26000000), offset: Offset(0, 10), blurRadius: 24, spreadRadius: -8),
-                    ],
-                  ),
-                  // Figma usa Inter 600 16/19.36; Inter no está empaquetada.
                   child: Text(
                     'Iniciar',
-                    style: rvText(16, weight: FontWeight.w600, lineHeight: 19.36, color: RvColors.brand700),
+                    style: rvText(
+                      17,
+                      weight: FontWeight.w700,
+                      lineHeight: 20,
+                      color: RvColors.brand700,
+                    ),
                   ),
                 ),
               ),
