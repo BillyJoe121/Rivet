@@ -147,28 +147,36 @@ class SignupField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      constraints: const BoxConstraints(minHeight: 62),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
         color: RvColors.surface0,
         border: Border.all(color: AuthColors.fieldStroke),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          SizedBox(width: 24, height: 24, child: Center(child: RvIcon(icon))),
-          const SizedBox(width: 16),
+          SizedBox(
+            width: 24,
+            height: 24,
+            child: Center(
+              child: RvIcon(icon, size: 22, color: RvColors.brand700),
+            ),
+          ),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   label,
                   style: rvText(
-                    13,
+                    12,
                     weight: FontWeight.w500,
-                    lineHeight: 15.23,
+                    lineHeight: 14.06,
                     color: AuthColors.mutedInk,
                   ),
                 ),
@@ -177,7 +185,7 @@ class SignupField extends StatelessWidget {
               ],
             ),
           ),
-          if (trailing != null) ...[const SizedBox(width: 16), trailing!],
+          if (trailing != null) ...[const SizedBox(width: 12), trailing!],
         ],
       ),
     );

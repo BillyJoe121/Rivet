@@ -80,29 +80,29 @@ class LoginField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 14),
+      constraints: const BoxConstraints(minHeight: 62),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
+        color: RvColors.surface0,
         border: Border.all(color: AuthColors.fieldStroke),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              color: AuthColors.iconTile,
-              borderRadius: BorderRadius.circular(10),
+          SizedBox(
+            width: 24,
+            height: 24,
+            child: Center(
+              child: RvIcon(icon, size: 22, color: RvColors.brand700),
             ),
-            child: RvIcon(icon, size: 20, color: AuthColors.mutedInk),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   label,
@@ -110,7 +110,7 @@ class LoginField extends StatelessWidget {
                     12,
                     weight: FontWeight.w500,
                     lineHeight: 14.06,
-                    color: AuthColors.labelInk,
+                    color: AuthColors.mutedInk,
                   ),
                 ),
                 const SizedBox(height: 3),
