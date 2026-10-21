@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
-import '../proposals/proposals_compare_screen.dart';
+import '../../core/data/mock_data.dart';
+import '../proposals/proposal_detail_screen.dart';
 import '../proposals/create_proposal_screen.dart';
 
 /// Dossier y detalle completo de un proyecto (P-013 / P-018).
@@ -143,12 +144,14 @@ class ProjectDetailScreen extends StatelessWidget {
             ),
           ] else ...[
             AppButton(
-              text: 'Ver y Comparar Ofertas Recibidas (2)',
-              icon: Icons.compare_arrows,
+              text: 'Ver Propuesta Recibida',
+              icon: Icons.description_outlined,
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const ProposalsCompareScreen()),
+                  MaterialPageRoute(
+                    builder: (_) => ProposalDetailScreen(proposal: MockData.proposals.first),
+                  ),
                 );
               },
             ),

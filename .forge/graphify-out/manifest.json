@@ -200,9 +200,9 @@
     "semantic_hash": "6ee2ed0fb9b52e9eb12d4aebaef864e8"
   },
   "lib/features/disputes/cancellation_refund_screen.dart": {
-    "mtime": 1792442460.0355077,
-    "ast_hash": "8a30f5dd7e05f0dc6a3e2d19cbb28412",
-    "semantic_hash": "8a30f5dd7e05f0dc6a3e2d19cbb28412"
+    "mtime": 1792471237.517443,
+    "ast_hash": "01a97cd20cffa4f358fe43272acb4ab0",
+    "semantic_hash": ""
   },
   "lib/features/disputes/create_incident_screen.dart": {
     "mtime": 1792442476.4195142,
@@ -220,9 +220,9 @@
     "semantic_hash": "7acbbd982e94108da6745c7bd78511fa"
   },
   "lib/features/execution/work_progress_screen.dart": {
-    "mtime": 1792441001.8695683,
-    "ast_hash": "e2bee40e3e5a33c7cac9ef952ba5532f",
-    "semantic_hash": "e2bee40e3e5a33c7cac9ef952ba5532f"
+    "mtime": 1792471254.4233718,
+    "ast_hash": "f855b53d47f34598a240056e7eb61241",
+    "semantic_hash": ""
   },
   "lib/features/explorer/screen_explorer_screen.dart": {
     "mtime": 1792470088.1594384,
@@ -330,9 +330,9 @@
     "semantic_hash": ""
   },
   "lib/features/proposals/proposal_detail_screen.dart": {
-    "mtime": 1792441359.6738715,
-    "ast_hash": "3050edf58980c707e6bc2a2ae4d26af0",
-    "semantic_hash": "3050edf58980c707e6bc2a2ae4d26af0"
+    "mtime": 1792471226.044608,
+    "ast_hash": "b296127611e8c1edbc2732eefde00f4f",
+    "semantic_hash": ""
   },
   "lib/features/proposals/proposals_compare_screen.dart": {
     "mtime": 1792441242.1801753,
@@ -355,14 +355,14 @@
     "semantic_hash": ""
   },
   "lib/features/supplier/materials_delivery_screen.dart": {
-    "mtime": 1792442443.7748723,
-    "ast_hash": "318f95612ffb96b14f2590e284fda6e6",
-    "semantic_hash": "318f95612ffb96b14f2590e284fda6e6"
+    "mtime": 1792470320.60253,
+    "ast_hash": "e055e99ff135b1856e84afd6768cb4c6",
+    "semantic_hash": ""
   },
   "lib/features/supplier/materials_order_screen.dart": {
-    "mtime": 1792442644.7396657,
-    "ast_hash": "3b9ca54295ac73d7673916f463cc1fe3",
-    "semantic_hash": "3b9ca54295ac73d7673916f463cc1fe3"
+    "mtime": 1792470305.2254858,
+    "ast_hash": "fa83a4c25e0413dac7771e8ae87d26fb",
+    "semantic_hash": ""
   },
   "lib/features/supplier/pro_rate_authorization_screen.dart": {
     "mtime": 1792442329.2184331,
@@ -832,26 +832,6 @@
   "windows/runner/CMakeLists.txt": {
     "mtime": 1785129036.671634,
     "ast_hash": "028602ab9754bffe716659ada7590d29",
-    "semantic_hash": ""
-  },
-  ".forge/graphify-out/converted/01-pitch_7c3294d4.md": {
-    "mtime": 1792470081.2601855,
-    "ast_hash": "677bbc837a46e0f6f0a7b98e9364922f",
-    "semantic_hash": ""
-  },
-  ".forge/graphify-out/converted/02-requisitos-funcionales_4355953a.md": {
-    "mtime": 1792470081.44183,
-    "ast_hash": "721df83ac8aae172d864ced4b5f506f7",
-    "semantic_hash": ""
-  },
-  ".forge/graphify-out/converted/03-pantallas-y-trazabilidad_6a332278.md": {
-    "mtime": 1792470081.6957777,
-    "ast_hash": "777ef86a6258c4acc2f84a421069e928",
-    "semantic_hash": ""
-  },
-  ".forge/graphify-out/converted/04-identidad-de-marca_e238044a.md": {
-    "mtime": 1792470081.7885208,
-    "ast_hash": "2502d4a0ba5151c53a3e3338698771a5",
     "semantic_hash": ""
   },
   "Fondos/Burbuja de chat y campana entre hojas.png": {
@@ -1332,6 +1312,481 @@
   "web/icons/Icon-maskable-512.png": {
     "mtime": 1785129139.8498304,
     "ast_hash": "301a7604d45b3e739efc881eb04896ea",
+    "semantic_hash": ""
+  },
+  "lib/features/account/account_mock.dart": {
+    "mtime": 1792470114.2637498,
+    "ast_hash": "59fa48f3d344baf2fcd610cdae023c94",
+    "semantic_hash": ""
+  },
+  "lib/features/account/contractor_account_mock.dart": {
+    "mtime": 1792470114.2667625,
+    "ast_hash": "3c106bd25dcec480002bb5734fae4e91",
+    "semantic_hash": ""
+  },
+  "lib/features/account/edit_professional_profile_screen.dart": {
+    "mtime": 1792470114.2693036,
+    "ast_hash": "6972c5d8b165d5897f58fc0692311827",
+    "semantic_hash": ""
+  },
+  "lib/features/account/job_closure_screen.dart": {
+    "mtime": 1792470114.2712939,
+    "ast_hash": "e18a490eb895272546814e91cd1b24f7",
+    "semantic_hash": ""
+  },
+  "lib/features/account/my_proposals_screen.dart": {
+    "mtime": 1792470114.2738054,
+    "ast_hash": "c67dce3bef41e97ccac4309b593c7961",
+    "semantic_hash": ""
+  },
+  "lib/features/account/privacy_preferences_screen.dart": {
+    "mtime": 1792470114.2758162,
+    "ast_hash": "63651327297f16eb4fae41225ba6c483",
+    "semantic_hash": ""
+  },
+  "lib/features/account/professional_profile_screen.dart": {
+    "mtime": 1792470114.2793517,
+    "ast_hash": "2c931083f88016a093e37bf61357c12f",
+    "semantic_hash": ""
+  },
+  "lib/features/account/widgets/account_action_buttons.dart": {
+    "mtime": 1792470114.2868612,
+    "ast_hash": "d402cf5b6a2a8cccd2e378ccf7097689",
+    "semantic_hash": ""
+  },
+  "lib/features/account/widgets/account_closure_widgets.dart": {
+    "mtime": 1792470114.2894037,
+    "ast_hash": "2215ccceeaec159394b7b893a8eff3bf",
+    "semantic_hash": ""
+  },
+  "lib/features/account/widgets/account_profile_widgets.dart": {
+    "mtime": 1792470114.292403,
+    "ast_hash": "d83d364745023b7ab026b12f9c0cdba6",
+    "semantic_hash": ""
+  },
+  "lib/features/account/widgets/account_proposal_form_widgets.dart": {
+    "mtime": 1792470114.2955317,
+    "ast_hash": "bbbb769f54c33ce00f0c06a1909cd027",
+    "semantic_hash": ""
+  },
+  "lib/features/account/widgets/account_proposal_widgets.dart": {
+    "mtime": 1792470114.2975318,
+    "ast_hash": "23a06a612df58c2394ea0060c1789cb7",
+    "semantic_hash": ""
+  },
+  "lib/features/account/widgets/account_role_sheet.dart": {
+    "mtime": 1792470114.299954,
+    "ast_hash": "a3665e5153b8fbb6de6dfcc2a3684907",
+    "semantic_hash": ""
+  },
+  "lib/features/admin/widgets/admin_widgets.dart": {
+    "mtime": 1792470114.308474,
+    "ast_hash": "5de921837b2fbe85b7171c1a4c3e9195",
+    "semantic_hash": ""
+  },
+  "lib/features/finance/payment_received_screen.dart": {
+    "mtime": 1792470114.313543,
+    "ast_hash": "f8ab233d67edb14b21ed34484e4ac554",
+    "semantic_hash": ""
+  },
+  "lib/features/finance/payout_account_screen.dart": {
+    "mtime": 1792470114.3169453,
+    "ast_hash": "997f93a40093802fe57e097bffae69fb",
+    "semantic_hash": ""
+  },
+  "lib/features/finance/payout_mock.dart": {
+    "mtime": 1792470114.3196394,
+    "ast_hash": "543a9c4bc8932d757a8d0290d5fc6113",
+    "semantic_hash": ""
+  },
+  "lib/features/finance/widgets/finance_widgets.dart": {
+    "mtime": 1792470114.322646,
+    "ast_hash": "d0b1ff95d4a4c2ba62d8976d2ddd16e9",
+    "semantic_hash": ""
+  },
+  "lib/features/finance/widgets/payout_widgets.dart": {
+    "mtime": 1792470114.3255415,
+    "ast_hash": "68ab155d173c759c961e76ecce4d0b56",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/kit/kit.dart": {
+    "mtime": 1792470114.3317194,
+    "ast_hash": "7c495ecaaec8db2ef2791d6af4ed97d4",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/kit/lucide_icons.dart": {
+    "mtime": 1792470114.3347487,
+    "ast_hash": "b9df2ba140a4b0f5eabf60aeb03f6a2f",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/kit/pro_assets.dart": {
+    "mtime": 1792470114.336751,
+    "ast_hash": "f8dbdfed2344ed06cf8f13a5fe108a37",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/kit/pro_buttons.dart": {
+    "mtime": 1792470114.3392913,
+    "ast_hash": "bd0d096facae63feb7f25c9cc26cd55d",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/kit/pro_icon.dart": {
+    "mtime": 1792470114.3423336,
+    "ast_hash": "aba1bbb798dec6aa1665cbd85d80d933",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/kit/pro_rows.dart": {
+    "mtime": 1792470114.3458476,
+    "ast_hash": "eb661b069d9a5d4983a73de5da281e9b",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/kit/pro_scaffold.dart": {
+    "mtime": 1792470114.346843,
+    "ast_hash": "278b110e570b4b0b05b97c3e1aa005f1",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/kit/pro_surfaces.dart": {
+    "mtime": 1792470114.3503573,
+    "ast_hash": "836460454e9e370d2b3649d4c0c5d2c5",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/kit/pro_tokens.dart": {
+    "mtime": 1792470114.351925,
+    "ast_hash": "547c4c8bd2d3d55badf8e899a3771d62",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/pro_home_cards.dart": {
+    "mtime": 1792470114.3534584,
+    "ast_hash": "d1127505d87c8e1214ff073d5a0bb739",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/pro_home_mock.dart": {
+    "mtime": 1792470114.3574703,
+    "ast_hash": "bb9f52e35ba5429c1d5cd6db164c4077",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/supplier_home_cards.dart": {
+    "mtime": 1792470114.3589733,
+    "ast_hash": "b8845fda5df34a9dd098acac12fc13fb",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/supplier_home_mock.dart": {
+    "mtime": 1792470114.3609781,
+    "ast_hash": "7a83cdd542e2a3e63a66d9682ef04efd",
+    "semantic_hash": ""
+  },
+  "lib/features/home/widgets/supplier_home_summary.dart": {
+    "mtime": 1792470114.3634884,
+    "ast_hash": "0fcdedac4cd1d24b21535db756f294de",
+    "semantic_hash": ""
+  },
+  "lib/features/messaging/messaging_mock.dart": {
+    "mtime": 1792470114.365502,
+    "ast_hash": "c770f4e4b043688ae768a36d9a4ac769",
+    "semantic_hash": ""
+  },
+  "lib/features/messaging/proposal_chat_screen.dart": {
+    "mtime": 1792470114.372519,
+    "ast_hash": "5997915084088e3542bcf895b321cf3f",
+    "semantic_hash": ""
+  },
+  "lib/features/messaging/widgets/msg_bubbles.dart": {
+    "mtime": 1792470114.3750806,
+    "ast_hash": "d17443c25693789ac5d36842fe4f2efe",
+    "semantic_hash": ""
+  },
+  "lib/features/messaging/widgets/msg_list_rows.dart": {
+    "mtime": 1792470114.378292,
+    "ast_hash": "9ba4f9d29fe8b8f2afe604d6c6fa0391",
+    "semantic_hash": ""
+  },
+  "lib/features/messaging/widgets/msg_outline_button.dart": {
+    "mtime": 1792470114.3802986,
+    "ast_hash": "fafaadaa6c62da981024183e79a01fb6",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/catalog_mock.dart": {
+    "mtime": 1792470114.3868365,
+    "ast_hash": "d1535da0b9e2b1b41e880392d1d11776",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/catalog_product_info.dart": {
+    "mtime": 1792470114.38834,
+    "ast_hash": "5e720df9d24085f48f174deb9afd4556",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/choose_supplier_screen.dart": {
+    "mtime": 1792470114.3893526,
+    "ast_hash": "9d5f74646479e63328234e8975e6d76e",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/link_supplier_screen.dart": {
+    "mtime": 1792470114.3913472,
+    "ast_hash": "48b64d5c7cbd8c6442f67faa30c38a33",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/linking_mock.dart": {
+    "mtime": 1792470114.3923473,
+    "ast_hash": "b7615525a8795ed6a9572a3da00d4d8b",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/manage_catalog_screen.dart": {
+    "mtime": 1792470114.3948717,
+    "ast_hash": "c6b24c76aa4a6823cec2ca43533c6502",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/orders_mock.dart": {
+    "mtime": 1792470114.4023962,
+    "ast_hash": "65c9ee695d242e3c74536e9264a68083",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/prepare_dispatch_screen.dart": {
+    "mtime": 1792470114.403916,
+    "ast_hash": "f4dc54b5312e7e08bd9a294e3b5aff69",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/supplier_orders_screen.dart": {
+    "mtime": 1792470114.4057178,
+    "ast_hash": "92ecd8b34b7a5a0ec49fce63ab3a4c50",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/supplier_products_screen.dart": {
+    "mtime": 1792470114.406732,
+    "ast_hash": "8235d4a448fe4a5eaaea49fe5f0cab53",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/supplier_profile_screen.dart": {
+    "mtime": 1792470114.410251,
+    "ast_hash": "455599f7a0567e49511aa99c954eac18",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/widgets/catalog_common.dart": {
+    "mtime": 1792470114.4122581,
+    "ast_hash": "e8b478b6d7e5e840733e52c8ed9268d5",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/widgets/catalog_detail_parts.dart": {
+    "mtime": 1792470114.4157836,
+    "ast_hash": "503373426f999cb0c96a099568cfd75b",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/widgets/catalog_managed_row.dart": {
+    "mtime": 1792470114.419301,
+    "ast_hash": "c849015aafd78f83465507ab8a8a1732",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/widgets/catalog_material_card.dart": {
+    "mtime": 1792470114.4202993,
+    "ast_hash": "a70ef8f6b73ee22046059e7cc78b4137",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/widgets/catalog_product_tile.dart": {
+    "mtime": 1792470114.4223127,
+    "ast_hash": "75e161a56e8f54e3e1630c364eb002ff",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/widgets/catalog_profile_parts.dart": {
+    "mtime": 1792470114.4244516,
+    "ast_hash": "7f337846cecc0b19867ecc35e2eb81b5",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/widgets/linking_status_card.dart": {
+    "mtime": 1792470114.42646,
+    "ast_hash": "ceed69f3f0d7972d79cc7823dd60f9d1",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/widgets/order_cards.dart": {
+    "mtime": 1792470114.428107,
+    "ast_hash": "c7eb84102c4d28eb836809e6260a0e3d",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/widgets/order_inline_header.dart": {
+    "mtime": 1792470114.430626,
+    "ast_hash": "e2b410a7312a15c0941ae26d97656d24",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/widgets/order_pill.dart": {
+    "mtime": 1792470114.432317,
+    "ast_hash": "0ab9b79b60849f0da170c02e415249e7",
+    "semantic_hash": ""
+  },
+  "lib/features/supplier/widgets/order_timeline.dart": {
+    "mtime": 1792470114.4348588,
+    "ast_hash": "7f3253baa07216558529e1d8928fa511",
+    "semantic_hash": ""
+  },
+  "test/visual/pro/account_privacy_test.dart": {
+    "mtime": 1792470114.4368534,
+    "ast_hash": "2d749198c9a7efde3f3d112f668d7c11",
+    "semantic_hash": ""
+  },
+  "test/visual/pro/contractor_frames_test.dart": {
+    "mtime": 1792470114.43938,
+    "ast_hash": "05bb99bba11092f18488d4c5da07f327",
+    "semantic_hash": ""
+  },
+  "test/visual/pro/finance_admin_frames_test.dart": {
+    "mtime": 1792470114.4413862,
+    "ast_hash": "5b5d46c6a27d558d8d59394093ed88e1",
+    "semantic_hash": ""
+  },
+  "test/visual/pro/messaging_frames_test.dart": {
+    "mtime": 1792470114.443887,
+    "ast_hash": "a75dab669b77f63a1e0a828ea4039ce8",
+    "semantic_hash": ""
+  },
+  "test/visual/pro/pro_harness.dart": {
+    "mtime": 1792470114.4535944,
+    "ast_hash": "9353a9efb57dd61a5f7bd036a4301e2a",
+    "semantic_hash": ""
+  },
+  "test/visual/pro/supplier_catalog_frames_test.dart": {
+    "mtime": 1792470114.4556055,
+    "ast_hash": "2a89aef58ad767d61577982cf8f4fc3c",
+    "semantic_hash": ""
+  },
+  "test/visual/pro/supplier_orders_frames_test.dart": {
+    "mtime": 1792470114.4581132,
+    "ast_hash": "4ecd3f9eeca9f62f52a181cc95040862",
+    "semantic_hash": ""
+  },
+  "SPRINTS_ROADMAP.md": {
+    "mtime": 1792543453.217572,
+    "ast_hash": "d699fd6ccf5cf665c540200080fbd494",
+    "semantic_hash": ""
+  },
+  ".forge/graphify-out/converted/01-pitch_7c3294d4.md": {
+    "mtime": 1792470081.2601855,
+    "ast_hash": "677bbc837a46e0f6f0a7b98e9364922f",
+    "semantic_hash": ""
+  },
+  ".forge/graphify-out/converted/02-requisitos-funcionales_4355953a.md": {
+    "mtime": 1792470081.44183,
+    "ast_hash": "721df83ac8aae172d864ced4b5f506f7",
+    "semantic_hash": ""
+  },
+  ".forge/graphify-out/converted/03-pantallas-y-trazabilidad_6a332278.md": {
+    "mtime": 1792470081.6957777,
+    "ast_hash": "777ef86a6258c4acc2f84a421069e928",
+    "semantic_hash": ""
+  },
+  ".forge/graphify-out/converted/04-identidad-de-marca_e238044a.md": {
+    "mtime": 1792470081.7885208,
+    "ast_hash": "2502d4a0ba5151c53a3e3338698771a5",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-avatar-carlos.jpg": {
+    "mtime": 1792470114.196666,
+    "ast_hash": "34d11a9f9b800dd196925c4ae86a1d36",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-avatar-contratista.jpg": {
+    "mtime": 1792470114.199186,
+    "ast_hash": "007ddea44f5d65d6d216f52eb39eff35",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-avatar-pintora.jpg": {
+    "mtime": 1792470114.202694,
+    "ast_hash": "7926bd231b67193064c69052286d3f26",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-brocha.jpg": {
+    "mtime": 1792470114.2052312,
+    "ast_hash": "52d46272fe1e9e64f21fcf2cf65eccc3",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-casa-jardin.jpg": {
+    "mtime": 1792470114.208752,
+    "ast_hash": "ef8ae32f6d454a9d64ab808929550c49",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-casa-moderna.jpg": {
+    "mtime": 1792470114.2133865,
+    "ast_hash": "98fdc79a5e0625daa4c585a508860b8c",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-cemento.jpg": {
+    "mtime": 1792470114.2156353,
+    "ast_hash": "1ca621645058660d76bd177706729aa0",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-cinta-enmascarar.jpg": {
+    "mtime": 1792470114.2184234,
+    "ast_hash": "c3685ecfa26b317db8795116c041ed3e",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-cocina-verde.jpg": {
+    "mtime": 1792470114.2209332,
+    "ast_hash": "254132219d7fe79357fc40a8ff2ff139",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-cocina.jpg": {
+    "mtime": 1792470114.223446,
+    "ast_hash": "1bfc83c931d9ff70e966cbdb2a92486d",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-estuco-corona.jpg": {
+    "mtime": 1792470114.2276225,
+    "ast_hash": "caa91e958594ffa65ec3631275db301e",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-fachada.jpg": {
+    "mtime": 1792470114.2314045,
+    "ast_hash": "04cd62ae10a9dba96db6f8dcd5cff63a",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-ferrecasa.jpg": {
+    "mtime": 1792470114.2349262,
+    "ast_hash": "4b33dc7ab2cb1d2cf98617c257a455be",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-obra-gris.jpg": {
+    "mtime": 1792470114.2369256,
+    "ast_hash": "8843840ea23238867711fdab538cade6",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-pared-verde-vertical.jpg": {
+    "mtime": 1792470114.2404442,
+    "ast_hash": "d92ed82ff8130b45441f41a0df07894a",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-pared-verde.jpg": {
+    "mtime": 1792470114.243761,
+    "ast_hash": "9471ab02a00b511ef26ff7261646555c",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-perfiles-metalicos.jpg": {
+    "mtime": 1792470114.2460415,
+    "ast_hash": "9ea3d089663a0b7f8e2915d60b6c1a14",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-pintura-rivet.jpg": {
+    "mtime": 1792470114.2481472,
+    "ast_hash": "f834dec67a898ca34b8173d31a14628f",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-pintura-sala.jpg": {
+    "mtime": 1792470114.2512238,
+    "ast_hash": "66ae66c8fe97c32a7df14dd98224d086",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-placas-drywall.jpg": {
+    "mtime": 1792470114.2537372,
+    "ast_hash": "6df3f145e33eac611cc57578fd88dcb7",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-sala-verde.jpg": {
+    "mtime": 1792470114.2559502,
+    "ast_hash": "d9baa45f9c3e02177184e1718a629de1",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-sala-vertical.jpg": {
+    "mtime": 1792470114.2584243,
+    "ast_hash": "d1179c01de8c14650fe67c24ec689b21",
+    "semantic_hash": ""
+  },
+  "Fondos/pro-sellador.jpg": {
+    "mtime": 1792470114.2612243,
+    "ast_hash": "50b112644212ff9a77c29953dc9d07c3",
     "semantic_hash": ""
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
-import 'contractor_visit_screen.dart';
+import '../messaging/proposal_chat_screen.dart';
 
 /// Perfil detallado del profesional y portafolio con diseño editorial y fondo orgánico (P-006).
 class ContractorDetailScreen extends StatelessWidget {
@@ -108,13 +108,13 @@ class ContractorDetailScreen extends StatelessWidget {
           border: Border(top: BorderSide(color: AppColors.line300.withValues(alpha: 0.6))),
         ),
         child: AppButton(
-          text: 'Solicitar Visita Presencial de Evaluación',
+          text: 'Contactar al Profesional',
           trailingIcon: Icons.chevron_right,
           onPressed: () {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => ContractorVisitScreen(contractor: contractor),
+                builder: (_) => const ProposalChatScreen(),
               ),
             );
           },

@@ -6,7 +6,6 @@ import '../home/widgets/kit/kit.dart';
 import 'catalog_mock.dart';
 import 'catalog_product_info.dart';
 import 'material_detail_screen.dart';
-import 'supplier_profile_screen.dart';
 import 'widgets/catalog_common.dart';
 import 'widgets/catalog_material_card.dart';
 
@@ -105,9 +104,8 @@ class _MaterialsCatalogScreenState extends State<MaterialsCatalogScreen> {
                     image: CatalogMock.supplierImage,
                     title: CatalogMock.supplierName,
                     lines: [CatalogMock.supplierLocation, CatalogMock.supplierType, CatalogMock.supplierRating],
-                    onTap: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => const SupplierProfileScreen()),
+                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Bodega Oficial Rivet · Materiales certificados')),
                     ),
                   ),
                 for (final item in products)

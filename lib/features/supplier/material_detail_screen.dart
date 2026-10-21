@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../core/models/models.dart';
 import '../home/widgets/kit/kit.dart';
-import 'catalog_mock.dart';
 import 'catalog_product_info.dart';
-import 'supplier_profile_screen.dart';
 import 'widgets/catalog_common.dart';
 import 'widgets/catalog_detail_parts.dart';
 
@@ -82,11 +80,7 @@ class MaterialDetailScreen extends StatelessWidget {
                 CatalogPlainRow(
                   icon: LucideIcon.store,
                   title: 'Proveedor',
-                  subtitle: '${material.supplierName} · ${CatalogMock.supplierLocation}',
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SupplierProfileScreen()),
-                  ),
+                  subtitle: 'Bodega Oficial Rivet · Despacho y garantía directa',
                 ),
                 const CatalogPlainRow(icon: LucideIcon.fileText, title: 'Especificaciones técnicas'),
                 const SizedBox(height: 9),

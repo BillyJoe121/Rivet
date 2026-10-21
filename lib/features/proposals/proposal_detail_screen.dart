@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
-import '../contractors/contractor_visit_screen.dart';
+import '../messaging/proposal_chat_screen.dart';
 import '../execution/work_progress_screen.dart';
 
 /// Pantalla de detalle de cotización y aceptación de acuerdo (P-028 / P-031).
@@ -91,7 +91,7 @@ class _ProposalDetailScreenState extends State<ProposalDetailScreen> {
                     ),
                   ),
                   AppButton(
-                    text: 'Agendar Visita',
+                    text: 'Conversar',
                     variant: AppButtonVariant.outline,
                     size: AppButtonSize.sm,
                     isFullWidth: false,
@@ -99,7 +99,7 @@ class _ProposalDetailScreenState extends State<ProposalDetailScreen> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => ContractorVisitScreen(contractor: prop.contractor),
+                          builder: (_) => const ProposalChatScreen(),
                         ),
                       );
                     },

@@ -1,7 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rivet/core/models/models.dart';
 import 'package:rivet/features/home/widgets/kit/kit.dart';
-import 'package:rivet/features/messaging/negotiation_chat_screen.dart';
 import 'package:rivet/features/messaging/notifications_screen.dart';
 import 'package:rivet/features/messaging/proposal_chat_screen.dart';
 
@@ -19,27 +17,6 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('22:145219 Negociación y conversación', skip: !fontsAvailable, (
-    tester,
-  ) async {
-    await renderFrame(
-      tester,
-      const NegotiationChatScreen(
-        contractor: Contractor(
-          id: 'frame-carlos',
-          name: 'Carlos Ramírez',
-          trade: 'Pintor',
-          rating: 4.8,
-          reviewCount: 24,
-          completedJobs: 31,
-          zone: 'Bogotá D.C.',
-        ),
-        projectTitle: 'Pintar sala',
-      ),
-      name: '22-145219',
-    );
-    expect(tester.takeException(), isNull);
-  });
 
   testWidgets('22:146347 Mensajes y notificaciones', skip: !fontsAvailable, (
     tester,

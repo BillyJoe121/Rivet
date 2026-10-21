@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
-import 'payment_receipt_screen.dart';
 
 /// Pasarela de pago de prueba académica para obras (P-032).
 class ProjectPaymentScreen extends StatefulWidget {
@@ -27,14 +26,16 @@ class _ProjectPaymentScreenState extends State<ProjectPaymentScreen> {
     if (!mounted) return;
     setState(() => _isProcessing = false);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PaymentReceiptScreen(
-          proposal: widget.proposal,
-          paymentMethod: _selectedMethod,
-          transactionRef: 'RVT-2026-${DateTime.now().millisecondsSinceEpoch.toString().substring(7)}',
-        ),
+    showDialog(
+      context: context,
+      builder: (ctx) => AppConfirmDialog(
+        title: '¡Pago Exitoso!',
+        message: 'El pago ha sido procesado correctamente. Los fondos han sido depositados en garantía para el proyecto.',
+        confirmLabel: 'Volver al Proyecto',
+        onConfirm: () {
+          Navigator.of(ctx).pop();
+          Navigator.of(context).pop();
+        },
       ),
     );
   }

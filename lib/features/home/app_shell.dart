@@ -2,16 +2,13 @@ import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/app_bottom_nav.dart';
-import '../explorer/screen_explorer_screen.dart';
 import 'client_home_view.dart';
 import 'contractor_home_view.dart';
-import 'supplier_home_view.dart';
 import '../projects/my_projects_screen.dart';
 import '../contractors/contractors_directory_screen.dart';
 import '../supplier/materials_catalog_screen.dart';
 import '../account/profile_screen.dart';
 import '../messaging/notifications_screen.dart';
-import '../proposals/proposals_compare_screen.dart';
 
 /// Shell principal con la barra de navegación del Figma según el rol activo.
 class AppShell extends StatefulWidget {
@@ -54,24 +51,6 @@ class _AppShellState extends State<AppShell> {
         currentIndex: _currentIndex,
         onSelected: (idx) => setState(() => _currentIndex = idx),
       ),
-      // Botón flotante discreto y redondeado para el explorador
-      floatingActionButton: FloatingActionButton.small(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ScreenExplorerScreen(
-                currentRole: _currentRole,
-                onRoleChanged: _switchRole,
-              ),
-            ),
-          );
-        },
-        backgroundColor: AppColors.brand700,
-        foregroundColor: Colors.white,
-        tooltip: 'Explorador de pantallas',
-        child: const Icon(Icons.grid_view_outlined, size: 20),
-      ),
     );
   }
 
@@ -81,7 +60,7 @@ class _AppShellState extends State<AppShell> {
         return switch (_currentIndex) {
           0 => ClientHomeView(onSwitchRole: _switchRole),
           1 => const ContractorsDirectoryScreen(),
-          2 => const ProposalsCompareScreen(),
+          2 => const MyProjectsScreen(),
           3 => const NotificationsScreen(),
           _ => ProfileScreen(currentRole: _currentRole, onSwitchRole: _switchRole),
         };
@@ -89,18 +68,12 @@ class _AppShellState extends State<AppShell> {
         return switch (_currentIndex) {
           0 => ContractorHomeView(onSwitchRole: _switchRole),
           1 => const MyProjectsScreen(forContractor: true),
-          2 => const MyProjectsScreen(showBidsOnly: true),
+          2 => const MaterialsCatalogScreen(isProRateView: true),
           3 => const NotificationsScreen(),
           _ => ProfileScreen(currentRole: _currentRole, onSwitchRole: _switchRole),
         };
       case UserRole.supplier:
-        return switch (_currentIndex) {
-          0 => SupplierHomeView(onSwitchRole: _switchRole),
-          1 => const MaterialsCatalogScreen(isProRateView: true),
-          2 => const SupplierHomeView(initialTab: 1),
-          3 => const NotificationsScreen(),
-          _ => ProfileScreen(currentRole: _currentRole, onSwitchRole: _switchRole),
-        };
+        return ClientHomeView(onSwitchRole: _switchRole);
     }
   }
 }

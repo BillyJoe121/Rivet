@@ -4,7 +4,6 @@ import 'package:rivet/features/account/edit_professional_profile_screen.dart';
 import 'package:rivet/features/account/job_closure_screen.dart';
 import 'package:rivet/features/account/my_proposals_screen.dart';
 import 'package:rivet/features/account/professional_profile_screen.dart';
-import 'package:rivet/features/finance/payment_received_screen.dart';
 import 'package:rivet/features/finance/payout_account_screen.dart';
 import 'package:rivet/features/home/contractor_home_view.dart';
 import 'package:rivet/features/home/widgets/kit/kit.dart';
@@ -66,11 +65,6 @@ void main() {
 
   testWidgets('66:14323 Cuenta para recibir pagos', skip: !fontsAvailable, (tester) async {
     await renderFrame(tester, const PayoutAccountScreen(), name: '66-14323');
-    expect(tester.takeException(), isNull);
-  });
-
-  testWidgets('66:14883 Pago recibido', skip: !fontsAvailable, (tester) async {
-    await renderFrame(tester, const PaymentReceivedScreen(), name: '66-14883');
     expect(tester.takeException(), isNull);
   });
 }
