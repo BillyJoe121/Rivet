@@ -3,6 +3,7 @@ import '../../core/theme/theme.dart';
 import '../../core/utils/validators.dart';
 import '../../core/widgets/widgets.dart';
 import 'auth_service.dart';
+import 'widgets/forgot_password_cards.dart';
 
 /// Pantalla de recuperación de acceso (P-003).
 /// Envía instrucciones por correo mediante Supabase Auth sin revelar si el usuario existe (seguridad y privacidad).
@@ -94,58 +95,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: AppSpacing.xxl),
 
-              if (!_submitted) ...[
-                AppCard(
-                  child: Column(
-                    children: [
-                      AppTextField(
-                        label: 'Correo electrónico',
-                        hint: 'ejemplo@correo.com',
-                        controller: _emailController,
-                        keyboardType: TextInputType.emailAddress,
-                        prefixIcon: Icons.contact_mail_outlined,
-                      ),
-                      const SizedBox(height: AppSpacing.lg),
-                      AppButton(
-                        text: 'Enviar Instrucciones',
-                        isLoading: _isLoading,
-                        onPressed: _handleSubmit,
-                      ),
-                    ],
-                  ),
+              if (!_submitted)
+                ForgotPasswordFormCard(
+                  emailController: _emailController,
+                  isLoading: _isLoading,
+                  onSubmit: _handleSubmit,
+                )
+              else
+                ForgotPasswordSuccessCard(
+                  onBackToLogin: () => Navigator.pop(context),
                 ),
-              ] else ...[
-                AppCard(
-                  backgroundColor: AppColors.brandLight,
-                  borderColor: AppColors.brand700.withValues(alpha: 0.3),
-                  child: Column(
-                    children: [
-                      const Icon(
-                        Icons.mark_email_read_outlined,
-                        size: 40,
-                        color: AppColors.brand700,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      Text(
-                        'Instrucciones enviadas',
-                        style: AppTypography.subheading,
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        'Si la cuenta está registrada en Rivet, recibirás un correo con el enlace seguro en los próximos minutos.',
-                        style: AppTypography.bodySmall,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                AppButton(
-                  text: 'Volver al Inicio de Sesión',
-                  variant: AppButtonVariant.outline,
-                  onPressed: () => Navigator.pop(context),
-                ),
-              ],
             ],
           ),
         ),
