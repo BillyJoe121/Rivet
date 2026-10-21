@@ -105,3 +105,103 @@ class ProfileGalleryTile extends StatelessWidget {
     );
   }
 }
+
+/// Cabecera modular del perfil con avatar interactivo y badge de estado Supabase.
+class ProfileHeaderCard extends StatelessWidget {
+  const ProfileHeaderCard({
+    super.key,
+    required this.initials,
+    required this.displayName,
+    required this.roleTitle,
+    required this.onTapAvatar,
+  });
+
+  final String initials;
+  final String displayName;
+  final String roleTitle;
+  final VoidCallback onTapAvatar;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Semantics(
+              button: true,
+              label: 'Cambiar rol activo',
+              child: GestureDetector(
+                onTap: onTapAvatar,
+                child: ProInitialsAvatar(
+                  initials.isNotEmpty ? initials : 'RV',
+                  size: 88,
+                  textStyle: ProText.serif(29, weight: FontWeight.w400, color: ProColors.surface0, lineHeight: 34.8),
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    displayName,
+                    style: ProText.serif(22, color: ProColors.ink700, lineHeight: 26.4),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    roleTitle,
+                    style: ProText.r(13, color: ProColors.ink500),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 14),
+        ProChip(
+          '✓ Perfil activo en Supabase',
+          background: ProColors.successLight,
+          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+          textStyle: ProText.r(11, color: ProColors.brand700, lineHeight: 13.2),
+        ),
+      ],
+    );
+  }
+}
+
+/// Diálogo de confirmación para cerrar sesión con identidad visual Rivet.
+class ConfirmSignOutDialog extends StatelessWidget {
+  const ConfirmSignOutDialog({super.key});
+
+  static Future<bool?> show(BuildContext context) {
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => const ConfirmSignOutDialog(),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      title: const Text('¿Cerrar sesión?'),
+      content: const Text('¿Estás seguro de que deseas salir de tu cuenta en Rivet?'),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context, false),
+          child: const Text('Cancelar'),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: ProColors.brand700,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          ),
+          onPressed: () => Navigator.pop(context, true),
+          child: const Text('Cerrar sesión', style: TextStyle(color: Colors.white)),
+        ),
+      ],
+    );
+  }
+}

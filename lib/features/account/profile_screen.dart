@@ -8,6 +8,7 @@ import '../home/widgets/kit/kit.dart';
 import '../onboarding/welcome_screen.dart';
 import 'account_mock.dart';
 import 'privacy_preferences_screen.dart';
+import 'widgets/account_profile_widgets.dart';
 import 'widgets/account_role_sheet.dart';
 
 /// "Mi perfil": datos personales del usuario conectado a Supabase.
@@ -47,24 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _handleSignOut() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('¿Cerrar sesión?'),
-        content: const Text('¿Estás seguro de que deseas salir de tu cuenta en Rivet?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: ProColors.brand700),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Cerrar sesión', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
+    final confirmed = await ConfirmSignOutDialog.show(context);
 
     if (confirmed == true) {
       await AuthService.instance.signOut();
@@ -133,49 +117,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      Semantics(
-                        button: true,
-                        label: 'Cambiar rol activo',
-                        child: GestureDetector(
-                          onTap: () => showAccountRoleSheet(
-                            context,
-                            currentRole: widget.currentRole,
-                            onSwitchRole: widget.onSwitchRole,
-                          ),
-                          child: ProInitialsAvatar(
-                            initials.isNotEmpty ? initials : 'RV',
-                            size: 88,
-                            textStyle: ProText.serif(29, weight: FontWeight.w400, color: ProColors.surface0, lineHeight: 34.8),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              displayName,
-                              style: ProText.serif(22, color: ProColors.ink700, lineHeight: 26.4),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              widget.currentRole == UserRole.contractor ? 'Contratista profesional' : 'Cliente propietario',
-                              style: ProText.r(13, color: ProColors.ink500),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  ProChip(
-                    '✓ Perfil activo en Supabase',
-                    background: ProColors.successLight,
-                    padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                    textStyle: ProText.r(11, color: ProColors.brand700, lineHeight: 13.2),
+                  ProfileHeaderCard(
+                    initials: initials,
+                    displayName: displayName,
+                    roleTitle: widget.currentRole == UserRole.contractor
+                        ? 'Contratista profesional'
+                        : 'Cliente propietario',
+                    onTapAvatar: () => showAccountRoleSheet(
+                      context,
+                      currentRole: widget.currentRole,
+                      onSwitchRole: widget.onSwitchRole,
+                    ),
                   ),
                   const SizedBox(height: 14),
                   Text('Información personal', style: ProText.serif(19, color: ProColors.ink700, lineHeight: 22.8)),
