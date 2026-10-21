@@ -1,4 +1,6 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/models/models.dart';
 import '../../core/utils/app_page_route.dart';
@@ -12,7 +14,7 @@ import 'widgets/signup_parts.dart';
 /// Registro de usuarios conectado a Supabase (Sprint 1).
 ///
 /// Aplica validaciones estrictas (RFC 5322, contraseña segura, teléfono colombiano),
-/// asignación de rol en `profiles` y viewport inmune a desbordamientos de teclado.
+/// medidor interactivo de contraseña, focus traversal fluido, retroalimentación háptica y sacudida en error.
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key, this.initialRole = UserRole.client});
 
@@ -22,11 +24,19 @@ class SignupScreen extends StatefulWidget {
   State<SignupScreen> createState() => _SignupScreenState();
 }
 
-class _SignupScreenState extends State<SignupScreen> {
+class _SignupScreenState extends State<SignupScreen>
+    with SingleTickerProviderStateMixin {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  final _nameFocusNode = FocusNode();
+  final _emailFocusNode = FocusNode();
+  final _phoneFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+
+  late final AnimationController _shakeController;
 
   late UserRole _role = widget.initialRole == UserRole.supplier
       ? UserRole.client
@@ -37,11 +47,25 @@ class _SignupScreenState extends State<SignupScreen> {
   String? _errorMessage;
 
   @override
+  void initState() {
+    super.initState();
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 400),
+    );
+  }
+
+  @override
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
     _passwordController.dispose();
+    _nameFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _phoneFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _shakeController.dispose();
     super.dispose();
   }
 
@@ -55,24 +79,28 @@ class _SignupScreenState extends State<SignupScreen> {
     final nameError = Validators.fullName(name);
     if (nameError != null) {
       _showError(nameError);
+      _nameFocusNode.requestFocus();
       return;
     }
 
     final emailError = Validators.email(email);
     if (emailError != null) {
       _showError(emailError);
+      _emailFocusNode.requestFocus();
       return;
     }
 
     final phoneError = Validators.phone(phone);
     if (phoneError != null) {
       _showError(phoneError);
+      _phoneFocusNode.requestFocus();
       return;
     }
 
     final passwordError = Validators.password(password);
     if (passwordError != null) {
       _showError(passwordError);
+      _passwordFocusNode.requestFocus();
       return;
     }
 
@@ -109,7 +137,9 @@ class _SignupScreenState extends State<SignupScreen> {
   }
 
   void _showError(String message) {
+    HapticFeedback.mediumImpact();
     setState(() => _errorMessage = message);
+    _shakeController.forward(from: 0.0);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(message),
@@ -168,18 +198,33 @@ class _SignupScreenState extends State<SignupScreen> {
                   const SignupHeader(),
                   const SignupSteps(current: 0),
                   const SizedBox(height: 24),
-                  SignupFormCard(
-                    nameController: _nameController,
-                    emailController: _emailController,
-                    phoneController: _phoneController,
-                    passwordController: _passwordController,
-                    obscurePassword: _obscure,
-                    onToggleObscure: () => setState(() => _obscure = !_obscure),
-                    selectedRole: _role,
-                    onRoleChanged: (r) => setState(() => _role = r),
-                    errorMessage: _errorMessage,
-                    isLoading: _isLoading,
-                    onSignup: _handleSignup,
+                  AnimatedBuilder(
+                    animation: _shakeController,
+                    builder: (context, child) {
+                      final offset = math.sin(_shakeController.value * math.pi * 4) * 8.0;
+                      return Transform.translate(
+                        offset: Offset(offset, 0),
+                        child: child,
+                      );
+                    },
+                    child: SignupFormCard(
+                      nameController: _nameController,
+                      emailController: _emailController,
+                      phoneController: _phoneController,
+                      passwordController: _passwordController,
+                      nameFocusNode: _nameFocusNode,
+                      emailFocusNode: _emailFocusNode,
+                      phoneFocusNode: _phoneFocusNode,
+                      passwordFocusNode: _passwordFocusNode,
+                      obscurePassword: _obscure,
+                      onToggleObscure: () => setState(() => _obscure = !_obscure),
+                      selectedRole: _role,
+                      onRoleChanged: (r) => setState(() => _role = r),
+                      errorMessage: _errorMessage,
+                      onDismissError: () => setState(() => _errorMessage = null),
+                      isLoading: _isLoading,
+                      onSignup: _handleSignup,
+                    ),
                   ),
                 ],
               ),
