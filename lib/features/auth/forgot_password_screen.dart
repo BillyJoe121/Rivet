@@ -95,16 +95,23 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               ),
               const SizedBox(height: AppSpacing.xxl),
 
-              if (!_submitted)
-                ForgotPasswordFormCard(
-                  emailController: _emailController,
-                  isLoading: _isLoading,
-                  onSubmit: _handleSubmit,
-                )
-              else
-                ForgotPasswordSuccessCard(
-                  onBackToLogin: () => Navigator.pop(context),
-                ),
+              AnimatedSwitcher(
+                duration: const Duration(milliseconds: 350),
+                switchInCurve: Curves.easeOutCubic,
+                switchOutCurve: Curves.easeInCubic,
+                child: !_submitted
+                    ? ForgotPasswordFormCard(
+                        key: const ValueKey('forgot_form'),
+                        emailController: _emailController,
+                        isLoading: _isLoading,
+                        onSubmit: _handleSubmit,
+                      )
+                    : ForgotPasswordSuccessCard(
+                        key: const ValueKey('forgot_success'),
+                        onResend: _handleSubmit,
+                        onBackToLogin: () => Navigator.pop(context),
+                      ),
+              ),
             ],
           ),
         ),

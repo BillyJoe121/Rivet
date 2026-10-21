@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../core/theme/theme.dart';
 import '../../../core/widgets/widgets.dart';
@@ -32,7 +34,10 @@ class ForgotPasswordFormCard extends StatelessWidget {
           AppButton(
             text: 'Enviar Instrucciones',
             isLoading: isLoading,
-            onPressed: onSubmit,
+            onPressed: () {
+              HapticFeedback.lightImpact();
+              onSubmit();
+            },
           ),
         ],
       ),
@@ -40,14 +45,64 @@ class ForgotPasswordFormCard extends StatelessWidget {
   }
 }
 
-/// Tarjeta de confirmación y feedback de instrucciones enviadas por correo.
-class ForgotPasswordSuccessCard extends StatelessWidget {
+/// Tarjeta de confirmación con temporizador de reenvío regresivo (cooldown anti-spam).
+class ForgotPasswordSuccessCard extends StatefulWidget {
   const ForgotPasswordSuccessCard({
     super.key,
     required this.onBackToLogin,
+    this.onResend,
+    this.cooldownSeconds = 60,
   });
 
   final VoidCallback onBackToLogin;
+  final VoidCallback? onResend;
+  final int cooldownSeconds;
+
+  @override
+  State<ForgotPasswordSuccessCard> createState() => _ForgotPasswordSuccessCardState();
+}
+
+class _ForgotPasswordSuccessCardState extends State<ForgotPasswordSuccessCard> {
+  late int _remaining;
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    _remaining = widget.cooldownSeconds;
+    _startCooldown();
+  }
+
+  void _startCooldown() {
+    _timer?.cancel();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_remaining > 1) {
+        setState(() => _remaining--);
+      } else {
+        setState(() => _remaining = 0);
+        timer.cancel();
+      }
+    });
+  }
+
+  void _handleResend() {
+    if (_remaining == 0 && widget.onResend != null) {
+      HapticFeedback.lightImpact();
+      widget.onResend!();
+      setState(() => _remaining = widget.cooldownSeconds);
+      _startCooldown();
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +116,7 @@ class ForgotPasswordSuccessCard extends StatelessWidget {
             children: [
               const Icon(
                 Icons.mark_email_read_outlined,
-                size: 40,
+                size: 44,
                 color: AppColors.brand700,
               ),
               const SizedBox(height: AppSpacing.md),
@@ -75,6 +130,25 @@ class ForgotPasswordSuccessCard extends StatelessWidget {
                 style: AppTypography.bodySmall,
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: AppSpacing.md),
+              if (_remaining > 0)
+                Text(
+                  'Podrás solicitar un nuevo enlace en $_remaining s',
+                  style: AppTypography.caption.copyWith(color: AppColors.ink500),
+                )
+              else if (widget.onResend != null)
+                TextButton.icon(
+                  onPressed: _handleResend,
+                  icon: const Icon(Icons.refresh_rounded, size: 16, color: AppColors.brand700),
+                  label: const Text(
+                    'Reenviar correo ahora',
+                    style: TextStyle(
+                      color: AppColors.brand700,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
             ],
           ),
         ),
@@ -82,7 +156,10 @@ class ForgotPasswordSuccessCard extends StatelessWidget {
         AppButton(
           text: 'Volver al Inicio de Sesión',
           variant: AppButtonVariant.outline,
-          onPressed: onBackToLogin,
+          onPressed: () {
+            HapticFeedback.lightImpact();
+            widget.onBackToLogin();
+          },
         ),
       ],
     );
