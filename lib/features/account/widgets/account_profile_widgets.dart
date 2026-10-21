@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../home/widgets/kit/kit.dart';
 
@@ -132,15 +133,49 @@ class ProfileHeaderCard extends StatelessWidget {
               button: true,
               label: 'Cambiar rol activo',
               child: GestureDetector(
-                onTap: onTapAvatar,
-                child: ProInitialsAvatar(
-                  initials.isNotEmpty ? initials : 'RV',
-                  size: 88,
-                  textStyle: ProText.serif(29, weight: FontWeight.w400, color: ProColors.surface0, lineHeight: 34.8),
+                onTap: () {
+                  HapticFeedback.selectionClick();
+                  onTapAvatar();
+                },
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    ProInitialsAvatar(
+                      initials.isNotEmpty ? initials : 'RV',
+                      size: 88,
+                      textStyle: ProText.serif(29, weight: FontWeight.w400, color: ProColors.surface0, lineHeight: 34.8),
+                    ),
+                    Positioned(
+                      right: -2,
+                      bottom: -2,
+                      child: Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          color: ProColors.surface0,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: ProColors.brand700, width: 1.5),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color(0x26000000),
+                              blurRadius: 6,
+                              offset: Offset(0, 2),
+                            ),
+                          ],
+                        ),
+                        alignment: Alignment.center,
+                        child: const Icon(
+                          Icons.swap_horiz_rounded,
+                          size: 16,
+                          color: ProColors.brand700,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -184,24 +219,80 @@ class ConfirmSignOutDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      title: const Text('¿Cerrar sesión?'),
-      content: const Text('¿Estás seguro de que deseas salir de tu cuenta en Rivet?'),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context, false),
-          child: const Text('Cancelar'),
+    return Dialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      backgroundColor: ProColors.surface0,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              width: 52,
+              height: 52,
+              decoration: const BoxDecoration(
+                color: Color(0xFFFDE8E8),
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(
+                Icons.logout_rounded,
+                color: Color(0xFF9B1C1C),
+                size: 26,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '¿Cerrar sesión?',
+              style: ProText.serif(20, weight: FontWeight.w700, color: ProColors.ink900),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              '¿Estás seguro de que deseas salir de tu cuenta en Rivet? Tendrás que volver a autenticarte.',
+              style: ProText.r(14, color: ProColors.ink500, lineHeight: 18),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      side: const BorderSide(color: Color(0xFFE5E7EB)),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () => Navigator.pop(context, false),
+                    child: Text(
+                      'Cancelar',
+                      style: ProText.r(14, weight: FontWeight.w600, color: ProColors.ink700),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      backgroundColor: const Color(0xFF9B1C1C),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    onPressed: () => Navigator.pop(context, true),
+                    child: Text(
+                      'Cerrar sesión',
+                      style: ProText.r(14, weight: FontWeight.w600, color: Colors.white),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: ProColors.brand700,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-          ),
-          onPressed: () => Navigator.pop(context, true),
-          child: const Text('Cerrar sesión', style: TextStyle(color: Colors.white)),
-        ),
-      ],
+      ),
     );
   }
 }
