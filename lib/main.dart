@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'core/config/http_overrides.dart';
 import 'core/config/supabase_config.dart';
 import 'core/theme/theme.dart';
 import 'features/onboarding/welcome_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  setupHttpOverrides();
   await SupabaseConfig.initialize();
   runApp(const RivetApp());
 }
