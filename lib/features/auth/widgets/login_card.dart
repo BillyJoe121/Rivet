@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../projects/widgets/client_kit/client_kit.dart';
 import 'auth_widgets.dart';
@@ -49,6 +50,11 @@ class KeepSessionRow extends StatelessWidget {
                     ),
                     child: keepSession
                         ? const RvIcon(RvIcons.check, color: RvColors.surface0)
+                            .animate()
+                            .scale(
+                              duration: const Duration(milliseconds: 240),
+                              curve: Curves.elasticOut,
+                            )
                         : null,
                   ),
                   const SizedBox(width: 8),
@@ -188,7 +194,10 @@ class LoginCard extends StatelessWidget {
                     textInputAction: TextInputAction.next,
                     onSubmitted: (_) => passwordFocusNode?.requestFocus(),
                   ),
-                ),
+                )
+                    .animate()
+                    .fadeIn(duration: 350.ms, delay: 60.ms, curve: Curves.easeOutCubic)
+                    .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
                 const SizedBox(height: 12),
                 LoginField(
                   icon: RvIcons.lock,
@@ -212,23 +221,36 @@ class LoginCard extends StatelessWidget {
                       ),
                     ),
                   ),
-                ),
+                )
+                    .animate()
+                    .fadeIn(duration: 350.ms, delay: 120.ms, curve: Curves.easeOutCubic)
+                    .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
                 const SizedBox(height: 12),
                 KeepSessionRow(
                   keepSession: keepSession,
                   onKeepSessionChanged: onKeepSessionChanged,
                   onForgotPassword: onForgotPassword,
-                ),
+                )
+                    .animate()
+                    .fadeIn(duration: 350.ms, delay: 180.ms, curve: Curves.easeOutCubic),
                 const SizedBox(height: 16),
                 AuthGradientButton(
                   label: 'Iniciar sesión',
                   isLoading: isLoading,
                   onPressed: onLogin,
-                ),
+                )
+                    .animate()
+                    .fadeIn(duration: 400.ms, delay: 240.ms, curve: Curves.easeOutCubic)
+                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
                 const SizedBox(height: 16),
-                const OrContinueWith(),
+                const OrContinueWith()
+                    .animate()
+                    .fadeIn(duration: 350.ms, delay: 300.ms, curve: Curves.easeOutCubic),
                 const SizedBox(height: 12),
-                SocialButtonsRow(onSelected: onSocialSelected),
+                SocialButtonsRow(onSelected: onSocialSelected)
+                    .animate()
+                    .fadeIn(duration: 400.ms, delay: 360.ms, curve: Curves.easeOutCubic)
+                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
               ],
             ),
           ),

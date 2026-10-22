@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../projects/widgets/client_kit/client_kit.dart';
 import 'auth_widgets.dart';
@@ -164,63 +165,105 @@ class SocialButtonsRow extends StatelessWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            _social(const RvIcon(RvIcons.google), 'Google'),
-            _social(
-              const RvIcon(RvIcons.apple, color: RvColors.statusInk),
-              'Apple',
+            _SocialButton(
+              icon: const RvIcon(RvIcons.google),
+              label: 'Google',
+              onTap: onSelected,
             ),
-            _social(
-              const RvIcon(RvIcons.mailOutline, color: AuthColors.mutedInk),
-              'Correo',
+            _SocialButton(
+              icon: const RvIcon(RvIcons.apple, color: RvColors.statusInk),
+              label: 'Apple',
+              onTap: onSelected,
+            ),
+            _SocialButton(
+              icon: const RvIcon(RvIcons.mailOutline, color: AuthColors.mutedInk),
+              label: 'Correo',
+              onTap: onSelected,
             ),
           ],
         ),
       ),
     );
   }
+}
 
-  Widget _social(Widget icon, String label) {
+class _SocialButton extends StatefulWidget {
+  const _SocialButton({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final Widget icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  State<_SocialButton> createState() => _SocialButtonState();
+}
+
+class _SocialButtonState extends State<_SocialButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: label,
+      label: widget.label,
       child: GestureDetector(
-        onTap: onSelected,
-        child: SizedBox(
-          width: 52,
-          child: OverflowBox(
-            maxWidth: 80,
-            maxHeight: 71,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 52,
-                  height: 52,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: RvColors.surface0,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: AuthColors.fieldStroke),
-                    boxShadow: const [
-                      BoxShadow(
-                        color: Color(0x0A000000),
-                        offset: Offset(0, 2),
-                        blurRadius: 8,
-                      ),
-                    ],
+        behavior: HitTestBehavior.opaque,
+        onTapDown: (_) {
+          HapticFeedback.selectionClick();
+          setState(() => _pressed = true);
+        },
+        onTapUp: (_) {
+          if (_pressed) setState(() => _pressed = false);
+        },
+        onTapCancel: () {
+          if (_pressed) setState(() => _pressed = false);
+        },
+        onTap: widget.onTap,
+        child: AnimatedScale(
+          scale: _pressed ? 0.90 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOutCubic,
+          child: SizedBox(
+            width: 52,
+            child: OverflowBox(
+              maxWidth: 80,
+              maxHeight: 71,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: RvColors.surface0,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: AuthColors.fieldStroke),
+                      boxShadow: const [
+                        BoxShadow(
+                          color: Color(0x0A000000),
+                          offset: Offset(0, 2),
+                          blurRadius: 8,
+                        ),
+                      ],
+                    ),
+                    child: widget.icon,
                   ),
-                  child: icon,
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  label,
-                  style: rvText(
-                    11,
-                    lineHeight: 12.89,
-                    color: AuthColors.placeholder,
+                  const SizedBox(height: 6),
+                  Text(
+                    widget.label,
+                    style: rvText(
+                      11,
+                      lineHeight: 12.89,
+                      color: AuthColors.placeholder,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

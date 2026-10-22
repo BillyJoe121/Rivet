@@ -3,16 +3,17 @@ import 'package:flutter/services.dart';
 
 import '../../projects/widgets/client_kit/client_kit.dart';
 
-/// Botón píldora interactivo con micro-escala táctil y accesibilidad WCAG para WelcomeScreen.
+/// Botón principal de la bienvenida: versión clara del botón de acceso
+/// (píldora paper100, etiqueta centrada y disco de flecha en verde de marca).
 class WelcomeStartButton extends StatefulWidget {
   const WelcomeStartButton({
     super.key,
     required this.onPressed,
-    this.text = 'Iniciar',
+    this.label = 'Iniciar',
   });
 
   final VoidCallback onPressed;
-  final String text;
+  final String label;
 
   @override
   State<WelcomeStartButton> createState() => _WelcomeStartButtonState();
@@ -25,20 +26,21 @@ class _WelcomeStartButtonState extends State<WelcomeStartButton> {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'Iniciar experiencia Rivet',
+      label: widget.label,
+      excludeSemantics: true,
       child: AnimatedScale(
-        scale: _isPressed ? 0.95 : 1.0,
+        scale: _isPressed ? 0.97 : 1.0,
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOutCubic,
         child: Material(
           color: RvColors.paper100,
-          borderRadius: BorderRadius.circular(999),
-          elevation: _isPressed ? 2 : 5,
-          shadowColor: const Color(0x33000000),
+          borderRadius: BorderRadius.circular(32),
+          elevation: _isPressed ? 0 : 2,
+          shadowColor: const Color(0x33001F1C),
           child: InkWell(
-            borderRadius: BorderRadius.circular(999),
-            splashColor: RvColors.brand700.withValues(alpha: 0.15),
-            highlightColor: RvColors.brand700.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(32),
+            splashColor: RvColors.brand700.withValues(alpha: 0.12),
+            highlightColor: RvColors.brand700.withValues(alpha: 0.06),
             onHighlightChanged: (pressed) {
               if (mounted) setState(() => _isPressed = pressed);
             },
@@ -46,30 +48,40 @@ class _WelcomeStartButtonState extends State<WelcomeStartButton> {
               HapticFeedback.lightImpact();
               widget.onPressed();
             },
-            child: Container(
-              width: 156,
-              height: 56,
-              alignment: Alignment.center,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    widget.text,
-                    style: rvText(
-                      17,
-                      weight: FontWeight.w700,
-                      lineHeight: 20,
-                      color: RvColors.brand700,
+            child: SizedBox(
+              height: 60,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: Row(
+                  children: [
+                    const SizedBox(width: 36),
+                    Expanded(
+                      child: Text(
+                        widget.label,
+                        textAlign: TextAlign.center,
+                        style: rvText(
+                          17,
+                          weight: FontWeight.w700,
+                          lineHeight: 20,
+                          color: RvColors.brand700,
+                        ),
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 6),
-                  const Icon(
-                    Icons.arrow_forward_rounded,
-                    size: 18,
-                    color: RvColors.brand700,
-                  ),
-                ],
+                    Container(
+                      width: 36,
+                      height: 36,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        gradient: RvColors.brandGradient,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const RvIcon(
+                        RvIcons.arrowRight,
+                        color: RvColors.surface0,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

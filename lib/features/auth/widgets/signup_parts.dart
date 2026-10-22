@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/models/models.dart';
 import '../../projects/widgets/client_kit/client_kit.dart';
@@ -15,23 +18,7 @@ class SignupHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Semantics(
-            button: true,
-            label: 'Volver',
-            child: GestureDetector(
-              onTap: () => Navigator.maybePop(context),
-              child: Container(
-                width: 32,
-                height: 32,
-                alignment: Alignment.center,
-                decoration: const BoxDecoration(
-                  color: AuthColors.softTile,
-                  shape: BoxShape.circle,
-                ),
-                child: const RvIcon(RvIcons.chevronLeft),
-              ),
-            ),
-          ),
+          const RvBackButton(),
           const SizedBox(height: 18),
           Text(
             'Crear tu cuenta',
@@ -207,14 +194,14 @@ class AccountTypeSelector extends StatelessWidget {
     (
       role: UserRole.client,
       label: 'Cliente',
-      desc: 'Publica\nproyectos',
-      icon: RvIcons.user18x20,
+      desc: 'Publica y gestiona tus proyectos',
+      icon: LucideIcons.home,
     ),
     (
       role: UserRole.contractor,
       label: 'Contratista',
-      desc: 'Recibe\nsolicitudes',
-      icon: RvIcons.toolbox,
+      desc: 'Postula y recibe solicitudes',
+      icon: LucideIcons.hardHat,
     ),
   ];
 
@@ -229,16 +216,16 @@ class AccountTypeSelector extends StatelessWidget {
             '¿Qué tipo de cuenta quieres crear?',
             style: rvText(
               16,
-              weight: FontWeight.w500,
-              lineHeight: 18.75,
+              weight: FontWeight.w600,
+              lineHeight: 20,
               color: RvColors.brand700,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Row(
             children: [
               for (var i = 0; i < _options.length; i++) ...[
-                if (i > 0) const SizedBox(width: 10),
+                if (i > 0) const SizedBox(width: 12),
                 Expanded(child: _option(_options[i])),
               ],
             ],
@@ -249,85 +236,120 @@ class AccountTypeSelector extends StatelessWidget {
   }
 
   Widget _option(
-    ({UserRole role, String label, String desc, RvIconData icon}) o,
+    ({UserRole role, String label, String desc, IconData icon}) o,
   ) {
     final on = o.role == selected;
     return Semantics(
       button: true,
       selected: on,
       child: GestureDetector(
-        onTap: () => onChanged(o.role),
-        child: Container(
-          height: 132,
-          padding: const EdgeInsets.fromLTRB(8, 12, 8, 12),
-          decoration: BoxDecoration(
-            color: on ? const Color(0x0D004E49) : RvColors.surface0,
-            border: Border.all(
-              color: on ? RvColors.brand700 : AuthColors.fieldStroke,
+        behavior: HitTestBehavior.opaque,
+        onTap: () {
+          HapticFeedback.selectionClick();
+          onChanged(o.role);
+        },
+        child: AnimatedScale(
+          scale: on ? 1.02 : 1.0,
+          duration: const Duration(milliseconds: 160),
+          curve: Curves.easeOutCubic,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOutCubic,
+            padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
+            decoration: BoxDecoration(
+              color: RvColors.surface0,
+              border: Border.all(
+                color: on ? RvColors.brand700 : const Color(0xFFE5E7EB),
+                width: on ? 1.8 : 1.0,
+              ),
+              borderRadius: BorderRadius.circular(16),
+              boxShadow: [
+                BoxShadow(
+                  color: on ? const Color(0x18004E49) : const Color(0x06000000),
+                  offset: const Offset(0, 4),
+                  blurRadius: on ? 14 : 6,
+                ),
+              ],
             ),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Positioned.fill(
-                child: Column(
-                  children: [
-                    Container(
-                      width: 36,
-                      height: 36,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: on ? RvColors.brand700 : AuthColors.softTile,
-                        shape: BoxShape.circle,
-                      ),
-                      child: RvIcon(
-                        o.icon,
-                        color: on ? RvColors.surface0 : AuthColors.mutedInk,
+            child: Stack(
+              children: [
+                // Checkmark circular superior discreto
+                Positioned(
+                  top: 0,
+                  right: 0,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    width: 20,
+                    height: 20,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: on ? RvColors.brand700 : Colors.transparent,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: on ? RvColors.brand700 : const Color(0xFFD1D5DB),
+                        width: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    child: on
+                        ? const Icon(
+                            Icons.check,
+                            size: 13,
+                            color: RvColors.surface0,
+                          )
+                            .animate()
+                            .scale(
+                              duration: const Duration(milliseconds: 220),
+                              curve: Curves.elasticOut,
+                            )
+                        : null,
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Contenedor de icono suavizado
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      width: 44,
+                      height: 44,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: on
+                            ? const Color(0xFFE6F4F0)
+                            : const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        o.icon,
+                        size: 22,
+                        color: on
+                            ? RvColors.brand700
+                            : const Color(0xFF6B7280),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
                     Text(
                       o.label,
                       style: rvText(
-                        12,
-                        weight: on ? FontWeight.w600 : FontWeight.w500,
-                        lineHeight: 14.06,
-                        color: on ? RvColors.brand700 : AuthColors.mutedInk,
+                        15,
+                        weight: FontWeight.w700,
+                        lineHeight: 18,
+                        color: on ? RvColors.brand700 : RvColors.ink900,
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 4),
                     Text(
                       o.desc,
-                      textAlign: TextAlign.center,
                       style: rvText(
-                        13,
-                        lineHeight: 18,
-                        color: AuthColors.mutedInk,
+                        12,
+                        lineHeight: 15,
+                        color: const Color(0xFF6B7280),
                       ),
                     ),
                   ],
                 ),
-              ),
-              if (on)
-                Positioned(
-                  top: -7,
-                  right: 3.3,
-                  child: Container(
-                    width: 16,
-                    height: 16,
-                    alignment: Alignment.center,
-                    decoration: const BoxDecoration(
-                      color: RvColors.brand700,
-                      shape: BoxShape.circle,
-                    ),
-                    child: const RvIcon(
-                      RvIcons.check8x6,
-                      color: RvColors.surface0,
-                    ),
-                  ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/models/models.dart';
 import '../../projects/widgets/client_kit/client_kit.dart';
@@ -274,7 +275,10 @@ class _SignupFormCardState extends State<SignupFormCard> {
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) => widget.emailFocusNode?.requestFocus(),
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 350.ms, delay: 60.ms, curve: Curves.easeOutCubic)
+                .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
             const SizedBox(height: 8),
             SignupField(
               icon: RvIcons.correoElectronico,
@@ -287,7 +291,10 @@ class _SignupFormCardState extends State<SignupFormCard> {
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) => widget.phoneFocusNode?.requestFocus(),
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 350.ms, delay: 110.ms, curve: Curves.easeOutCubic)
+                .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
             const SizedBox(height: 8),
             SignupField(
               icon: RvIcons.phone,
@@ -304,7 +311,10 @@ class _SignupFormCardState extends State<SignupFormCard> {
                 textInputAction: TextInputAction.next,
                 onSubmitted: (_) => widget.passwordFocusNode?.requestFocus(),
               ),
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 350.ms, delay: 160.ms, curve: Curves.easeOutCubic)
+                .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
             const SizedBox(height: 8),
             SignupField(
               icon: RvIcons.contrasena,
@@ -330,20 +340,31 @@ class _SignupFormCardState extends State<SignupFormCard> {
                   ),
                 ),
               ),
-            ),
-            PasswordStrengthMeter(password: _currentPassword),
+            )
+                .animate()
+                .fadeIn(duration: 350.ms, delay: 210.ms, curve: Curves.easeOutCubic)
+                .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
+            PasswordStrengthMeter(password: _currentPassword)
+                .animate()
+                .fadeIn(duration: 300.ms, delay: 250.ms, curve: Curves.easeOutCubic),
             const SizedBox(height: 16),
             AccountTypeSelector(
               selected: widget.selectedRole,
               onChanged: widget.onRoleChanged,
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms, delay: 290.ms, curve: Curves.easeOutCubic)
+                .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
             const SizedBox(height: 20),
             AuthGradientButton(
               label: 'Crear cuenta',
               height: 56,
               isLoading: widget.isLoading,
               onPressed: widget.onSignup,
-            ),
+            )
+                .animate()
+                .fadeIn(duration: 400.ms, delay: 340.ms, curve: Curves.easeOutCubic)
+                .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
           ],
         ),
       ),

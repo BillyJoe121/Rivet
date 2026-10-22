@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/models/models.dart';
 import '../../core/utils/app_page_route.dart';
@@ -160,21 +161,30 @@ class _LoginScreenState extends State<LoginScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const RvBackButton(),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-                    child: Text(
-                      'Rivet',
-                      style: rvText(
-                        38,
-                        weight: FontWeight.w700,
-                        lineHeight: 48.64,
-                        color: RvColors.brand700,
-                        family: RvFonts.serif,
-                      ),
+                    padding: const EdgeInsets.fromLTRB(30, 16, 30, 0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const RvBackButton(),
+                        const SizedBox(height: 18),
+                        Text(
+                          'Rivet',
+                          style: rvText(
+                            38,
+                            weight: FontWeight.w700,
+                            lineHeight: 48.64,
+                            color: RvColors.brand700,
+                            family: RvFonts.serif,
+                          ),
+                        )
+                            .animate()
+                            .fadeIn(duration: 400.ms, curve: Curves.easeOutCubic)
+                            .slideY(begin: -0.15, end: 0, curve: Curves.easeOutCubic),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 130),
+                  const SizedBox(height: 110),
                   AnimatedBuilder(
                     animation: _shakeController,
                     builder: (context, child) {
@@ -210,7 +220,10 @@ class _LoginScreenState extends State<LoginScreen>
                         AppShell(initialRole: widget.role),
                       ),
                     ),
-                  ),
+                  )
+                      .animate()
+                      .fadeIn(duration: 450.ms, curve: Curves.easeOutCubic)
+                      .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
                 ],
               ),
             ),

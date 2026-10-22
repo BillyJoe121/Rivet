@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'rv_icon_data.dart';
 import 'rv_icons.dart';
@@ -68,12 +69,19 @@ class RvHeader extends StatelessWidget {
   }
 }
 
-/// Botón volver de 30×28 (chevron-left de 21, trazo 1.7).
-class RvBackButton extends StatelessWidget {
+/// Botón volver circular de 32×32 con fondo suave, chevron centrado y micro-escala táctil.
+class RvBackButton extends StatefulWidget {
   const RvBackButton({super.key, this.onTap, this.color = RvColors.brand700});
 
   final VoidCallback? onTap;
   final Color color;
+
+  @override
+  State<RvBackButton> createState() => _RvBackButtonState();
+}
+
+class _RvBackButtonState extends State<RvBackButton> {
+  bool _isPressed = false;
 
   @override
   Widget build(BuildContext context) {
@@ -82,9 +90,32 @@ class RvBackButton extends StatelessWidget {
       label: 'Volver',
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
-        onTap: onTap ?? () => Navigator.maybePop(context),
-        // Caja de 30×28 con el chevron-left de 21 tal como se exporta de Figma.
-        child: RvIcon(RvIcons.backChevron, color: color),
+        onTapDown: (_) {
+          HapticFeedback.selectionClick();
+          setState(() => _isPressed = true);
+        },
+        onTapUp: (_) {
+          if (_isPressed) setState(() => _isPressed = false);
+        },
+        onTapCancel: () {
+          if (_isPressed) setState(() => _isPressed = false);
+        },
+        onTap: widget.onTap ?? () => Navigator.maybePop(context),
+        child: AnimatedScale(
+          scale: _isPressed ? 0.90 : 1.0,
+          duration: const Duration(milliseconds: 100),
+          curve: Curves.easeOutCubic,
+          child: Container(
+            width: 32,
+            height: 32,
+            alignment: Alignment.center,
+            decoration: const BoxDecoration(
+              color: Color(0xFFF3F4F0),
+              shape: BoxShape.circle,
+            ),
+            child: const RvIcon(RvIcons.chevronLeft),
+          ),
+        ),
       ),
     );
   }
