@@ -24,7 +24,7 @@ Rivet es una plataforma móvil en Flutter (Dart) que conecta a propietarios de o
 - [x] **Simplificar pantallas cargadas**: Estructura de formularios limpia y espaciada con tarjetas modulares y pasos claros.
 - [x] **Flujo intuitivo y honestidad visual**: `InkWell` y `Material` interactivo con splash/highlight en botones y tarjetas de rol; estado de carga `isLoading` en `AuthGradientButton`.
 - [x] **Rediseño de Bienvenida y Recuperar acceso**:
-  - `WelcomeScreen`: fotografía a sangre completa con velo de marca, wordmark Lora, tríada Tu obra–Contratista–Bodega (`WelcomeTriad`) y CTA jerarquizados (Crear cuenta / Ya tengo cuenta).
+  - `WelcomeScreen`: fotografía a sangre completa con velo de marca, wordmark Lora con un icono animado (`WelcomeIconMorph`) que cicla entre Proyectos, Contratistas y Bodega, y CTA jerarquizados (Crear cuenta / Ya tengo cuenta).
   - `ForgotPasswordScreen`: misma anatomía que Login (cabecera ilustrada + hoja blanca), indicador de 2 pasos, chip del correo enviado con opción de corregirlo y anillo de cuenta regresiva para reenviar.
 
 ### ⚙️ Tareas Funcionales y de Seguridad
