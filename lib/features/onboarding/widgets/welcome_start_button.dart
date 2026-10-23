@@ -75,9 +75,17 @@ class _WelcomeStartButtonState extends State<WelcomeStartButton> {
                         gradient: RvColors.brandGradient,
                         shape: BoxShape.circle,
                       ),
-                      child: const RvIcon(
-                        RvIcons.arrowRight,
-                        color: RvColors.surface0,
+                      // La flecha avanza al presionar y regresa al soltar.
+                      child: AnimatedSlide(
+                        offset: _isPressed
+                            ? const Offset(0.35, 0)
+                            : Offset.zero,
+                        duration: const Duration(milliseconds: 180),
+                        curve: Curves.easeOutCubic,
+                        child: const RvIcon(
+                          RvIcons.arrowRight,
+                          color: RvColors.surface0,
+                        ),
                       ),
                     ),
                   ],

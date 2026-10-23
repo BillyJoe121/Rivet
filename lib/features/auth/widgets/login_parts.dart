@@ -70,6 +70,7 @@ class LoginField extends StatelessWidget {
     required this.label,
     required this.input,
     this.trailing,
+    this.focusNode,
   });
 
   final RvIconData icon;
@@ -77,49 +78,56 @@ class LoginField extends StatelessWidget {
   final Widget input;
   final Widget? trailing;
 
+  /// Foco del campo: tocar cualquier parte de la caja lo activa.
+  final FocusNode? focusNode;
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      constraints: const BoxConstraints(minHeight: 62),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: RvColors.surface0,
-        border: Border.all(color: AuthColors.fieldStroke),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SizedBox(
-            width: 24,
-            height: 24,
-            child: Center(
-              child: RvIcon(icon, size: 22, color: RvColors.brand700),
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: focusNode?.requestFocus,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 62),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: RvColors.surface0,
+          border: Border.all(color: AuthColors.fieldStroke),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SizedBox(
+              width: 24,
+              height: 24,
+              child: Center(
+                child: RvIcon(icon, size: 22, color: RvColors.brand700),
+              ),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  label,
-                  style: rvText(
-                    12,
-                    weight: FontWeight.w500,
-                    lineHeight: 14.06,
-                    color: AuthColors.mutedInk,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    label,
+                    style: rvText(
+                      12,
+                      weight: FontWeight.w500,
+                      lineHeight: 14.06,
+                      color: AuthColors.mutedInk,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 3),
-                input,
-              ],
+                  const SizedBox(height: 3),
+                  input,
+                ],
+              ),
             ),
-          ),
-          if (trailing != null) ...[const SizedBox(width: 12), trailing!],
-        ],
+            if (trailing != null) ...[const SizedBox(width: 12), trailing!],
+          ],
+        ),
       ),
     );
   }

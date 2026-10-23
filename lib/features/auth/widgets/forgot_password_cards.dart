@@ -121,6 +121,7 @@ class ForgotPasswordForm extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         LoginField(
+          focusNode: emailFocusNode,
           icon: RvIcons.mail,
           label: 'Correo electrónico',
           input: AuthInput(

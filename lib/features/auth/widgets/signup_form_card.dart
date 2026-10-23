@@ -46,9 +46,16 @@ class PasswordStrengthMeter extends StatelessWidget {
     final hasMinLength = password.length >= 8;
     final hasUpper = password.contains(RegExp(r'[A-Z]'));
     final hasNumber = password.contains(RegExp(r'[0-9]'));
-    final hasSpecial = password.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>_\-=+/\\]'));
+    final hasSpecial = password.contains(
+      RegExp(r'[!@#$%^&*(),.?":{}|<>_\-=+/\\]'),
+    );
 
-    final score = [hasMinLength, hasUpper, hasNumber, hasSpecial].where((b) => b).length;
+    final score = [
+      hasMinLength,
+      hasUpper,
+      hasNumber,
+      hasSpecial,
+    ].where((b) => b).length;
 
     final (color, label) = switch (score) {
       1 => (const Color(0xFFE02424), 'Muy débil'),
@@ -82,7 +89,12 @@ class PasswordStrengthMeter extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 label,
-                style: rvText(11, weight: FontWeight.w600, color: color, lineHeight: 14),
+                style: rvText(
+                  11,
+                  weight: FontWeight.w600,
+                  color: color,
+                  lineHeight: 14,
+                ),
               ),
             ],
           ),
@@ -239,22 +251,30 @@ class _SignupFormCardState extends State<SignupFormCard> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.error_outline,
-                              color: Color(0xFF9B1C1C), size: 20),
+                          const Icon(
+                            Icons.error_outline,
+                            color: Color(0xFF9B1C1C),
+                            size: 20,
+                          ),
                           const SizedBox(width: 8),
                           Expanded(
                             child: Text(
                               widget.errorMessage ?? '',
-                              style: rvText(13,
-                                  color: const Color(0xFF9B1C1C),
-                                  lineHeight: 16),
+                              style: rvText(
+                                13,
+                                color: const Color(0xFF9B1C1C),
+                                lineHeight: 16,
+                              ),
                             ),
                           ),
                           if (widget.onDismissError != null)
                             GestureDetector(
                               onTap: widget.onDismissError,
-                              child: const Icon(Icons.close,
-                                  size: 16, color: Color(0xFF9B1C1C)),
+                              child: const Icon(
+                                Icons.close,
+                                size: 16,
+                                color: Color(0xFF9B1C1C),
+                              ),
                             ),
                         ],
                       ),
@@ -266,104 +286,133 @@ class _SignupFormCardState extends State<SignupFormCard> {
               duration: const Duration(milliseconds: 200),
             ),
             SignupField(
-              icon: RvIcons.nombreCompleto,
-              label: 'Nombre completo',
-              input: AuthInput(
-                controller: widget.nameController,
-                focusNode: widget.nameFocusNode,
-                hint: 'Juan Pérez',
-                textInputAction: TextInputAction.next,
-                onSubmitted: (_) => widget.emailFocusNode?.requestFocus(),
-              ),
-            )
-                .animate()
-                .fadeIn(duration: 350.ms, delay: 60.ms, curve: Curves.easeOutCubic)
-                .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-            const SizedBox(height: 8),
-            SignupField(
-              icon: RvIcons.correoElectronico,
-              label: 'Correo electrónico',
-              input: AuthInput(
-                controller: widget.emailController,
-                focusNode: widget.emailFocusNode,
-                hint: 'tu@correo.com',
-                keyboardType: TextInputType.emailAddress,
-                textInputAction: TextInputAction.next,
-                onSubmitted: (_) => widget.phoneFocusNode?.requestFocus(),
-              ),
-            )
-                .animate()
-                .fadeIn(duration: 350.ms, delay: 110.ms, curve: Curves.easeOutCubic)
-                .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-            const SizedBox(height: 8),
-            SignupField(
-              icon: RvIcons.phone,
-              label: 'Número de contacto',
-              input: AuthInput(
-                controller: widget.phoneController,
-                focusNode: widget.phoneFocusNode,
-                hint: '300 123 4567',
-                keyboardType: TextInputType.phone,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                  ColombianPhoneFormatter(),
-                ],
-                textInputAction: TextInputAction.next,
-                onSubmitted: (_) => widget.passwordFocusNode?.requestFocus(),
-              ),
-            )
-                .animate()
-                .fadeIn(duration: 350.ms, delay: 160.ms, curve: Curves.easeOutCubic)
-                .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-            const SizedBox(height: 8),
-            SignupField(
-              icon: RvIcons.contrasena,
-              label: 'Contraseña segura',
-              input: AuthInput(
-                controller: widget.passwordController,
-                focusNode: widget.passwordFocusNode,
-                hint: '••••••••••••',
-                obscure: widget.obscurePassword,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => widget.onSignup(),
-              ),
-              trailing: GestureDetector(
-                behavior: HitTestBehavior.opaque,
-                onTap: widget.onToggleObscure,
-                child: Padding(
-                  padding: const EdgeInsets.all(4),
-                  child: RvIcon(
-                    widget.obscurePassword
-                        ? RvIcons.mostrarContrasena
-                        : RvIcons.eye,
-                    color: AuthColors.mutedInk,
+                  focusNode: widget.nameFocusNode,
+                  icon: RvIcons.nombreCompleto,
+                  label: 'Nombre completo',
+                  input: AuthInput(
+                    controller: widget.nameController,
+                    focusNode: widget.nameFocusNode,
+                    hint: 'Juan Pérez',
+                    textInputAction: TextInputAction.next,
+                    onSubmitted: (_) => widget.emailFocusNode?.requestFocus(),
                   ),
-                ),
-              ),
-            )
+                )
                 .animate()
-                .fadeIn(duration: 350.ms, delay: 210.ms, curve: Curves.easeOutCubic)
+                .fadeIn(
+                  duration: 350.ms,
+                  delay: 60.ms,
+                  curve: Curves.easeOutCubic,
+                )
                 .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-            PasswordStrengthMeter(password: _currentPassword)
+            const SizedBox(height: 8),
+            SignupField(
+                  focusNode: widget.emailFocusNode,
+                  icon: RvIcons.correoElectronico,
+                  label: 'Correo electrónico',
+                  input: AuthInput(
+                    controller: widget.emailController,
+                    focusNode: widget.emailFocusNode,
+                    hint: 'tu@correo.com',
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    onSubmitted: (_) => widget.phoneFocusNode?.requestFocus(),
+                  ),
+                )
                 .animate()
-                .fadeIn(duration: 300.ms, delay: 250.ms, curve: Curves.easeOutCubic),
+                .fadeIn(
+                  duration: 350.ms,
+                  delay: 110.ms,
+                  curve: Curves.easeOutCubic,
+                )
+                .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
+            const SizedBox(height: 8),
+            SignupField(
+                  focusNode: widget.phoneFocusNode,
+                  icon: RvIcons.phone,
+                  label: 'Número de contacto',
+                  input: AuthInput(
+                    controller: widget.phoneController,
+                    focusNode: widget.phoneFocusNode,
+                    hint: '300 123 4567',
+                    keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      ColombianPhoneFormatter(),
+                    ],
+                    textInputAction: TextInputAction.next,
+                    onSubmitted: (_) =>
+                        widget.passwordFocusNode?.requestFocus(),
+                  ),
+                )
+                .animate()
+                .fadeIn(
+                  duration: 350.ms,
+                  delay: 160.ms,
+                  curve: Curves.easeOutCubic,
+                )
+                .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
+            const SizedBox(height: 8),
+            SignupField(
+                  focusNode: widget.passwordFocusNode,
+                  icon: RvIcons.contrasena,
+                  label: 'Contraseña segura',
+                  input: AuthInput(
+                    controller: widget.passwordController,
+                    focusNode: widget.passwordFocusNode,
+                    hint: '••••••••••••',
+                    obscure: widget.obscurePassword,
+                    textInputAction: TextInputAction.done,
+                    onSubmitted: (_) => widget.onSignup(),
+                  ),
+                  trailing: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onTap: widget.onToggleObscure,
+                    child: Padding(
+                      padding: const EdgeInsets.all(4),
+                      child: RvIcon(
+                        widget.obscurePassword ? RvIcons.eye : RvIcons.eyeOff,
+                        color: AuthColors.mutedInk,
+                      ),
+                    ),
+                  ),
+                )
+                .animate()
+                .fadeIn(
+                  duration: 350.ms,
+                  delay: 210.ms,
+                  curve: Curves.easeOutCubic,
+                )
+                .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
+            PasswordStrengthMeter(password: _currentPassword).animate().fadeIn(
+              duration: 300.ms,
+              delay: 250.ms,
+              curve: Curves.easeOutCubic,
+            ),
             const SizedBox(height: 16),
             AccountTypeSelector(
-              selected: widget.selectedRole,
-              onChanged: widget.onRoleChanged,
-            )
+                  selected: widget.selectedRole,
+                  onChanged: widget.onRoleChanged,
+                )
                 .animate()
-                .fadeIn(duration: 400.ms, delay: 290.ms, curve: Curves.easeOutCubic)
+                .fadeIn(
+                  duration: 400.ms,
+                  delay: 290.ms,
+                  curve: Curves.easeOutCubic,
+                )
                 .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
             const SizedBox(height: 20),
             AuthGradientButton(
-              label: 'Crear cuenta',
-              height: 56,
-              isLoading: widget.isLoading,
-              onPressed: widget.onSignup,
-            )
+                  label: 'Crear cuenta',
+                  height: 56,
+                  isLoading: widget.isLoading,
+                  onPressed: widget.onSignup,
+                )
                 .animate()
-                .fadeIn(duration: 400.ms, delay: 340.ms, curve: Curves.easeOutCubic)
+                .fadeIn(
+                  duration: 400.ms,
+                  delay: 340.ms,
+                  curve: Curves.easeOutCubic,
+                )
                 .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
           ],
         ),

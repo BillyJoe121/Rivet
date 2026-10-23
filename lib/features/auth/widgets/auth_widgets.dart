@@ -86,12 +86,12 @@ class _AuthGradientButtonState extends State<AuthGradientButton> {
                         ? [
                             const Color(0xFF1A6B63),
                             const Color(0xFF064F48),
-                            const Color(0xFF002B27)
+                            const Color(0xFF002B27),
                           ]
                         : [
                             const Color(0xFF278D82),
                             const Color(0xFF08655D),
-                            const Color(0xFF003D38)
+                            const Color(0xFF003D38),
                           ],
                     stops: const [0, 0.46, 1],
                   ),
@@ -137,9 +137,17 @@ class _AuthGradientButtonState extends State<AuthGradientButton> {
                         color: const Color(0x26FFFFFF),
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      child: const RvIcon(
-                        RvIcons.arrowRight,
-                        color: RvColors.surface0,
+                      // La flecha avanza al presionar y regresa al soltar.
+                      child: AnimatedSlide(
+                        offset: _isPressed
+                            ? const Offset(0.35, 0)
+                            : Offset.zero,
+                        duration: const Duration(milliseconds: 180),
+                        curve: Curves.easeOutCubic,
+                        child: const RvIcon(
+                          RvIcons.arrowRight,
+                          color: RvColors.surface0,
+                        ),
                       ),
                     ),
                   ],
@@ -149,13 +157,11 @@ class _AuthGradientButtonState extends State<AuthGradientButton> {
           ),
         ),
       ),
-    )
-        .animate()
-        .shimmer(
-          delay: const Duration(milliseconds: 900),
-          duration: const Duration(milliseconds: 1400),
-          color: Colors.white.withValues(alpha: 0.15),
-        );
+    ).animate().shimmer(
+      delay: const Duration(milliseconds: 900),
+      duration: const Duration(milliseconds: 1400),
+      color: Colors.white.withValues(alpha: 0.15),
+    );
   }
 }
 

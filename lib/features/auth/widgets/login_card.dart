@@ -41,20 +41,25 @@ class KeepSessionRow extends StatelessWidget {
                     height: 20,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: keepSession ? RvColors.brand700 : RvColors.surface0,
+                      color: keepSession
+                          ? RvColors.brand700
+                          : RvColors.surface0,
                       border: Border.all(
-                        color: keepSession ? RvColors.brand700 : AuthColors.fieldStroke,
+                        color: keepSession
+                            ? RvColors.brand700
+                            : AuthColors.fieldStroke,
                         width: 1.5,
                       ),
                       borderRadius: BorderRadius.circular(5),
                     ),
                     child: keepSession
-                        ? const RvIcon(RvIcons.check, color: RvColors.surface0)
-                            .animate()
-                            .scale(
-                              duration: const Duration(milliseconds: 240),
-                              curve: Curves.elasticOut,
-                            )
+                        ? const RvIcon(
+                            RvIcons.check,
+                            color: RvColors.surface0,
+                          ).animate().scale(
+                            duration: const Duration(milliseconds: 240),
+                            curve: Curves.elasticOut,
+                          )
                         : null,
                   ),
                   const SizedBox(width: 8),
@@ -67,12 +72,21 @@ class KeepSessionRow extends StatelessWidget {
           Semantics(
             button: true,
             label: '¿Olvidaste tu contraseña?',
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(8),
               onTap: onForgotPassword,
+              hoverColor: RvColors.brand700.withValues(alpha: 0.06),
+              highlightColor: RvColors.brand700.withValues(alpha: 0.08),
+              splashColor: RvColors.brand700.withValues(alpha: 0.12),
               child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Text('¿Olvidaste tu contraseña?', style: style),
+                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                child: Text(
+                  '¿Olvidaste tu contraseña?',
+                  style: style.copyWith(
+                    color: RvColors.brand700,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ),
@@ -155,22 +169,30 @@ class LoginCard extends StatelessWidget {
                           ),
                           child: Row(
                             children: [
-                              const Icon(Icons.error_outline,
-                                  color: Color(0xFF9B1C1C), size: 20),
+                              const Icon(
+                                Icons.error_outline,
+                                color: Color(0xFF9B1C1C),
+                                size: 20,
+                              ),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   errorMessage ?? '',
-                                  style: rvText(13,
-                                      color: const Color(0xFF9B1C1C),
-                                      lineHeight: 16),
+                                  style: rvText(
+                                    13,
+                                    color: const Color(0xFF9B1C1C),
+                                    lineHeight: 16,
+                                  ),
                                 ),
                               ),
                               if (onDismissError != null)
                                 GestureDetector(
                                   onTap: onDismissError,
-                                  child: const Icon(Icons.close,
-                                      size: 16, color: Color(0xFF9B1C1C)),
+                                  child: const Icon(
+                                    Icons.close,
+                                    size: 16,
+                                    color: Color(0xFF9B1C1C),
+                                  ),
                                 ),
                             ],
                           ),
@@ -182,63 +204,79 @@ class LoginCard extends StatelessWidget {
                   duration: const Duration(milliseconds: 200),
                 ),
                 LoginField(
-                  icon: RvIcons.mail,
-                  label: 'Correo electrónico',
-                  input: AuthInput(
-                    controller: emailController,
-                    focusNode: emailFocusNode,
-                    hint: 'tu@correo.com',
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
-                    onSubmitted: (_) => passwordFocusNode?.requestFocus(),
-                  ),
-                )
+                      focusNode: emailFocusNode,
+                      icon: RvIcons.mail,
+                      label: 'Correo electrónico',
+                      input: AuthInput(
+                        controller: emailController,
+                        focusNode: emailFocusNode,
+                        hint: 'tu@correo.com',
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        onSubmitted: (_) => passwordFocusNode?.requestFocus(),
+                      ),
+                    )
                     .animate()
-                    .fadeIn(duration: 350.ms, delay: 60.ms, curve: Curves.easeOutCubic)
+                    .fadeIn(
+                      duration: 350.ms,
+                      delay: 60.ms,
+                      curve: Curves.easeOutCubic,
+                    )
                     .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
                 const SizedBox(height: 12),
                 LoginField(
-                  icon: RvIcons.lock,
-                  label: 'Contraseña',
-                  input: AuthInput(
-                    controller: passwordController,
-                    focusNode: passwordFocusNode,
-                    hint: '••••••••',
-                    obscure: obscurePassword,
-                    textInputAction: TextInputAction.done,
-                    onSubmitted: (_) => onLogin(),
-                  ),
-                  trailing: GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: onToggleObscure,
-                    child: Padding(
-                      padding: const EdgeInsets.all(4),
-                      child: RvIcon(
-                        obscurePassword ? RvIcons.eye : RvIcons.mostrarContrasena,
-                        color: AuthColors.placeholder,
+                      focusNode: passwordFocusNode,
+                      icon: RvIcons.lock,
+                      label: 'Contraseña',
+                      input: AuthInput(
+                        controller: passwordController,
+                        focusNode: passwordFocusNode,
+                        hint: '••••••••',
+                        obscure: obscurePassword,
+                        textInputAction: TextInputAction.done,
+                        onSubmitted: (_) => onLogin(),
                       ),
-                    ),
-                  ),
-                )
+                      trailing: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: onToggleObscure,
+                        child: Padding(
+                          padding: const EdgeInsets.all(4),
+                          child: RvIcon(
+                            obscurePassword ? RvIcons.eye : RvIcons.eyeOff,
+                            color: AuthColors.placeholder,
+                          ),
+                        ),
+                      ),
+                    )
                     .animate()
-                    .fadeIn(duration: 350.ms, delay: 120.ms, curve: Curves.easeOutCubic)
+                    .fadeIn(
+                      duration: 350.ms,
+                      delay: 120.ms,
+                      curve: Curves.easeOutCubic,
+                    )
                     .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
                 const SizedBox(height: 12),
                 KeepSessionRow(
                   keepSession: keepSession,
                   onKeepSessionChanged: onKeepSessionChanged,
                   onForgotPassword: onForgotPassword,
-                )
-                    .animate()
-                    .fadeIn(duration: 350.ms, delay: 180.ms, curve: Curves.easeOutCubic),
+                ).animate().fadeIn(
+                  duration: 350.ms,
+                  delay: 180.ms,
+                  curve: Curves.easeOutCubic,
+                ),
                 const SizedBox(height: 16),
                 AuthGradientButton(
-                  label: 'Iniciar sesión',
-                  isLoading: isLoading,
-                  onPressed: onLogin,
-                )
+                      label: 'Iniciar sesión',
+                      isLoading: isLoading,
+                      onPressed: onLogin,
+                    )
                     .animate()
-                    .fadeIn(duration: 400.ms, delay: 240.ms, curve: Curves.easeOutCubic)
+                    .fadeIn(
+                      duration: 400.ms,
+                      delay: 240.ms,
+                      curve: Curves.easeOutCubic,
+                    )
                     .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
               ],
             ),
