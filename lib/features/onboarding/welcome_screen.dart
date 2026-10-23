@@ -5,11 +5,11 @@ import '../../core/utils/app_page_route.dart';
 import '../auth/login_screen.dart';
 import '../auth/signup_screen.dart';
 import '../projects/widgets/client_kit/client_kit.dart';
+import 'widgets/welcome_icon_morph.dart';
 import 'widgets/welcome_start_button.dart';
-import 'widgets/welcome_triad.dart';
 
 /// Pantalla inicial editorial: fotografía a sangre completa con velo de marca,
-/// wordmark Lora, tríada obra–contratista–bodega y acciones de entrada.
+/// wordmark Lora con icono animado y acciones de entrada.
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
@@ -117,32 +117,23 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     _reveal(
                       0,
                       0.45,
-                      Text(
-                        'Rivet',
-                        style: rvText(
-                          64,
-                          weight: FontWeight.w700,
-                          lineHeight: 72,
-                          color: RvColors.paper100,
-                          family: RvFonts.serif,
-                        ),
+                      Row(
+                        children: [
+                          const WelcomeIconMorph(),
+                          const SizedBox(width: 14),
+                          Text(
+                            'Rivet',
+                            style: rvText(
+                              64,
+                              weight: FontWeight.w700,
+                              lineHeight: 72,
+                              color: RvColors.paper100,
+                              family: RvFonts.serif,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    _reveal(
-                      0.1,
-                      0.55,
-                      Text(
-                        'Obras y acabados con respaldo oficial',
-                        style: rvText(
-                          16,
-                          lineHeight: 22,
-                          color: const Color(0xFFDCE8E4),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 36),
-                    _reveal(0.25, 0.7, const WelcomeTriad()),
                     const SizedBox(height: 40),
                     _reveal(
                       0.45,
