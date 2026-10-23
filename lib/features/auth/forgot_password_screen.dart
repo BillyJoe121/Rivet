@@ -89,7 +89,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           content: Text(message),
           backgroundColor: RvColors.ink900,
           behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 5),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          action: SnackBarAction(
+            label: 'OK',
+            textColor: const Color(0xFFEAF5F0),
+            onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
+          ),
         ),
       );
   }
@@ -126,6 +132,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
           SafeArea(
             bottom: false,
             child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
               padding: EdgeInsets.only(bottom: bottomInset + 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,

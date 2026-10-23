@@ -107,6 +107,30 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                 ),
               ),
             ),
+            // Wordmark e icono centrados en la mitad de la pantalla.
+            Center(
+              child: _reveal(
+                0,
+                0.45,
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'Rivet',
+                      style: rvText(
+                        64,
+                        weight: FontWeight.w700,
+                        lineHeight: 72,
+                        color: RvColors.paper100,
+                        family: RvFonts.serif,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const WelcomeIconMorph(),
+                  ],
+                ),
+              ),
+            ),
             SafeArea(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
@@ -114,43 +138,23 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const Spacer(),
-                    _reveal(
-                      0,
-                      0.45,
-                      Row(
-                        children: [
-                          const WelcomeIconMorph(),
-                          const SizedBox(width: 14),
-                          Text(
-                            'Rivet',
-                            style: rvText(
-                              64,
-                              weight: FontWeight.w700,
-                              lineHeight: 72,
-                              color: RvColors.paper100,
-                              family: RvFonts.serif,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
                     const SizedBox(height: 40),
                     _reveal(
                       0.45,
                       0.9,
                       WelcomeStartButton(
-                        label: 'Crear cuenta',
+                        label: 'Iniciar Sesión',
                         onPressed: () =>
-                            AppNavigator.push(context, const SignupScreen()),
+                            AppNavigator.push(context, const LoginScreen()),
                       ),
                     ),
                     const SizedBox(height: 8),
                     _reveal(
                       0.55,
                       1,
-                      _SignInLink(
+                      _SignUpLink(
                         onTap: () =>
-                            AppNavigator.push(context, const LoginScreen()),
+                            AppNavigator.push(context, const SignupScreen()),
                       ),
                     ),
                   ],
@@ -164,9 +168,9 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 }
 
-/// Acción secundaria para quien ya tiene cuenta: texto claro sobre el velo.
-class _SignInLink extends StatelessWidget {
-  const _SignInLink({required this.onTap});
+/// Acción secundaria para quien aún no tiene cuenta: texto claro sobre el velo.
+class _SignUpLink extends StatelessWidget {
+  const _SignUpLink({required this.onTap});
 
   final VoidCallback onTap;
 
@@ -174,7 +178,7 @@ class _SignInLink extends StatelessWidget {
   Widget build(BuildContext context) {
     return Semantics(
       button: true,
-      label: 'Ya tengo cuenta',
+      label: 'Aún no tengo una cuenta',
       excludeSemantics: true,
       child: Material(
         color: Colors.transparent,
@@ -191,7 +195,7 @@ class _SignInLink extends StatelessWidget {
             width: double.infinity,
             child: Center(
               child: Text(
-                'Ya tengo cuenta',
+                'Aún no tengo una cuenta',
                 style: rvText(
                   16,
                   weight: FontWeight.w600,

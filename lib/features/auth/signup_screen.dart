@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -39,6 +40,10 @@ class _SignupScreenState extends State<SignupScreen>
 
   late final AnimationController _shakeController;
 
+  /// Oculta el error automáticamente tras [_errorDuration].
+  Timer? _errorTimer;
+  static const _errorDuration = Duration(seconds: 5);
+
   late UserRole _role = widget.initialRole == UserRole.supplier
       ? UserRole.client
       : widget.initialRole;
@@ -54,10 +59,14 @@ class _SignupScreenState extends State<SignupScreen>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
+    for (final node in _focusNodes) {
+      node.addListener(_onFocusChanged);
+    }
   }
 
   @override
   void dispose() {
+    _errorTimer?.cancel();
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
@@ -137,106 +146,162 @@ class _SignupScreenState extends State<SignupScreen>
     }
   }
 
+  /// Muestra el error una sola vez, en el banner de la tarjeta, y lo quita a
+  /// los 5 segundos. Un error nuevo reinicia el temporizador.
   void _showError(String message) {
     HapticFeedback.mediumImpact();
+    _errorTimer?.cancel();
     setState(() => _errorMessage = message);
+    _errorTimer = Timer(_errorDuration, _dismissError);
     _shakeController.forward(from: 0.0);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: RvColors.ink900,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        action: SnackBarAction(
-          label: 'OK',
-          textColor: const Color(0xFFEAF5F0),
-          onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-        ),
-      ),
+  }
+
+  void _dismissError() {
+    _errorTimer?.cancel();
+    if (!mounted) return;
+    setState(() => _errorMessage = null);
+  }
+
+  List<FocusNode> get _focusNodes => [
+    _nameFocusNode,
+    _emailFocusNode,
+    _phoneFocusNode,
+    _passwordFocusNode,
+  ];
+
+  /// Cuando un campo recibe el foco, lo desplaza a la vista por encima del
+  /// teclado. Espera a que termine la animación del teclado.
+  void _onFocusChanged() {
+    if (!_focusNodes.any((node) => node.hasFocus)) return;
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _revealFocusedField();
+    });
+  }
+
+  void _revealFocusedField() {
+    final focusContext = FocusManager.instance.primaryFocus?.context;
+    if (focusContext == null) return;
+    Scrollable.ensureVisible(
+      focusContext,
+      alignment: 0.4,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final topInset = MediaQuery.paddingOf(context).top;
 
     return Scaffold(
       backgroundColor: RvColors.paper100,
-      body: Stack(
-        children: [
-          // Imagen decorativa superior
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 309,
-            child: Image.asset(RvImages.headerRoller, fit: BoxFit.cover),
-          ),
-          // Fundido orgánico
-          const Positioned(
-            top: 230,
-            left: 0,
-            right: 0,
-            height: 42,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0x00FAF8F3), RvColors.paper100],
-                ),
-              ),
-            ),
-          ),
-          // Viewport adaptable seguro contra el teclado
-          SafeArea(
-            bottom: false,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: bottomInset + 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          // La página completa (foto, degradado y fondo) se desplaza junta.
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: ColoredBox(
+              color: RvColors.paper100,
+              child: Stack(
                 children: [
-                  const SignupHeader()
-                      .animate()
-                      .fadeIn(duration: 400.ms, curve: Curves.easeOutCubic)
-                      .slideY(begin: -0.15, end: 0, curve: Curves.easeOutCubic),
-                  const SizedBox(height: 18),
-                  AnimatedBuilder(
-                    animation: _shakeController,
-                    builder: (context, child) {
-                      final offset = math.sin(_shakeController.value * math.pi * 4) * 8.0;
-                      return Transform.translate(
-                        offset: Offset(offset, 0),
-                        child: child,
-                      );
-                    },
-                    child: SignupFormCard(
-                      nameController: _nameController,
-                      emailController: _emailController,
-                      phoneController: _phoneController,
-                      passwordController: _passwordController,
-                      nameFocusNode: _nameFocusNode,
-                      emailFocusNode: _emailFocusNode,
-                      phoneFocusNode: _phoneFocusNode,
-                      passwordFocusNode: _passwordFocusNode,
-                      obscurePassword: _obscure,
-                      onToggleObscure: () => setState(() => _obscure = !_obscure),
-                      selectedRole: _role,
-                      onRoleChanged: (r) => setState(() => _role = r),
-                      errorMessage: _errorMessage,
-                      onDismissError: () => setState(() => _errorMessage = null),
-                      isLoading: _isLoading,
-                      onSignup: _handleSignup,
+                  // Imagen decorativa superior
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 309,
+                    child: Image.asset(
+                      RvImages.headerRoller,
+                      fit: BoxFit.cover,
                     ),
-                  )
-                      .animate()
-                      .fadeIn(duration: 450.ms, delay: 100.ms, curve: Curves.easeOutCubic)
-                      .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
+                  ),
+                  // Fundido orgánico
+                  const Positioned(
+                    top: 230,
+                    left: 0,
+                    right: 0,
+                    height: 42,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0x00FAF8F3), RvColors.paper100],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: topInset),
+                        child: const SignupHeader()
+                            .animate()
+                            .fadeIn(
+                              duration: 400.ms,
+                              curve: Curves.easeOutCubic,
+                            )
+                            .slideY(
+                              begin: -0.15,
+                              end: 0,
+                              curve: Curves.easeOutCubic,
+                            ),
+                      ),
+                      const SizedBox(height: 18),
+                      AnimatedBuilder(
+                            animation: _shakeController,
+                            builder: (context, child) {
+                              final offset =
+                                  math.sin(
+                                    _shakeController.value * math.pi * 4,
+                                  ) *
+                                  8.0;
+                              return Transform.translate(
+                                offset: Offset(offset, 0),
+                                child: child,
+                              );
+                            },
+                            child: SignupFormCard(
+                              nameController: _nameController,
+                              emailController: _emailController,
+                              phoneController: _phoneController,
+                              passwordController: _passwordController,
+                              nameFocusNode: _nameFocusNode,
+                              emailFocusNode: _emailFocusNode,
+                              phoneFocusNode: _phoneFocusNode,
+                              passwordFocusNode: _passwordFocusNode,
+                              obscurePassword: _obscure,
+                              onToggleObscure: () =>
+                                  setState(() => _obscure = !_obscure),
+                              selectedRole: _role,
+                              onRoleChanged: (r) => setState(() => _role = r),
+                              errorMessage: _errorMessage,
+                              onDismissError: _dismissError,
+                              isLoading: _isLoading,
+                              onSignup: _handleSignup,
+                            ),
+                          )
+                          .animate()
+                          .fadeIn(
+                            duration: 450.ms,
+                            delay: 100.ms,
+                            curve: Curves.easeOutCubic,
+                          )
+                          .slideY(
+                            begin: 0.08,
+                            end: 0,
+                            curve: Curves.easeOutCubic,
+                          ),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
                 ],
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

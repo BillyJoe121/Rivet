@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -35,6 +36,10 @@ class _LoginScreenState extends State<LoginScreen>
 
   late final AnimationController _shakeController;
 
+  /// Oculta el error automáticamente tras [_errorDuration].
+  Timer? _errorTimer;
+  static const _errorDuration = Duration(seconds: 5);
+
   bool _keepSession = true;
   bool _obscure = true;
   bool _isLoading = false;
@@ -47,16 +52,39 @@ class _LoginScreenState extends State<LoginScreen>
       vsync: this,
       duration: const Duration(milliseconds: 400),
     );
+    _emailFocusNode.addListener(_onFocusChanged);
+    _passwordFocusNode.addListener(_onFocusChanged);
   }
 
   @override
   void dispose() {
+    _errorTimer?.cancel();
     _emailController.dispose();
     _passwordController.dispose();
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
     _shakeController.dispose();
     super.dispose();
+  }
+
+  /// Cuando un campo recibe el foco, lo desplaza a la vista por encima del
+  /// teclado. Espera a que termine la animación del teclado.
+  void _onFocusChanged() {
+    if (!_emailFocusNode.hasFocus && !_passwordFocusNode.hasFocus) return;
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (mounted) _revealFocusedField();
+    });
+  }
+
+  void _revealFocusedField() {
+    final focusContext = FocusManager.instance.primaryFocus?.context;
+    if (focusContext == null) return;
+    Scrollable.ensureVisible(
+      focusContext,
+      alignment: 0.4,
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   Future<void> _handleLogin() async {
@@ -74,6 +102,7 @@ class _LoginScreenState extends State<LoginScreen>
       return;
     }
 
+    _errorTimer?.cancel();
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -102,133 +131,133 @@ class _LoginScreenState extends State<LoginScreen>
     }
   }
 
+  /// Muestra el error una sola vez, en el banner de la tarjeta, y lo quita a
+  /// los 5 segundos. Un error nuevo reinicia el temporizador.
   void _showError(String message) {
     HapticFeedback.mediumImpact();
+    _errorTimer?.cancel();
     setState(() => _errorMessage = message);
+    _errorTimer = Timer(_errorDuration, _dismissError);
     _shakeController.forward(from: 0.0);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: RvColors.ink900,
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        action: SnackBarAction(
-          label: 'OK',
-          textColor: const Color(0xFFEAF5F0),
-          onPressed: () => ScaffoldMessenger.of(context).hideCurrentSnackBar(),
-        ),
-      ),
-    );
+  }
+
+  void _dismissError() {
+    _errorTimer?.cancel();
+    if (!mounted) return;
+    setState(() => _errorMessage = null);
   }
 
   @override
   Widget build(BuildContext context) {
-    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+    final topInset = MediaQuery.paddingOf(context).top;
 
     return Scaffold(
-      backgroundColor: RvColors.paper100,
-      body: Stack(
-        children: [
-          // Imagen decorativa superior
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 340,
-            child: Image.asset(RvImages.loginScandinavian, fit: BoxFit.cover),
-          ),
-          // Fundido orgánico hacia el color paper100
-          const Positioned(
-            top: 200,
-            left: 0,
-            right: 0,
-            height: 160,
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0x00FAF8F3), RvColors.paper100],
-                ),
-              ),
-            ),
-          ),
-          // Contenido desplazable seguro contra teclado
-          SafeArea(
-            bottom: false,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(bottom: bottomInset + 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      backgroundColor: RvColors.surface0,
+      body: LayoutBuilder(
+        builder: (context, constraints) => SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          // La página completa (foto y fondo blanco) se desplaza junta. Así no
+          // quedan huecos ni franjas de foto al abrir el teclado.
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: constraints.maxHeight),
+            child: ColoredBox(
+              color: RvColors.surface0,
+              child: Stack(
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.fromLTRB(30, 16, 30, 0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const RvBackButton(),
-                        const SizedBox(height: 18),
-                        Text(
-                          'Rivet',
-                          style: rvText(
-                            38,
-                            weight: FontWeight.w700,
-                            lineHeight: 48.64,
-                            color: RvColors.brand700,
-                            family: RvFonts.serif,
-                          ),
-                        )
-                            .animate()
-                            .fadeIn(duration: 400.ms, curve: Curves.easeOutCubic)
-                            .slideY(begin: -0.15, end: 0, curve: Curves.easeOutCubic),
-                      ],
+                  // Imagen decorativa superior
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: 340,
+                    child: Image.asset(RvImages.loginScandinavian, fit: BoxFit.cover),
+                  ),
+                  // Fundido orgánico hacia el blanco de la hoja
+                  const Positioned(
+                    top: 200,
+                    left: 0,
+                    right: 0,
+                    height: 160,
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [Color(0x00FAF8F3), RvColors.surface0],
+                        ),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 110),
-                  AnimatedBuilder(
-                    animation: _shakeController,
-                    builder: (context, child) {
-                      final offset = math.sin(_shakeController.value * math.pi * 4) * 8.0;
-                      return Transform.translate(
-                        offset: Offset(offset, 0),
-                        child: child,
-                      );
-                    },
-                    child: LoginCard(
-                      emailController: _emailController,
-                      passwordController: _passwordController,
-                      emailFocusNode: _emailFocusNode,
-                      passwordFocusNode: _passwordFocusNode,
-                      obscurePassword: _obscure,
-                      onToggleObscure: () => setState(() => _obscure = !_obscure),
-                      keepSession: _keepSession,
-                      onKeepSessionChanged: (val) => setState(() => _keepSession = val),
-                      errorMessage: _errorMessage,
-                      onDismissError: () => setState(() => _errorMessage = null),
-                      isLoading: _isLoading,
-                      onLogin: _handleLogin,
-                      onCreateAccount: () => AppNavigator.push(
-                        context,
-                        SignupScreen(initialRole: widget.role),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.fromLTRB(30, topInset + 16, 30, 0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const RvBackButton(),
+                            const SizedBox(height: 18),
+                            Text(
+                              'Rivet',
+                              style: rvText(
+                                38,
+                                weight: FontWeight.w700,
+                                lineHeight: 48.64,
+                                color: RvColors.brand700,
+                                family: RvFonts.serif,
+                              ),
+                            )
+                                .animate()
+                                .fadeIn(duration: 400.ms, curve: Curves.easeOutCubic)
+                                .slideY(begin: -0.15, end: 0, curve: Curves.easeOutCubic),
+                          ],
+                        ),
                       ),
-                      onForgotPassword: () => AppNavigator.push(
-                        context,
-                        const ForgotPasswordScreen(),
-                      ),
-                      onSocialSelected: () => AppNavigator.pushAndRemoveUntil(
-                        context,
-                        AppShell(initialRole: widget.role),
-                      ),
-                    ),
-                  )
-                      .animate()
-                      .fadeIn(duration: 450.ms, curve: Curves.easeOutCubic)
-                      .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
+                      const SizedBox(height: 110),
+                      AnimatedBuilder(
+                        animation: _shakeController,
+                        builder: (context, child) {
+                          final offset = math.sin(_shakeController.value * math.pi * 4) * 8.0;
+                          return Transform.translate(
+                            offset: Offset(offset, 0),
+                            child: child,
+                          );
+                        },
+                        child: LoginCard(
+                          emailController: _emailController,
+                          passwordController: _passwordController,
+                          emailFocusNode: _emailFocusNode,
+                          passwordFocusNode: _passwordFocusNode,
+                          obscurePassword: _obscure,
+                          onToggleObscure: () => setState(() => _obscure = !_obscure),
+                          keepSession: _keepSession,
+                          onKeepSessionChanged: (val) => setState(() => _keepSession = val),
+                          errorMessage: _errorMessage,
+                          onDismissError: _dismissError,
+                          isLoading: _isLoading,
+                          onLogin: _handleLogin,
+                          onCreateAccount: () => AppNavigator.push(
+                            context,
+                            SignupScreen(initialRole: widget.role),
+                          ),
+                          onForgotPassword: () => AppNavigator.push(
+                            context,
+                            const ForgotPasswordScreen(),
+                          ),
+                        ),
+                      )
+                          .animate()
+                          .fadeIn(duration: 450.ms, curve: Curves.easeOutCubic)
+                          .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
+                      const SizedBox(height: 24),
+                    ],
+                  ),
                 ],
               ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }

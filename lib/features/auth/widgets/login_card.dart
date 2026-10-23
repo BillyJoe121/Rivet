@@ -95,7 +95,6 @@ class LoginCard extends StatelessWidget {
     required this.onLogin,
     required this.onCreateAccount,
     required this.onForgotPassword,
-    required this.onSocialSelected,
     this.emailFocusNode,
     this.passwordFocusNode,
     this.errorMessage,
@@ -114,7 +113,6 @@ class LoginCard extends StatelessWidget {
   final VoidCallback onLogin;
   final VoidCallback onCreateAccount;
   final VoidCallback onForgotPassword;
-  final VoidCallback onSocialSelected;
   final String? errorMessage;
   final VoidCallback? onDismissError;
   final bool isLoading;
@@ -241,15 +239,6 @@ class LoginCard extends StatelessWidget {
                 )
                     .animate()
                     .fadeIn(duration: 400.ms, delay: 240.ms, curve: Curves.easeOutCubic)
-                    .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
-                const SizedBox(height: 16),
-                const OrContinueWith()
-                    .animate()
-                    .fadeIn(duration: 350.ms, delay: 300.ms, curve: Curves.easeOutCubic),
-                const SizedBox(height: 12),
-                SocialButtonsRow(onSelected: onSocialSelected)
-                    .animate()
-                    .fadeIn(duration: 400.ms, delay: 360.ms, curve: Curves.easeOutCubic)
                     .slideY(begin: 0.1, end: 0, curve: Curves.easeOutCubic),
               ],
             ),

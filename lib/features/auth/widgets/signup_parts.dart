@@ -179,7 +179,7 @@ class SignupField extends StatelessWidget {
   }
 }
 
-/// Selector "¿Qué tipo de cuenta quieres crear?" con tres opciones de 132.
+/// Selector "¿Qué tipo de cuenta quieres crear?" con dos opciones de 70 de alto.
 class AccountTypeSelector extends StatelessWidget {
   const AccountTypeSelector({
     super.key,
@@ -190,17 +190,18 @@ class AccountTypeSelector extends StatelessWidget {
   final UserRole selected;
   final ValueChanged<UserRole> onChanged;
 
+  /// Alto de cada tarjeta de rol.
+  static const _cardHeight = 70.0;
+
   static const _options = [
     (
       role: UserRole.client,
       label: 'Cliente',
-      desc: 'Publica y gestiona tus proyectos',
       icon: LucideIcons.home,
     ),
     (
       role: UserRole.contractor,
       label: 'Contratista',
-      desc: 'Postula y recibe solicitudes',
       icon: LucideIcons.hardHat,
     ),
   ];
@@ -236,7 +237,7 @@ class AccountTypeSelector extends StatelessWidget {
   }
 
   Widget _option(
-    ({UserRole role, String label, String desc, IconData icon}) o,
+    ({UserRole role, String label, IconData icon}) o,
   ) {
     final on = o.role == selected;
     return Semantics(
@@ -255,14 +256,15 @@ class AccountTypeSelector extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
-            padding: const EdgeInsets.fromLTRB(14, 16, 14, 16),
+            height: _cardHeight,
+            padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: RvColors.surface0,
               border: Border.all(
                 color: on ? RvColors.brand700 : const Color(0xFFE5E7EB),
                 width: on ? 1.8 : 1.0,
               ),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(14),
               boxShadow: [
                 BoxShadow(
                   color: on ? const Color(0x18004E49) : const Color(0x06000000),
@@ -271,82 +273,65 @@ class AccountTypeSelector extends StatelessWidget {
                 ),
               ],
             ),
-            child: Stack(
+            child: Row(
               children: [
-                // Checkmark circular superior discreto
-                Positioned(
-                  top: 0,
-                  right: 0,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    width: 20,
-                    height: 20,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: on ? RvColors.brand700 : Colors.transparent,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: on ? RvColors.brand700 : const Color(0xFFD1D5DB),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: on
-                        ? const Icon(
-                            Icons.check,
-                            size: 13,
-                            color: RvColors.surface0,
-                          )
-                            .animate()
-                            .scale(
-                              duration: const Duration(milliseconds: 220),
-                              curve: Curves.elasticOut,
-                            )
-                        : null,
+                // Contenedor de icono suavizado
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 36,
+                  height: 36,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: on ? const Color(0xFFE6F4F0) : const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Icon(
+                    o.icon,
+                    size: 20,
+                    color: on ? RvColors.brand700 : const Color(0xFF6B7280),
                   ),
                 ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Contenedor de icono suavizado
-                    AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      width: 44,
-                      height: 44,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: on
-                            ? const Color(0xFFE6F4F0)
-                            : const Color(0xFFF3F4F6),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        o.icon,
-                        size: 22,
-                        color: on
-                            ? RvColors.brand700
-                            : const Color(0xFF6B7280),
-                      ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    o.label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: rvText(
+                      15,
+                      weight: FontWeight.w700,
+                      lineHeight: 18,
+                      color: on ? RvColors.brand700 : RvColors.ink900,
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      o.label,
-                      style: rvText(
-                        15,
-                        weight: FontWeight.w700,
-                        lineHeight: 18,
-                        color: on ? RvColors.brand700 : RvColors.ink900,
-                      ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                // Marca de selección al final de la fila, centrada en vertical
+                AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  width: 18,
+                  height: 18,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: on ? RvColors.brand700 : Colors.transparent,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: on ? RvColors.brand700 : const Color(0xFFD1D5DB),
+                      width: 1.5,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      o.desc,
-                      style: rvText(
-                        12,
-                        lineHeight: 15,
-                        color: const Color(0xFF6B7280),
-                      ),
-                    ),
-                  ],
+                  ),
+                  child: on
+                      ? const Icon(
+                          Icons.check,
+                          size: 11,
+                          color: RvColors.surface0,
+                        )
+                          .animate()
+                          .scale(
+                            duration: const Duration(milliseconds: 220),
+                            curve: Curves.elasticOut,
+                          )
+                      : null,
                 ),
               ],
             ),

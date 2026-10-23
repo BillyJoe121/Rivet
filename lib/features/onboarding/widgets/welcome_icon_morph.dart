@@ -4,11 +4,11 @@ import 'package:flutter/material.dart';
 
 import '../../projects/widgets/client_kit/client_kit.dart';
 
-/// Icono único de la portada que cicla entre Proyectos, Contratistas y Bodega.
+/// Icono único de la portada que cicla entre Proyectos, Contratistas y Materiales.
 /// Cada cambio es un morfado: el icono saliente se encoge y gira mientras el
 /// entrante crece desde el centro. Con animaciones desactivadas se queda fijo.
 class WelcomeIconMorph extends StatefulWidget {
-  const WelcomeIconMorph({super.key, this.size = 56});
+  const WelcomeIconMorph({super.key, this.size = 40});
 
   final double size;
 
@@ -17,7 +17,7 @@ class WelcomeIconMorph extends StatefulWidget {
 }
 
 class _WelcomeIconMorphState extends State<WelcomeIconMorph> {
-  static const _icons = [RvIcons.proyecto, RvIcons.hardHat, RvIcons.package];
+  static const _icons = [RvIcons.house, RvIcons.hardHat, RvIcons.paintRoller];
   static const _interval = Duration(milliseconds: 1500);
 
   Timer? _timer;

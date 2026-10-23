@@ -121,5 +121,16 @@ class RivetScrollBehavior extends MaterialScrollBehavior {
       parent: AlwaysScrollableScrollPhysics(),
     );
   }
+
+  /// Quita el estiramiento de Android 12+ al llegar al borde: sin esto los
+  /// elementos se deforman al hacer scroll aunque la física no rebote.
+  @override
+  Widget buildOverscrollIndicator(
+    BuildContext context,
+    Widget child,
+    ScrollableDetails details,
+  ) {
+    return child;
+  }
 }
 
