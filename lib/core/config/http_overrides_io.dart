@@ -2,6 +2,7 @@ import 'dart:io';
 
 /// Permite resolución confiable de hosts en entornos de emulador o redes con VPN
 /// donde el proxy DNS virtual QEMU (10.0.2.3) no responde adecuadamente.
+/// Solo se instala en builds de debug (ver `main.dart`).
 ///
 /// Solo reemplaza la resolución DNS: las conexiones HTTPS se cifran con TLS
 /// usando el nombre real del host (SNI y validación del certificado). Sin

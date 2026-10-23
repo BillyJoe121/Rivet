@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'core/config/http_overrides.dart';
 import 'core/config/supabase_config.dart';
@@ -6,7 +7,8 @@ import 'features/onboarding/welcome_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  setupHttpOverrides();
+  // La IP fija solo sirve para el emulador; en dispositivos reales se usa DNS.
+  if (kDebugMode) setupHttpOverrides();
   await SupabaseConfig.initialize();
   runApp(const RivetApp());
 }
