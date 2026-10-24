@@ -299,8 +299,8 @@ class _ChevronPainter extends CustomPainter {
   bool shouldRepaint(_ChevronPainter oldDelegate) => oldDelegate.color != color;
 }
 
-/// Flecha del botón grande: círculo de 32 en blanco al 15 % con
-/// `arrow-right` de 16.
+/// Avance del botón grande: `chevron-right` de 20 sin fondo, en una caja de
+/// 32 para conservar el centrado de la etiqueta.
 class _HeroArrow extends StatelessWidget {
   const _HeroArrow({this.icon});
 
@@ -308,15 +308,10 @@ class _HeroArrow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: 32,
       height: 32,
-      alignment: Alignment.center,
-      decoration: const BoxDecoration(
-        color: Color(0x26FFFFFF), // Blanco al 15 %
-        shape: BoxShape.circle,
-      ),
-      child: Icon(icon ?? LucideIcons.arrowRight, size: 16, color: AppColors.surface0),
+      child: Icon(icon ?? LucideIcons.chevronRight, size: 20, color: AppColors.surface0),
     );
   }
 }

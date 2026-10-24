@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../projects/widgets/client_kit/client_kit.dart';
 
@@ -67,24 +68,20 @@ class _WelcomeStartButtonState extends State<WelcomeStartButton> {
                         ),
                       ),
                     ),
-                    Container(
+                    SizedBox(
                       width: 36,
                       height: 36,
-                      alignment: Alignment.center,
-                      decoration: const BoxDecoration(
-                        gradient: RvColors.brandGradient,
-                        shape: BoxShape.circle,
-                      ),
-                      // La flecha avanza al presionar y regresa al soltar.
+                      // El chevrón avanza al presionar y regresa al soltar.
                       child: AnimatedSlide(
                         offset: _isPressed
                             ? const Offset(0.35, 0)
                             : Offset.zero,
                         duration: const Duration(milliseconds: 180),
                         curve: Curves.easeOutCubic,
-                        child: const RvIcon(
-                          RvIcons.arrowRight,
-                          color: RvColors.surface0,
+                        child: const Icon(
+                          LucideIcons.chevronRight,
+                          size: 22,
+                          color: RvColors.brand700,
                         ),
                       ),
                     ),
