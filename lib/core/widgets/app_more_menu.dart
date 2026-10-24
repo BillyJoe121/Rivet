@@ -28,12 +28,20 @@ class AppMoreMenu extends StatelessWidget {
   final int? selectedIndex;
 
   static const Duration _duration = Duration(milliseconds: 220);
+  // Con tres destinos el arco necesita más radio para que las etiquetas no
+  // se toquen; con menos, el grupo queda más cerca de "Más".
   static const double _radius = 185;
+  static const double _compactRadius = 140;
   static const double _button = 52;
 
-  // Arco de 90° (recto arriba) a 150° (arriba a la izquierda).
-  static const double _startAngle = math.pi / 2;
-  static const double _endAngle = math.pi * 5 / 6;
+  // Arco entre 90° (recto arriba) y 150° (arriba a la izquierda), con 30°
+  // entre destinos. Con menos de tres destinos el grupo se centra en el arco
+  // en lugar de estirarse hasta sus extremos.
+  static const double _arcCenter = math.pi * 2 / 3;
+  // Con dos destinos el grupo gira hacia la vertical para quedar más pegado
+  // al borde derecho, sobre "Más".
+  static const double _compactArcCenter = math.pi * 11 / 18;
+  static const double _step = math.pi / 6;
 
   // Centro del icono de "Más" sobre el borde superior de la barra (padding
   // superior 14 + medio icono).
@@ -82,10 +90,9 @@ class AppMoreMenu extends StatelessWidget {
   }
 
   Widget _positioned(Size size, Offset origin, int i, double t) {
-    final angle = items.length == 1
-        ? _startAngle
-        : _startAngle + (_endAngle - _startAngle) * i / (items.length - 1);
-    final distance = _radius * t;
+    final compact = items.length <= 2;
+    final angle = (compact ? _compactArcCenter : _arcCenter) + _step * (i - (items.length - 1) / 2);
+    final distance = (compact ? _compactRadius : _radius) * t;
     final center = origin + Offset(math.cos(angle) * distance, -math.sin(angle) * distance);
 
     // Se ancla por el centro del círculo; la etiqueta queda debajo.

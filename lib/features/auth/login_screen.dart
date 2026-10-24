@@ -7,6 +7,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/models/models.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/utils/validators.dart';
+import '../../core/widgets/app_back_button.dart';
 import '../home/app_shell.dart';
 import '../projects/widgets/client_kit/client_kit.dart';
 import 'auth_service.dart';
@@ -192,25 +193,30 @@ class _LoginScreenState extends State<LoginScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Padding(
-                        padding: EdgeInsets.fromLTRB(30, topInset + 16, 30, 0),
+                        // Caja de 48 con el círculo donde estaba el de 32 (x=46,
+                        // y=topInset+32): sobresale 8 px a la izquierda y arriba.
+                        padding: EdgeInsets.fromLTRB(22, topInset + 8, 30, 0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const RvBackButton(),
-                            const SizedBox(height: 18),
-                            Text(
-                              'Rivet',
-                              style: rvText(
-                                38,
-                                weight: FontWeight.w700,
-                                lineHeight: 48.64,
-                                color: RvColors.brand700,
-                                family: RvFonts.serif,
-                              ),
-                            )
-                                .animate()
-                                .fadeIn(duration: 400.ms, curve: Curves.easeOutCubic)
-                                .slideY(begin: -0.15, end: 0, curve: Curves.easeOutCubic),
+                            const AppBackButton(),
+                            const SizedBox(height: 10),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 8),
+                              child: Text(
+                                'Rivet',
+                                style: rvText(
+                                  38,
+                                  weight: FontWeight.w700,
+                                  lineHeight: 48.64,
+                                  color: RvColors.brand700,
+                                  family: RvFonts.serif,
+                                ),
+                              )
+                                  .animate()
+                                  .fadeIn(duration: 400.ms, curve: Curves.easeOutCubic)
+                                  .slideY(begin: -0.15, end: 0, curve: Curves.easeOutCubic),
+                            ),
                           ],
                         ),
                       ),

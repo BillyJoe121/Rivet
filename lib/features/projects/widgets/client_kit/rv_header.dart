@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-import 'rv_icon_data.dart';
-import 'rv_icons.dart';
+import '../../../../core/widgets/app_back_button.dart';
 import 'rv_tokens.dart';
 
-/// Cabecera de pantalla de Figma: botón volver de 30×28 con chevron de 21
-/// y título Lora 600 28/33.6. Debajo admite contenido extra ([children]).
+/// Cabecera de pantalla de Figma: [AppBackButton] común (caja de 48×48) y
+/// título Lora 600 28/33.6. Debajo admite contenido extra ([children]).
 class RvHeader extends StatelessWidget {
   const RvHeader({
     super.key,
@@ -39,83 +36,40 @@ class RvHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // La caja de 48 sobresale del padding izquierdo y del superior para que el
+    // círculo quede donde estaba el chevron (centro y≈padding.top + 14).
+    final bleed = padding.left < AppBackButton.bleed ? padding.left : AppBackButton.bleed;
+    final top = padding.top > 10 ? padding.top - 10 : 0.0;
+    // Tras la fila del volver (48 en vez de 28) el título conserva su y.
+    final afterBack = padding.top - top + gap - 20 > 0 ? padding.top - top + gap - 20 : 0.0;
     final rows = <Widget>[
       if (showBack || keepBackSpace || trailing != null)
         SizedBox(
-          height: 28,
+          height: 48,
           child: Row(
             children: [
-              if (showBack) RvBackButton(onTap: onBack),
+              if (showBack) AppBackButton(onPressed: onBack),
               const Spacer(),
               ?trailing,
             ],
           ),
         ),
-      Text(title, style: titleStyle ?? RvText.pageTitle),
-      ...children,
+      Padding(
+        padding: EdgeInsets.only(left: bleed),
+        child: Text(title, style: titleStyle ?? RvText.pageTitle),
+      ),
+      ...children.map((c) => Padding(padding: EdgeInsets.only(left: bleed), child: c)),
     ];
     return Padding(
-      padding: padding,
+      padding: padding.copyWith(left: padding.left - bleed, top: top),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           for (var i = 0; i < rows.length; i++) ...[
-            if (i > 0) SizedBox(height: gap),
+            if (i > 0) SizedBox(height: i == 1 ? afterBack : gap),
             rows[i],
           ],
         ],
-      ),
-    );
-  }
-}
-
-/// Botón volver circular de 32×32 con fondo suave, chevron centrado y micro-escala táctil.
-class RvBackButton extends StatefulWidget {
-  const RvBackButton({super.key, this.onTap, this.color = RvColors.brand700});
-
-  final VoidCallback? onTap;
-  final Color color;
-
-  @override
-  State<RvBackButton> createState() => _RvBackButtonState();
-}
-
-class _RvBackButtonState extends State<RvBackButton> {
-  bool _isPressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: 'Volver',
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTapDown: (_) {
-          HapticFeedback.selectionClick();
-          setState(() => _isPressed = true);
-        },
-        onTapUp: (_) {
-          if (_isPressed) setState(() => _isPressed = false);
-        },
-        onTapCancel: () {
-          if (_isPressed) setState(() => _isPressed = false);
-        },
-        onTap: widget.onTap ?? () => Navigator.maybePop(context),
-        child: AnimatedScale(
-          scale: _isPressed ? 0.90 : 1.0,
-          duration: const Duration(milliseconds: 100),
-          curve: Curves.easeOutCubic,
-          child: Container(
-            width: 32,
-            height: 32,
-            alignment: Alignment.center,
-            decoration: const BoxDecoration(
-              color: Color(0xFFF3F4F0),
-              shape: BoxShape.circle,
-            ),
-            child: const RvIcon(RvIcons.chevronLeft),
-          ),
-        ),
       ),
     );
   }

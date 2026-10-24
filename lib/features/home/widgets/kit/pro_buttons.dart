@@ -68,37 +68,6 @@ class _ChevronPainter extends CustomPainter {
       old.direction != direction || old.color != color || old.strokeWidth != strokeWidth;
 }
 
-/// Botón de volver de 30×28. [lucide] usa el ícono chevron-left de 21 px;
-/// si no, el chevron vectorial de 6×11.
-class ProBackButton extends StatelessWidget {
-  const ProBackButton({super.key, this.onTap, this.lucide = false});
-
-  final VoidCallback? onTap;
-  final bool lucide;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: 'Volver',
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap ?? () => Navigator.of(context).maybePop(),
-        child: SizedBox(
-          width: 30,
-          height: 28,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            child: lucide
-                ? const ProIcon(LucideIcon.chevronLeft, size: 21)
-                : const ProChevron(direction: ProChevronDirection.left),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 /// Botón píldora con gradiente de marca.
 /// Compacto: alto 32, texto 12, chevron 6×11 (por defecto).
 /// Pie de pantalla: [ProPrimaryButton.large] alto 48, texto 14, chevron Lucide 16.

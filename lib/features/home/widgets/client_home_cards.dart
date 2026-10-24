@@ -9,10 +9,14 @@ class ClientProjectCard extends StatelessWidget {
     super.key,
     required this.project,
     required this.proposalCount,
+    this.onTap,
   });
 
   final Project project;
   final int proposalCount;
+
+  /// Abre el detalle del proyecto; con acción se muestra el chevron.
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -23,6 +27,7 @@ class ClientProjectCard extends StatelessWidget {
     };
 
     return AppCard(
+      onTap: onTap,
       child: Row(
         children: [
           if (project.imageAsset != null) ...[
@@ -78,6 +83,10 @@ class ClientProjectCard extends StatelessWidget {
               ],
             ),
           ),
+          if (onTap != null) ...[
+            const SizedBox(width: AppSpacing.sm),
+            const Icon(Icons.chevron_right, size: 20, color: AppColors.ink500),
+          ],
         ],
       ),
     );

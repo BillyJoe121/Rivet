@@ -21,8 +21,8 @@ class NotificationsScreen extends StatelessWidget {
         children: [
           ProBackHeader(
             title: 'Mensajes y notificaciones',
-            lucideChevron: true,
-            padding: const EdgeInsets.fromLTRB(24, 10, 24, 8),
+            // Abajo 4 (antes 8): la caja de 48 del volver ya añade 4 px sobre el título.
+            padding: const EdgeInsets.fromLTRB(24, 10, 24, 4),
             gap: 6,
             height: 120,
             titleWidth: 242,

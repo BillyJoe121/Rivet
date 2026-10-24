@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../core/utils/validators.dart';
+import '../../core/widgets/app_back_button.dart';
 import '../projects/widgets/client_kit/client_kit.dart';
 import 'auth_service.dart';
 import 'widgets/forgot_password_cards.dart';
@@ -140,11 +141,12 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen>
                   const Align(
                     alignment: Alignment.centerLeft,
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(30, 16, 30, 0),
-                      child: RvBackButton(),
+                      // Caja de 48 con el círculo donde estaba el de 32.
+                      padding: EdgeInsets.fromLTRB(22, 8, 30, 0),
+                      child: AppBackButton(),
                     ),
                   ),
-                  const SizedBox(height: 200),
+                  const SizedBox(height: 192),
                   AnimatedBuilder(
                     animation: _shakeController,
                     builder: (context, child) {

@@ -140,7 +140,8 @@ class Proposal {
   int get totalCostCop => laborCostCop + materialsCostCop;
 }
 
-/// Producto del catálogo de bodega y proveedores.
+/// Material de la Bodega Rivet. Tiene un precio para clientes y otro, menor,
+/// para contratistas verificados.
 class MaterialProduct {
   const MaterialProduct({
     required this.id,
@@ -150,8 +151,7 @@ class MaterialProduct {
     required this.unit,
     required this.clientPriceCop,
     required this.proPriceCop,
-    required this.coverageM2,
-    required this.supplierName,
+    this.finish,
     this.inStock = true,
     this.imageAsset,
   });
@@ -160,11 +160,14 @@ class MaterialProduct {
   final String name;
   final String brand;
   final String category;
+
+  /// Unidad de venta en minúsculas, por ejemplo "galón" o "m²".
   final String unit;
   final int clientPriceCop;
   final int proPriceCop;
-  final double coverageM2;
-  final String supplierName;
+
+  /// Tipo de acabado (mate, satinado…); null cuando no aplica al material.
+  final String? finish;
   final bool inStock;
   final String? imageAsset;
 }

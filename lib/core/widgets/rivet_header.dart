@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../theme/theme.dart';
+import 'app_back_button.dart';
 
 /// Cabecera editorial de las pantallas del Figma.
 ///
-/// - Con botón volver (nodo "Cabecera" de Pedidos): padding 10/24/8, chevron
-///   de 21 px en una caja de 30×28 en x=24 y título Lora 28 en x=64.
+/// - Con botón volver (nodo "Cabecera" de Pedidos): título Lora 28 en x=64 y
+///   [AppBackButton] (48×48) cuyo círculo queda centrado donde estaba el chevron.
 /// - Sin botón volver (nodo "Cabecera" de Hola, Juan): padding 14/24/0/24,
 ///   fila de marca de 36 px opcional, separación de 8 y título Lora 28.
 class RivetHeader extends StatelessWidget {
@@ -36,15 +36,30 @@ class RivetHeader extends StatelessWidget {
         : Text(title!, style: style, maxLines: titleMaxLines, overflow: TextOverflow.ellipsis);
 
     if (showBackButton) {
+      // La caja de 48 sobresale 8 px a la izquierda y 8 px arriba del hueco que
+      // ocupaba el chevron: así el título conserva x=64 e y≈10.
       return Padding(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.headerGutter, 10, AppSpacing.headerGutter, 8),
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.headerGutter - AppBackButton.bleed,
+          2,
+          AppSpacing.headerGutter,
+          2,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            RivetBackButton(onPressed: onBack),
-            const SizedBox(width: 10),
-            Expanded(child: titleText ?? const SizedBox(height: 28)),
-            if (actions != null) ...[const SizedBox(width: 8), ...actions!],
+            AppBackButton(onPressed: onBack),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: titleText ?? const SizedBox(height: 28),
+              ),
+            ),
+            if (actions != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8, left: 8),
+                child: Row(mainAxisSize: MainAxisSize.min, children: actions!),
+              ),
           ],
         ),
       );
@@ -71,39 +86,6 @@ class RivetHeader extends StatelessWidget {
           if (hasBrandRow && titleText != null) const SizedBox(height: 8),
           ?titleText,
         ],
-      ),
-    );
-  }
-}
-
-/// Botón volver del Figma: chevron-left de 21 px, trazo de marca, caja de 30×28.
-class RivetBackButton extends StatelessWidget {
-  const RivetBackButton({super.key, this.onPressed, this.color = AppColors.brand700});
-
-  final VoidCallback? onPressed;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: 'Volver',
-      child: InkResponse(
-        onTap: onPressed ?? () => Navigator.of(context).maybePop(),
-        radius: 22,
-        child: SizedBox(
-          width: 30,
-          height: 28,
-          child: Align(
-            alignment: Alignment.centerLeft,
-            // El glifo de Lucide trae ~8 px de aire a la izquierda; el trazo
-            // del Figma empieza justo en el borde de la caja.
-            child: Transform.translate(
-              offset: const Offset(-8, 0),
-              child: Icon(LucideIcons.chevronLeft, size: 21, color: color),
-            ),
-          ),
-        ),
       ),
     );
   }

@@ -5,9 +5,10 @@ import 'pro_home_mock.dart';
 
 /// Tarjeta oscura "Nuevos proyectos cerca de ti" con un proyecto destacado.
 class ProFeaturedProjectCard extends StatelessWidget {
-  const ProFeaturedProjectCard({super.key, required this.project});
+  const ProFeaturedProjectCard({super.key, required this.project, this.onTap});
 
   final ProProjectSummary project;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -19,19 +20,21 @@ class ProFeaturedProjectCard extends StatelessWidget {
         children: [
           Text('Nuevos proyectos cerca de ti', style: ProText.subheading.copyWith(color: ProColors.surface0)),
           const SizedBox(height: 9),
-          ProProjectCard(project: project, imageSize: 78),
+          ProProjectCard(project: project, imageSize: 78, onTap: onTap),
         ],
       ),
     );
   }
 }
 
-/// Tarjeta de proyecto con foto, datos y estado o progreso.
+/// Tarjeta de proyecto con foto, datos y estado o progreso. Con [onTap] se
+/// puede tocar y muestra un chevron a la derecha.
 class ProProjectCard extends StatelessWidget {
-  const ProProjectCard({super.key, required this.project, this.imageSize = 72});
+  const ProProjectCard({super.key, required this.project, this.imageSize = 72, this.onTap});
 
   final ProProjectSummary project;
   final double imageSize;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +44,7 @@ class ProProjectCard extends StatelessWidget {
       radius: ProRadii.card,
       borderWidth: ProStroke.hairline,
       padding: const EdgeInsets.all(7),
+      onTap: onTap,
       child: Row(
         children: [
           ProImage(project.image, width: imageSize, height: imageSize),
@@ -82,6 +86,10 @@ class ProProjectCard extends StatelessWidget {
               ],
             ),
           ),
+          if (onTap != null) ...[
+            const SizedBox(width: 4),
+            const ProIcon(LucideIcon.chevronRight, size: 18, color: ProColors.ink500),
+          ],
         ],
       ),
     );

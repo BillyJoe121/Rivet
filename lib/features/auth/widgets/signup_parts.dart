@@ -4,30 +4,36 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/models/models.dart';
+import '../../../core/widgets/app_back_button.dart';
 import '../../projects/widgets/client_kit/client_kit.dart';
 import 'auth_widgets.dart';
 
-/// Cabecera del registro: volver circular de 32 y título Lora 700 32/40.
+/// Cabecera del registro: [AppBackButton] y título Lora 700 32/40.
 class SignupHeader extends StatelessWidget {
   const SignupHeader({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(30, 16, 30, 0),
+      // Caja de 48 con el círculo donde estaba el de 32: sobresale 8 px a la
+      // izquierda y arriba, y el título conserva su posición.
+      padding: const EdgeInsets.fromLTRB(22, 8, 30, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const RvBackButton(),
-          const SizedBox(height: 18),
-          Text(
-            'Crear tu cuenta',
-            style: rvText(
-              32,
-              weight: FontWeight.w700,
-              lineHeight: 40,
-              color: RvColors.brand700,
-              family: RvFonts.serif,
+          const AppBackButton(),
+          const SizedBox(height: 10),
+          Padding(
+            padding: const EdgeInsets.only(left: 8),
+            child: Text(
+              'Crear tu cuenta',
+              style: rvText(
+                32,
+                weight: FontWeight.w700,
+                lineHeight: 40,
+                color: RvColors.brand700,
+                family: RvFonts.serif,
+              ),
             ),
           ),
         ],

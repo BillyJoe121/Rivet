@@ -1,4 +1,4 @@
-/// Imágenes de Figma usadas por las pantallas profesionales y de proveedor.
+/// Imágenes de Figma usadas por las pantallas profesionales.
 abstract final class ProAssets {
   // Ilustraciones de cabecera (412×232).
   static const String headerBotanical = 'Fondos/Rincón botánico minimalista en tonos pastel.png';
@@ -16,7 +16,6 @@ abstract final class ProAssets {
   static const String facade = 'Fondos/pro-fachada.jpg';
   static const String modernHouse = 'Fondos/pro-casa-moderna.jpg';
   static const String livingRoomTall = 'Fondos/pro-sala-vertical.jpg';
-  static const String ferreCasaStore = 'Fondos/pro-ferrecasa.jpg';
 
   // Personas.
   static const String avatarCarlos = 'Fondos/pro-avatar-carlos.jpg';

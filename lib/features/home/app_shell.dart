@@ -5,12 +5,8 @@ import '../../core/widgets/app_bottom_nav.dart';
 import '../../core/widgets/app_more_menu.dart';
 import 'client_home_view.dart';
 import 'contractor_home_view.dart';
-import '../projects/my_projects_screen.dart';
-import '../contractors/contractors_directory_screen.dart';
-import '../proposals/received_proposals_screen.dart';
-import '../supplier/materials_catalog_screen.dart';
 import '../account/profile_screen.dart';
-import '../messaging/notifications_screen.dart';
+import '../under_construction/under_construction_screen.dart';
 
 /// Pantallas que se muestran dentro del shell.
 enum _Page { home, projects, contractors, catalog, proposals, messages, profile }
@@ -107,14 +103,22 @@ class _AppShellState extends State<AppShell> {
       _Page.home => _isContractor
           ? ContractorHomeView(onSwitchRole: _switchRole)
           : ClientHomeView(onOpenProjects: () => _open(_Page.projects)),
-      _Page.projects => MyProjectsScreen(forContractor: !_isClient),
-      _Page.contractors => const ContractorsDirectoryScreen(),
-      _Page.catalog => MaterialsCatalogScreen(isProRateView: !_isClient),
-      _Page.proposals => _isClient
-          ? const ReceivedProposalsScreen()
-          : const MyProjectsScreen(forContractor: true, showBidsOnly: true),
-      _Page.messages => const NotificationsScreen(),
-      _Page.profile => ProfileScreen(currentRole: _currentRole, onSwitchRole: _switchRole),
+      _Page.profile => ProfileScreen(
+          currentRole: _currentRole,
+          onSwitchRole: _switchRole,
+          onBack: () => _open(_Page.home),
+        ),
+      // Secciones fuera del alcance actual: pantalla de "en construcción".
+      _ => UnderConstructionScreen(section: _sectionName(page)),
     };
   }
+
+  String _sectionName(_Page page) => switch (page) {
+        _Page.projects => 'Proyectos',
+        _Page.contractors => 'Contratistas',
+        _Page.catalog => 'Bodega',
+        _Page.proposals => 'Propuestas',
+        _Page.messages => 'Mensajes',
+        _ => '',
+      };
 }

@@ -27,7 +27,6 @@ abstract final class RvImages {
   static const stuccoCorona = 'Fondos/foto_estuco_corona.jpg'; // 81712f1d2d
   static const pergolaTerrace = 'Fondos/foto_terraza_pergola.jpg'; // 918f1a2445
   static const emptyGreenRoom = 'Fondos/foto_sala_vacia_verde.jpg'; // 9bcb483bc9
-  static const ferreCasaFront = 'Fondos/foto_fachada_ferrecasa.jpg'; // a6a97a6a5c
   static const dampWall = 'Fondos/foto_pared_humedad.jpg'; // b42f2783f6
   static const sofaGreenWall = 'Fondos/foto_sala_sofa_verde.jpg'; // b718df4594
   static const portraitPainterWoman = 'Fondos/foto_retrato_pintora.jpg'; // c83b3d680f

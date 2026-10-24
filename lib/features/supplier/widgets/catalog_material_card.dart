@@ -1,52 +1,115 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../home/widgets/kit/kit.dart';
-import 'catalog_common.dart';
+import '../../../core/models/models.dart';
+import '../../../core/theme/theme.dart';
+import '../../../core/widgets/widgets.dart';
+import '../material_price_tier.dart';
 
-/// Tarjeta de bodega de 78 px: fotografía de 59×60, nombre, líneas y precio opcional.
+/// Tarjeta de un material de la Bodega: fotografía de 59×60, nombre, marca,
+/// categoría y precio según [tier]. No es tocable: no hay pantalla de detalle.
 class CatalogMaterialCard extends StatelessWidget {
-  const CatalogMaterialCard({
-    super.key,
-    required this.title,
-    required this.lines,
-    this.image,
-    this.fit = BoxFit.cover,
-    this.price,
-    this.onTap,
-  });
+  const CatalogMaterialCard({super.key, required this.product, required this.tier});
 
-  final String title;
-  final List<String> lines;
-  final String? image;
-  final BoxFit fit;
-  final String? price;
-  final VoidCallback? onTap;
+  final MaterialProduct product;
+  final MaterialPriceTier tier;
 
   @override
   Widget build(BuildContext context) {
-    return ProCard(
-      radius: ProRadii.card,
-      borderWidth: ProStroke.hairline,
-      padding: const EdgeInsets.all(8),
-      onTap: onTap,
+    final detail = [
+      product.brand,
+      product.category,
+      if (product.finish != null) product.finish!,
+    ].join(' · ');
+
+    return AppCard(
+      borderRadius: AppSpacing.roundedCard,
+      padding: const EdgeInsets.all(AppSpacing.sm),
       child: Row(
         children: [
-          CatalogImage(image: image, width: 59, height: 60, fit: fit, radius: 10),
+          _Photo(asset: product.imageAsset),
           const SizedBox(width: 10),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(title, style: ProText.r(14, weight: FontWeight.w600, lineHeight: 16.8)),
-                for (final line in lines)
-                  Text(line, style: ProText.r(12, color: ProColors.ink500, lineHeight: 14.4)),
-                if (price != null)
-                  Text(price!, style: ProText.r(13, weight: FontWeight.w600, color: ProColors.ink700, lineHeight: 15.6)),
+                Text(product.name, style: AppTypography.titleSmall),
+                Text(detail, style: AppTypography.label),
+                const SizedBox(height: AppSpacing.xxs),
+                _PriceLine(product: product, tier: tier),
               ],
             ),
           ),
+          if (!product.inStock) ...[
+            const SizedBox(width: AppSpacing.sm),
+            const AppBadge(text: 'Agotado', variant: AppBadgeVariant.neutral, compact: true),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// Precio visible; al contratista verificado se le muestra el de cliente
+/// tachado como referencia.
+class _PriceLine extends StatelessWidget {
+  const _PriceLine({required this.product, required this.tier});
+
+  final MaterialProduct product;
+  final MaterialPriceTier tier;
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 6,
+      children: [
+        Text('\$ ${formatCop(tier.priceOf(product))}', style: AppTypography.bodyStrong),
+        Text('por ${product.unit}', style: AppTypography.caption),
+        if (tier.isVerifiedPro)
+          Text(
+            '\$ ${formatCop(product.clientPriceCop)}',
+            style: AppTypography.caption.copyWith(
+              decoration: TextDecoration.lineThrough,
+              color: AppColors.ink300,
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Fotografía de 59×60; sin imagen muestra un recuadro de marca con ícono.
+class _Photo extends StatelessWidget {
+  const _Photo({required this.asset});
+
+  final String? asset;
+
+  static const double _width = 59;
+  static const double _height = 60;
+
+  Widget get _placeholder => Container(
+        width: _width,
+        height: _height,
+        decoration: const BoxDecoration(
+          color: AppColors.brandLight,
+          borderRadius: AppSpacing.roundedSm,
+        ),
+        child: const Icon(LucideIcons.package, size: 22, color: AppColors.brand700),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    if (asset == null) return _placeholder;
+    return ClipRRect(
+      borderRadius: AppSpacing.roundedSm,
+      child: Image.asset(
+        asset!,
+        width: _width,
+        height: _height,
+        fit: BoxFit.cover,
+        errorBuilder: (_, _, _) => _placeholder,
       ),
     );
   }

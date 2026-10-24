@@ -24,11 +24,17 @@ class AuthService {
     );
   }
 
+  RivetUser? _currentUser;
+
+  /// Último usuario conocido de la sesión, disponible sin esperar a la red
+  /// para que las pantallas no muestren datos de relleno mientras cargan.
+  RivetUser? get currentUser => _currentUser;
+
   Future<RivetUser> signIn({
     required String email,
     required String password,
-  }) =>
-      _repo.signIn(email: email, password: password);
+  }) async =>
+      _currentUser = await _repo.signIn(email: email, password: password);
 
   Future<RivetUser> signUp({
     required String email,
@@ -36,8 +42,8 @@ class AuthService {
     required String fullName,
     required UserRole role,
     required String phone,
-  }) =>
-      _repo.signUp(
+  }) async =>
+      _currentUser = await _repo.signUp(
         email: email,
         password: password,
         fullName: fullName,
@@ -48,9 +54,13 @@ class AuthService {
   Future<void> sendPasswordResetEmail(String email) =>
       _repo.sendPasswordResetEmail(email);
 
-  Future<void> signOut() => _repo.signOut();
+  Future<void> signOut() async {
+    await _repo.signOut();
+    _currentUser = null;
+  }
 
-  Future<RivetUser?> getCurrentUser() => _repo.getCurrentUser();
+  Future<RivetUser?> getCurrentUser() async =>
+      _currentUser = await _repo.getCurrentUser();
 
   Stream<RivetUser?> get authStateChanges => _repo.authStateChanges;
 }

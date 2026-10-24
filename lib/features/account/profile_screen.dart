@@ -6,6 +6,7 @@ import '../auth/auth_service.dart';
 import '../auth/domain/entities/rivet_user.dart';
 import '../home/widgets/kit/kit.dart';
 import '../onboarding/welcome_screen.dart';
+import '../under_construction/under_construction_screen.dart';
 import 'account_mock.dart';
 import 'widgets/account_profile_widgets.dart';
 import 'widgets/account_role_sheet.dart';
@@ -17,10 +18,15 @@ class ProfileScreen extends StatefulWidget {
     super.key,
     required this.currentRole,
     required this.onSwitchRole,
+    this.onBack,
   });
 
   final UserRole currentRole;
   final ValueChanged<UserRole> onSwitchRole;
+
+  /// Vuelve a Inicio. Como página raíz del shell no hay ruta que cerrar, así
+  /// que el botón volver delega aquí; sin él usa el comportamiento por defecto.
+  final VoidCallback? onBack;
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -32,7 +38,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   void initState() {
     super.initState();
+    _realUser = _cachedUser();
     _loadProfile();
+  }
+
+  static RivetUser? _cachedUser() {
+    try {
+      return AuthService.instance.currentUser;
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> _loadProfile() async {
@@ -60,15 +75,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final fallbackMock = AccountProfile.forRole(widget.currentRole);
 
-    final displayName = (_realUser?.fullName.isNotEmpty ?? false)
-        ? _realUser!.fullName
-        : fallbackMock.name;
-    final displayEmail = (_realUser?.email.isNotEmpty ?? false)
-        ? _realUser!.email
-        : fallbackMock.email;
-    final displayPhone = (_realUser?.phone.isNotEmpty ?? false)
-        ? _realUser!.phone
-        : fallbackMock.phone;
+    // Solo datos del usuario real; sin sesión cargada los campos quedan vacíos
+    // en lugar de mostrar el perfil de ejemplo.
+    final displayName = _realUser?.fullName ?? '';
+    final displayEmail = _realUser?.email ?? '';
+    final displayPhone = _realUser?.phone ?? '';
 
     final initials = displayName.trim().split(' ').map((p) => p.isNotEmpty ? p[0] : '').take(2).join().toUpperCase();
 
@@ -97,11 +108,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const ProBackHeader(
+          ProBackHeader(
             title: 'Mi perfil',
-            lucideChevron: true,
-            padding: EdgeInsets.fromLTRB(24, 10, 24, 8),
+            padding: const EdgeInsets.fromLTRB(24, 10, 24, 8),
             gap: 6,
+            onBack: widget.onBack,
           ),
           const SizedBox(height: 31),
           Padding(
@@ -124,7 +135,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   const SizedBox(height: 14),
-                  Text('Información personal', style: ProText.serif(19, color: ProColors.ink700, lineHeight: 22.8)),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Información personal',
+                          style: ProText.serif(19, color: ProColors.ink700, lineHeight: 22.8),
+                        ),
+                      ),
+                      // Provisional: la edición real reemplazará esta pantalla.
+                      TextButton(
+                        onPressed: () => AppNavigator.push(
+                          context,
+                          const UnderConstructionScreen(section: 'Editar perfil'),
+                        ),
+                        style: TextButton.styleFrom(
+                          foregroundColor: ProColors.brand700,
+                          minimumSize: const Size(48, 36),
+                          padding: const EdgeInsets.symmetric(horizontal: 8),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: Text('Editar', style: ProText.labelStrong.copyWith(color: ProColors.brand700)),
+                      ),
+                    ],
+                  ),
                   const SizedBox(height: 14),
                   Column(
                     spacing: 14,

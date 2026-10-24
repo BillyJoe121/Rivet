@@ -25,14 +25,6 @@ class ProProjectSummary {
   final double? progress;
 }
 
-/// Acceso rápido de inicio.
-class ProAccess {
-  const ProAccess(this.icon, this.label);
-
-  final LucideIcon icon;
-  final String label;
-}
-
 /// Evento de actividad reciente. [detail] incluye el espaciado del texto de
 /// Figma que alinea la hora a la derecha.
 class ProActivity {
@@ -62,13 +54,6 @@ abstract final class ContractorHomeMock {
     stagesTotal: 4,
     progress: 60 / 188,
   );
-
-  static const quickAccess = [
-    ProAccess(LucideIcon.search, 'Proyectos disponibles'),
-    ProAccess(LucideIcon.fileText, 'Mis propuestas'),
-    ProAccess(LucideIcon.briefcaseBusiness, 'Trabajos activos'),
-    ProAccess(LucideIcon.messageSquare, 'Mensajes'),
-  ];
 
   static const activity = [
     ProActivity(LucideIcon.search, '3 proyectos nuevos en tu zona',

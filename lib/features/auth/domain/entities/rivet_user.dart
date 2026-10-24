@@ -10,6 +10,7 @@ class RivetUser {
     this.phone = '',
     this.avatarUrl,
     this.createdAt,
+    this.isVerified = false,
   });
 
   final String id;
@@ -19,6 +20,9 @@ class RivetUser {
   final String phone;
   final String? avatarUrl;
   final DateTime? createdAt;
+
+  /// Contratista verificado por Rivet; solo ellos ven los precios de contratista.
+  final bool isVerified;
 
   /// Crea una instancia a partir de un registro de base de datos (`profiles`).
   factory RivetUser.fromJson(Map<String, dynamic> json) {
@@ -35,6 +39,7 @@ class RivetUser {
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'] as String)
           : null,
+      isVerified: json['is_verified'] as bool? ?? false,
     );
   }
 
@@ -58,6 +63,7 @@ class RivetUser {
     String? phone,
     String? avatarUrl,
     DateTime? createdAt,
+    bool? isVerified,
   }) {
     return RivetUser(
       id: id ?? this.id,
@@ -67,6 +73,7 @@ class RivetUser {
       phone: phone ?? this.phone,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       createdAt: createdAt ?? this.createdAt,
+      isVerified: isVerified ?? this.isVerified,
     );
   }
 }

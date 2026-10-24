@@ -1,19 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../home/widgets/kit/kit.dart';
+import '../../core/models/models.dart';
+import '../../core/theme/theme.dart';
+import '../../core/widgets/widgets.dart';
+import 'catalog_filters.dart';
 import 'catalog_mock.dart';
-import 'catalog_product_info.dart';
-import 'widgets/catalog_common.dart';
+import 'material_price_tier.dart';
+import 'widgets/catalog_filter_sheet.dart';
 import 'widgets/catalog_material_card.dart';
 
-/// Bodega de materiales (frame 22:144637). Con [isProRateView] muestra el precio profesional.
+/// Bodega Rivet: materiales con buscador y filtros. El precio que se muestra
+/// depende de [priceTier] y los filtros operan sobre ese mismo precio.
 class MaterialsCatalogScreen extends StatefulWidget {
   const MaterialsCatalogScreen({
     super.key,
-    this.isProRateView = false,
+    this.priceTier = MaterialPriceTier.client,
+    this.products = CatalogMock.products,
   });
 
-  final bool isProRateView;
+  final MaterialPriceTier priceTier;
+  final List<MaterialProduct> products;
 
   @override
   State<MaterialsCatalogScreen> createState() => _MaterialsCatalogScreenState();
@@ -22,6 +29,7 @@ class MaterialsCatalogScreen extends StatefulWidget {
 class _MaterialsCatalogScreenState extends State<MaterialsCatalogScreen> {
   final _searchController = TextEditingController();
   String _query = '';
+  MaterialFilters _filters = const MaterialFilters();
 
   @override
   void dispose() {
@@ -29,80 +37,92 @@ class _MaterialsCatalogScreenState extends State<MaterialsCatalogScreen> {
     super.dispose();
   }
 
-  bool _matches(String name, String brand) {
-    final query = _query.trim().toLowerCase();
-    return query.isEmpty || name.toLowerCase().contains(query) || brand.toLowerCase().contains(query);
+  List<String> _options(String? Function(MaterialProduct p) pick) =>
+      ({for (final p in widget.products) ?pick(p)}.toList()..sort());
+
+  Future<void> _openFilters() async {
+    final result = await showCatalogFilterSheet(
+      context,
+      current: _filters,
+      categories: _options((p) => p.category),
+      brands: _options((p) => p.brand),
+      finishes: _options((p) => p.finish),
+    );
+    if (result != null) setState(() => _filters = result);
   }
+
+  void _clearAll() => setState(() {
+        _filters = const MaterialFilters();
+        _query = '';
+        _searchController.clear();
+      });
 
   @override
   Widget build(BuildContext context) {
-    final products = [
-      for (final item in CatalogMock.products)
-        if (_matches(item.product.name, item.product.brand)) item,
-    ];
-    final showSupplier = _matches(CatalogMock.supplierName, CatalogMock.supplierType);
+    final tier = widget.priceTier;
+    final results = _filters.apply(widget.products, tier, _query);
+    final activeCount = _filters.activeCount;
 
-    return ProScreen(
-      backgroundAsset: ProAssets.headerPaintCorner,
-      navWhenPushed: ProNavDestination.home,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    return RivetScaffold(
+      title: 'Bodega',
+      showBackButton: false,
+      backgroundImagePath: AppHeroImages.paintShelf,
+      body: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         children: [
-          const ProBackHeader(title: 'Bodega', lucideChevron: true, height: 155),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: ProLayout.screenPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              spacing: 6,
-              children: [
-                CatalogSearchField(
-                  controller: _searchController,
-                  hint: 'Buscar materiales, marcas o proveedores...',
-                  onChanged: (value) => setState(() => _query = value),
-                ),
-                const Row(
-                  spacing: 10,
-                  children: [
-                    Expanded(child: CatalogStaticField(icon: LucideIcon.package, label: 'Categoría')),
-                    Expanded(child: CatalogStaticField(icon: LucideIcon.shield, label: 'Marca')),
-                  ],
-                ),
-                const Row(
-                  spacing: 10,
-                  children: [
-                    Expanded(child: CatalogStaticField(icon: LucideIcon.mapPin, label: 'Ubicación')),
-                    Expanded(child: CatalogStaticField(icon: LucideIcon.circleCheck, label: 'Disponibilidad')),
-                  ],
-                ),
-                const Row(
-                  spacing: 4,
-                  children: [
-                    CatalogSegment(label: 'Materiales', selected: true),
-                    CatalogSegment(label: 'Proveedores'),
-                  ],
-                ),
-                if (showSupplier)
-                  CatalogMaterialCard(
-                    image: CatalogMock.supplierImage,
-                    title: CatalogMock.supplierName,
-                    lines: [CatalogMock.supplierLocation, CatalogMock.supplierType, CatalogMock.supplierRating],
-                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Bodega Oficial Rivet · Materiales certificados')),
-                    ),
-                  ),
-                for (final item in products)
-                  CatalogMaterialCard(
-                    image: item.info.image,
-                    fit: item.info.imageFit,
-                    title: item.product.name,
-                    lines: [item.product.brand, item.info.presentation],
-                    price: '\$ ${formatCop(widget.isProRateView ? item.product.proPriceCop : item.product.clientPriceCop)}'
-                        '${item.info.priceSuffix}',
-                  ),
-                const ProNote(text: 'Los precios pueden variar según si eres cliente o contratista y la ubicación.'),
-              ],
-            ),
+          const SizedBox(height: AppSpacing.sm),
+          AppSearchBar(
+            controller: _searchController,
+            hintText: 'Buscar por nombre, marca o categoría',
+            onChanged: (value) => setState(() => _query = value),
           ),
+          const SizedBox(height: 6),
+          AppFilterField(
+            icon: LucideIcons.slidersHorizontal,
+            label: 'Filtros',
+            value: activeCount == 0
+                ? null
+                : activeCount == 1
+                    ? '1 filtro activo'
+                    : '$activeCount filtros activos',
+            onTap: _openFilters,
+          ),
+          if (tier.isUnverifiedPro) ...[
+            const SizedBox(height: AppSpacing.md),
+            const AppInfoBanner(
+              compact: true,
+              message: 'Verifica tu cuenta para acceder a precios de contratista.',
+            ),
+          ],
+          const SizedBox(height: AppSpacing.lg),
+          Row(
+            children: [
+              Expanded(child: AppSectionHeader(title: 'Materiales', count: results.length)),
+              if (tier.isVerifiedPro)
+                const AppBadge(
+                  text: 'Precios de contratista',
+                  variant: AppBadgeVariant.success,
+                  icon: LucideIcons.badgeCheck,
+                  compact: true,
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          if (results.isEmpty)
+            AppEmptyState(
+              title: 'Sin resultados',
+              message: 'Ningún material coincide con tu búsqueda o filtros.',
+              icon: LucideIcons.searchX,
+              actionLabel: 'Limpiar filtros',
+              onAction: _clearAll,
+            )
+          else
+            for (final product in results)
+              Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: CatalogMaterialCard(product: product, tier: tier),
+              ),
+          const SizedBox(height: AppSpacing.xxl),
         ],
       ),
     );

@@ -1,65 +1,102 @@
-import 'package:flutter/material.dart';
 import '../../core/models/models.dart';
 import '../home/widgets/kit/kit.dart';
-import 'catalog_product_info.dart';
 
-/// Datos simulados de FerreCasa para la bodega (frame 22:144637).
+/// Materiales simulados de la Bodega Rivet; el precio de contratista es menor.
 abstract final class CatalogMock {
-  static const String supplierName = 'FerreCasa';
-  static const String supplierLocation = 'Medellín, Antioquia';
-  static const String supplierType = 'Ferretería y acabados';
-  static const String supplierRating = '⭐ 4.8 (126 reseñas)';
-  static const String supplierImage = ProAssets.ferreCasaStore;
-
-  static const MaterialProduct paint = MaterialProduct(
-    id: 'PV-001',
-    name: 'Pintura vinilo premium',
-    brand: 'Rivet',
-    category: 'Pinturas',
-    unit: 'Galón (1 gal)',
-    clientPriceCop: 87000,
-    proPriceCop: 82000,
-    coverageM2: 37.5,
-    supplierName: supplierName,
-    imageAsset: ProAssets.rivetPaint,
-  );
-
-  static const MaterialProduct porcelain = MaterialProduct(
-    id: 'PO-004',
-    name: 'Porcelanato gris mate',
-    brand: 'Cerámica Andina',
-    category: 'Acabados',
-    unit: 'm²',
-    clientPriceCop: 62000,
-    proPriceCop: 62000,
-    coverageM2: 0,
-    supplierName: supplierName,
-  );
-
-  static const MaterialProduct stucco = MaterialProduct(
-    id: 'EP-002',
-    name: 'Estuco plástico blanco',
-    brand: 'Sika',
-    category: 'Estuco',
-    unit: '5 galones',
-    clientPriceCop: 120000,
-    proPriceCop: 120000,
-    coverageM2: 0,
-    supplierName: supplierName,
-    imageAsset: ProAssets.coronaStucco,
-  );
-
-  /// Productos de la bodega en el orden del frame 22:144637.
-  static const List<({MaterialProduct product, CatalogProductInfo info})> products = [
-    (
-      product: paint,
-      info: CatalogProductInfo(
-        image: ProAssets.rivetPaint,
-        imageFit: BoxFit.contain,
-        presentation: 'Interior lavable, 1 galón',
-      ),
+  static const List<MaterialProduct> products = [
+    MaterialProduct(
+      id: 'PV-001',
+      name: 'Pintura vinilo premium',
+      brand: 'Rivet',
+      category: 'Pinturas',
+      unit: 'galón',
+      clientPriceCop: 87000,
+      proPriceCop: 82000,
+      finish: 'Mate',
+      imageAsset: ProAssets.rivetPaint,
     ),
-    (product: porcelain, info: CatalogProductInfo(presentation: '60 × 60 cm', priceSuffix: ' m²')),
-    (product: stucco, info: CatalogProductInfo(presentation: 'Acabado profesional, 5 galones')),
+    MaterialProduct(
+      id: 'PV-002',
+      name: 'Pintura vinilo lavable',
+      brand: 'Rivet',
+      category: 'Pinturas',
+      unit: 'galón',
+      clientPriceCop: 98000,
+      proPriceCop: 91000,
+      finish: 'Satinado',
+      imageAsset: ProAssets.rivetPaint,
+    ),
+    MaterialProduct(
+      id: 'EP-002',
+      name: 'Estuco plástico blanco',
+      brand: 'Sika',
+      category: 'Estuco',
+      unit: '5 galones',
+      clientPriceCop: 120000,
+      proPriceCop: 112000,
+      finish: 'Liso',
+      imageAsset: ProAssets.coronaStucco,
+    ),
+    MaterialProduct(
+      id: 'EP-003',
+      name: 'Estuco acrílico fino',
+      brand: 'Sika',
+      category: 'Estuco',
+      unit: '5 galones',
+      clientPriceCop: 95000,
+      proPriceCop: 88000,
+      finish: 'Liso',
+      inStock: false,
+    ),
+    MaterialProduct(
+      id: 'PO-004',
+      name: 'Porcelanato gris mate',
+      brand: 'Cerámica Andina',
+      category: 'Acabados',
+      unit: 'm²',
+      clientPriceCop: 62000,
+      proPriceCop: 57000,
+      finish: 'Mate',
+    ),
+    MaterialProduct(
+      id: 'PO-005',
+      name: 'Porcelanato madera brillante',
+      brand: 'Cerámica Andina',
+      category: 'Acabados',
+      unit: 'm²',
+      clientPriceCop: 74000,
+      proPriceCop: 69000,
+      finish: 'Brillante',
+      inStock: false,
+    ),
+    MaterialProduct(
+      id: 'AC-006',
+      name: 'Cinta de enmascarar 48 mm',
+      brand: '3M',
+      category: 'Accesorios',
+      unit: 'rollo',
+      clientPriceCop: 9500,
+      proPriceCop: 8500,
+      imageAsset: ProAssets.maskingTape,
+    ),
+    MaterialProduct(
+      id: 'AC-007',
+      name: 'Rodillo de lana 9"',
+      brand: 'Rivet',
+      category: 'Accesorios',
+      unit: 'unidad',
+      clientPriceCop: 18000,
+      proPriceCop: 16000,
+    ),
+    MaterialProduct(
+      id: 'PV-008',
+      name: 'Esmalte sintético blanco',
+      brand: 'Sika',
+      category: 'Pinturas',
+      unit: 'galón',
+      clientPriceCop: 104000,
+      proPriceCop: 99000,
+      finish: 'Brillante',
+    ),
   ];
 }

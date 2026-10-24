@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../core/data/mock_data.dart';
 import '../../core/theme/theme.dart';
+import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import '../auth/auth_service.dart';
+import '../auth/domain/entities/rivet_user.dart';
+import '../under_construction/under_construction_screen.dart';
 import 'widgets/client_home_cards.dart';
 
 /// Inicio del propietario: saludo y sus proyectos.
@@ -20,14 +23,26 @@ class ClientHomeView extends StatefulWidget {
 class _ClientHomeViewState extends State<ClientHomeView> {
   late final Future<String> _firstName = _loadFirstName();
 
-  Future<String> _loadFirstName() async {
+  // Nombre de la sesión ya conocida, para que el saludo no cambie al cargar.
+  late final String _cachedFirstName = () {
     try {
-      final user = await AuthService.instance.getCurrentUser();
-      final first = user?.fullName.trim().split(' ').first ?? '';
-      return first.isEmpty ? '' : first[0].toUpperCase() + first.substring(1);
+      return _firstNameOf(AuthService.instance.currentUser);
     } catch (_) {
       return '';
     }
+  }();
+
+  Future<String> _loadFirstName() async {
+    try {
+      return _firstNameOf(await AuthService.instance.getCurrentUser());
+    } catch (_) {
+      return '';
+    }
+  }
+
+  static String _firstNameOf(RivetUser? user) {
+    final first = user?.fullName.trim().split(' ').first ?? '';
+    return first.isEmpty ? '' : first[0].toUpperCase() + first.substring(1);
   }
 
   @override
@@ -36,12 +51,23 @@ class _ClientHomeViewState extends State<ClientHomeView> {
 
     return FutureBuilder<String>(
       future: _firstName,
+      initialData: _cachedFirstName,
       builder: (context, snapshot) {
         final name = snapshot.data ?? '';
         return RivetScaffold(
           showBackButton: false,
+          showWordmark: true,
           title: name.isEmpty ? 'Hola' : 'Hola, $name',
           backgroundImagePath: 'Fondos/Sala minimalista con plantas y luz suave.png',
+          actions: [
+            // Notificaciones aún no está disponible.
+            AppNotificationButton(
+              onPressed: () => AppNavigator.push(
+                context,
+                const UnderConstructionScreen(section: 'Notificaciones'),
+              ),
+            ),
+          ],
           body: ListView(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
             children: [
@@ -64,6 +90,10 @@ class _ClientHomeViewState extends State<ClientHomeView> {
                     child: ClientProjectCard(
                       project: project,
                       proposalCount: MockData.proposals.where((p) => p.projectId == project.id).length,
+                      onTap: () => AppNavigator.push(
+                        context,
+                        const UnderConstructionScreen(section: 'Proyectos'),
+                      ),
                     ),
                   ),
               ],
