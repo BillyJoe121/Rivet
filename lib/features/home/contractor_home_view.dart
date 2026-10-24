@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../core/data/mock_data.dart';
 import '../../core/models/models.dart';
 import '../projects/my_projects_screen.dart';
-import '../projects/project_detail_screen.dart';
 import 'widgets/kit/kit.dart';
 import 'widgets/pro_home_cards.dart';
 import 'widgets/pro_home_mock.dart';
@@ -16,11 +14,6 @@ class ContractorHomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final project = MockData.projects.first;
-    void openProject() => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => ProjectDetailScreen(project: project, isContractorView: true)),
-        );
     void openProjects() => Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const MyProjectsScreen(forContractor: true)),
@@ -38,7 +31,7 @@ class ContractorHomeView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: 6,
               children: [
-                ProFeaturedProjectCard(project: ContractorHomeMock.nearbyProject, onTap: openProject),
+                ProFeaturedProjectCard(project: ContractorHomeMock.nearbyProject),
                 Row(
                   spacing: 8,
                   children: [
@@ -49,7 +42,7 @@ class ContractorHomeView extends StatelessWidget {
                   ],
                 ),
                 ProSectionHeader('Mi trabajo en curso', linkLabel: 'Ver todos', onLinkTap: openProjects),
-                ProProjectCard(project: ContractorHomeMock.ongoingWork, onTap: openProject),
+                ProProjectCard(project: ContractorHomeMock.ongoingWork),
                 ProSectionHeader('Actividad reciente', linkLabel: 'Ver todos', onLinkTap: openProjects),
                 ProActivityCard(items: ContractorHomeMock.activity),
               ],

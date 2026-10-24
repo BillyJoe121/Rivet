@@ -17,7 +17,6 @@ abstract final class RvImages {
   // Fotografías y miniaturas.
   static const paintingLivingRoom = 'Fondos/foto_pintando_sala.jpg'; // 086d0a6ff4
   static const maskingTape = 'Fondos/foto_cinta_enmascarar.jpg'; // 16bbc14bcf
-  static const portraitPainterSmiling = 'Fondos/foto_retrato_pintor_sonriente.jpg'; // 2a4c7183af
   static const greenWallVertical = 'Fondos/foto_pared_verde_vertical.jpg'; // 31778aaf7e
   static const unfinishedWall = 'Fondos/foto_pared_sin_terminar.jpg'; // 43e199c360
   static const modernHouse = 'Fondos/foto_fachada_casa_moderna.jpg'; // 45a1fe8340
@@ -31,7 +30,6 @@ abstract final class RvImages {
   static const ferreCasaFront = 'Fondos/foto_fachada_ferrecasa.jpg'; // a6a97a6a5c
   static const dampWall = 'Fondos/foto_pared_humedad.jpg'; // b42f2783f6
   static const sofaGreenWall = 'Fondos/foto_sala_sofa_verde.jpg'; // b718df4594
-  static const portraitManCap = 'Fondos/foto_retrato_hombre_gorra.jpg'; // bc6f2e2434
   static const portraitPainterWoman = 'Fondos/foto_retrato_pintora.jpg'; // c83b3d680f
   static const paintRivetPremium = 'Fondos/foto_pintura_rivet_premium.jpg'; // ca3b2024fb
   static const emptyRoomWindow = 'Fondos/foto_sala_vacia_ventana.jpg'; // cdd73fe35b

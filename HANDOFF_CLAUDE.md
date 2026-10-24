@@ -77,10 +77,8 @@ El proyecto cuenta con todas las imágenes oficiales exportadas directamente de 
 Ubicación: `c:\Users\joshe\Downloads\Apps\Rivet\Fondos/`
 - `Salón Minimalista en Verde y Crema.png` → Usado en **Bienvenida / Onboarding** (`WelcomeScreen`).
 - `Sala minimalista con plantas y luz suave.png` → Usado en **Explorar Rivet / Home del Propietario** (`ClientHomeView`).
-- `Rincón natural de pintura DIY.png` → Usado en **Detalle de Material** (`MaterialDetailScreen`).
 - `Tienda minimalista entre plantas verdes.png` → Usado en **Bodega / Ferretería / Proveedores** (`MaterialsCatalogScreen`).
 - `Checklist, plantas y cajas sostenibles.png` → Usado en **Mis Proyectos** (`MyProjectsScreen`).
-- `Rodillo sobre pincelada verde.png` → Usado en **Perfil y Visita del Contratista** (`ContractorDetailScreen`, `ContractorVisitScreen`).
 - `Burbuja de chat y campana entre hojas.png` → Para mensajería y notificaciones.
 - `Escudo de privacidad junto a plantas.png` → Para el paso de IA y fotos privadas.
 - `Escudo de confianza entre hojas verdes.png` → Para depósito en garantía y disputas.
@@ -143,4 +141,4 @@ El código sigue un diseño atómico limpio y modular:
 ## 7. Próximos Pasos Recomendados para Claude
 1. **Extender el uso de `RivetScaffold` y la silueta biofílica** a las pantallas de flujos más profundos (Creación de cotización de 4 pasos, comparador de propuestas, comprobantes de pago y módulo de arbitraje).
 2. **Conectar persistencia / estado global** (Provider / Riverpod / Bloc) si se desea que los datos creados por el cliente se reflejen inmediatamente en la vista del contratista y del proveedor.
-3. **Integración de Pasarela Real** (Wompi Widget / API Checkout) en [`project_payment_screen.dart`](file:///c:/Users/joshe/Downloads/Apps/Rivet/lib/features/payments/project_payment_screen.dart).
+3. **Integración de Pasarela Real** (Wompi Widget / API Checkout) en el pago del proyecto, cuando ese flujo se construya en un sprint posterior.

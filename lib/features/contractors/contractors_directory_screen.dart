@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../core/data/mock_data.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
-import 'contractor_detail_screen.dart';
 
 /// Directorio y catálogo de pintores y estucadores (P-019).
 class ContractorsDirectoryScreen extends StatelessWidget {
@@ -55,12 +54,6 @@ class ContractorsDirectoryScreen extends StatelessWidget {
           ...contractors.map((c) => Padding(
                 padding: const EdgeInsets.only(bottom: AppSpacing.md),
                 child: AppCard(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (_) => ContractorDetailScreen(contractor: c)),
-                    );
-                  },
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -115,11 +108,6 @@ class ContractorsDirectoryScreen extends StatelessWidget {
                           const AppBadge(text: 'Pintura interior', variant: AppBadgeVariant.neutral),
                           const SizedBox(width: AppSpacing.xs),
                           const AppBadge(text: 'Estuco', variant: AppBadgeVariant.neutral),
-                          const Spacer(),
-                          Text(
-                            'Ver perfil y fotos →',
-                            style: AppTypography.badgeText.copyWith(color: AppColors.brand700),
-                          ),
                         ],
                       ),
                     ],

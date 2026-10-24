@@ -45,7 +45,7 @@
 
 ## 3. Flujos de Pantallas Mapeados en Figma
 Según la inspección de Dev Mode en Figma, los flujos clave a maquetar son:
-1. **Inicio como cualquier usuario** (Onboarding, Welcome, Selección de rol/Home general).
+1. **Inicio como cualquier usuario** (Onboarding, Welcome y Home general; el rol se elige en el registro).
 2. **Postulación a un proyecto como contratista**
 3. **Vista de Bodega como cliente/contratista**
 4. **Gestión de proveedor**

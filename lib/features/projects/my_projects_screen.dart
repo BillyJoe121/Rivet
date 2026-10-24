@@ -3,9 +3,6 @@ import '../../core/data/mock_data.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/widgets.dart';
-import 'create_project_screen.dart';
-import 'project_detail_screen.dart';
-import '../proposals/create_proposal_screen.dart';
 
 /// Pantalla de listado y filtrado de proyectos con diseño editorial y fondo orgánico (P-016 / P-017).
 class MyProjectsScreen extends StatefulWidget {
@@ -37,19 +34,6 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
       title: title,
       showBackButton: false,
       backgroundImagePath: 'Fondos/Checklist, plantas y cajas sostenibles.png',
-      actions: [
-        if (!widget.forContractor)
-          IconButton(
-            icon: const Icon(Icons.add_circle_outline, color: AppColors.brand700, size: 24),
-            tooltip: 'Crear solicitud',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const CreateProjectScreen()),
-              );
-            },
-          ),
-      ],
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
         children: [
@@ -75,17 +59,6 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
             ...projects.map((proj) => Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.md),
                   child: AppCard(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ProjectDetailScreen(
-                            project: proj,
-                            isContractorView: widget.forContractor,
-                          ),
-                        ),
-                      );
-                    },
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -138,23 +111,6 @@ class _MyProjectsScreenState extends State<MyProjectsScreen> {
                             ),
                           ],
                         ),
-                        if (widget.forContractor && !widget.showBidsOnly) ...[
-                          const SizedBox(height: AppSpacing.md),
-                          AppButton(
-                            text: 'Postular Cotización',
-                            variant: AppButtonVariant.primary,
-                            size: AppButtonSize.sm,
-                            trailingIcon: Icons.chevron_right,
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => CreateProposalScreen(project: proj),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
                       ],
                     ),
                   ),

@@ -7,7 +7,6 @@ import '../auth/domain/entities/rivet_user.dart';
 import '../home/widgets/kit/kit.dart';
 import '../onboarding/welcome_screen.dart';
 import 'account_mock.dart';
-import 'privacy_preferences_screen.dart';
 import 'widgets/account_profile_widgets.dart';
 import 'widgets/account_role_sheet.dart';
 
@@ -72,11 +71,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
         : fallbackMock.phone;
 
     final initials = displayName.trim().split(' ').map((p) => p.isNotEmpty ? p[0] : '').take(2).join().toUpperCase();
-
-    void openPreferences() => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => PrivacyPreferencesScreen(currentRole: widget.currentRole)),
-        );
 
     return ProScreen(
       backgroundAsset: ProAssets.headerLivingRoom,
@@ -143,7 +137,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ])
                         SizedBox(
                           height: 40,
-                          child: ProOptionRow(icon: icon, title: title, subtitle: value, onTap: openPreferences),
+                          child: ProOptionRow(icon: icon, title: title, subtitle: value, trailing: null),
                         ),
                     ],
                   ),

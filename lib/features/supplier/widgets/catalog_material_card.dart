@@ -46,8 +46,6 @@ class CatalogMaterialCard extends StatelessWidget {
               ],
             ),
           ),
-          const SizedBox(width: 10),
-          const ProIcon(LucideIcon.chevronRight, size: 15),
         ],
       ),
     );

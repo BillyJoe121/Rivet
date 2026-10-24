@@ -227,37 +227,3 @@ class ProOutlineButton extends StatelessWidget {
     );
   }
 }
-
-/// Interruptor de 36×21 con perilla de 15 px.
-class ProToggle extends StatelessWidget {
-  const ProToggle({super.key, required this.value, this.onChanged});
-
-  final bool value;
-  final ValueChanged<bool>? onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      toggled: value,
-      child: GestureDetector(
-        onTap: onChanged == null ? null : () => onChanged!(!value),
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          width: 36,
-          height: 21,
-          padding: const EdgeInsets.all(3),
-          alignment: value ? Alignment.centerRight : Alignment.centerLeft,
-          decoration: BoxDecoration(
-            color: value ? ProColors.brand700 : ProColors.lineDark,
-            borderRadius: BorderRadius.circular(ProRadii.xl),
-          ),
-          child: Container(
-            width: 15,
-            height: 15,
-            decoration: const BoxDecoration(color: ProColors.surface0, shape: BoxShape.circle),
-          ),
-        ),
-      ),
-    );
-  }
-}

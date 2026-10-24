@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../core/data/mock_data.dart';
 import '../../core/theme/theme.dart';
-import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import '../auth/auth_service.dart';
-import '../projects/create_project_screen.dart';
-import '../projects/project_detail_screen.dart';
 import 'widgets/client_home_cards.dart';
 
-/// Inicio del propietario: saludo, publicar un proyecto y sus proyectos.
+/// Inicio del propietario: saludo y sus proyectos.
 /// Los demás destinos viven en la barra inferior y en "Más".
 class ClientHomeView extends StatefulWidget {
   const ClientHomeView({super.key, required this.onOpenProjects});
@@ -54,11 +51,7 @@ class _ClientHomeViewState extends State<ClientHomeView> {
                 style: AppTypography.bodyMedium.copyWith(color: AppColors.ink700),
               ),
               const SizedBox(height: AppSpacing.xxl),
-              ClientPublishCard(
-                onPublish: () => AppNavigator.push(context, const CreateProjectScreen()),
-              ),
               if (projects.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.xxl),
                 AppSectionHeader(
                   title: 'Tus proyectos',
                   actionLabel: 'Ver todos',
@@ -71,7 +64,6 @@ class _ClientHomeViewState extends State<ClientHomeView> {
                     child: ClientProjectCard(
                       project: project,
                       proposalCount: MockData.proposals.where((p) => p.projectId == project.id).length,
-                      onTap: () => AppNavigator.push(context, ProjectDetailScreen(project: project)),
                     ),
                   ),
               ],

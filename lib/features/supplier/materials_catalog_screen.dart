@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../../core/models/models.dart';
-
 import '../home/widgets/kit/kit.dart';
 import 'catalog_mock.dart';
 import 'catalog_product_info.dart';
-import 'material_detail_screen.dart';
 import 'widgets/catalog_common.dart';
 import 'widgets/catalog_material_card.dart';
 
@@ -14,11 +11,9 @@ class MaterialsCatalogScreen extends StatefulWidget {
   const MaterialsCatalogScreen({
     super.key,
     this.isProRateView = false,
-    this.isSupplierAdmin = false,
   });
 
   final bool isProRateView;
-  final bool isSupplierAdmin;
 
   @override
   State<MaterialsCatalogScreen> createState() => _MaterialsCatalogScreenState();
@@ -37,19 +32,6 @@ class _MaterialsCatalogScreenState extends State<MaterialsCatalogScreen> {
   bool _matches(String name, String brand) {
     final query = _query.trim().toLowerCase();
     return query.isEmpty || name.toLowerCase().contains(query) || brand.toLowerCase().contains(query);
-  }
-
-  void _openDetail(({MaterialProduct product, CatalogProductInfo info}) item) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => MaterialDetailScreen(
-          material: item.product,
-          isProRate: widget.isProRateView,
-          info: item.info,
-        ),
-      ),
-    );
   }
 
   @override
@@ -116,7 +98,6 @@ class _MaterialsCatalogScreenState extends State<MaterialsCatalogScreen> {
                     lines: [item.product.brand, item.info.presentation],
                     price: '\$ ${formatCop(widget.isProRateView ? item.product.proPriceCop : item.product.clientPriceCop)}'
                         '${item.info.priceSuffix}',
-                    onTap: () => _openDetail(item),
                   ),
                 const ProNote(text: 'Los precios pueden variar según si eres cliente o contratista y la ubicación.'),
               ],

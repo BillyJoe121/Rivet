@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/data/mock_data.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
-import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
-import 'proposal_detail_screen.dart';
 
 /// Propuestas recibidas por el cliente, agrupadas por proyecto.
 class ReceivedProposalsScreen extends StatelessWidget {
@@ -64,10 +62,6 @@ class _ProposalCard extends StatelessWidget {
     final contractor = proposal.contractor;
 
     return AppCard(
-      onTap: () => AppNavigator.push(
-        context,
-        ProposalDetailScreen(proposal: proposal),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -118,8 +112,6 @@ class _ProposalCard extends StatelessWidget {
                 '${proposal.estimatedDays} días',
                 style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, color: AppColors.ink900),
               ),
-              const SizedBox(width: AppSpacing.sm),
-              const Icon(Icons.chevron_right, size: 20, color: AppColors.ink500),
             ],
           ),
         ],

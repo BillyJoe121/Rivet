@@ -13,9 +13,7 @@ class ProScreen extends StatelessWidget {
     super.key,
     required this.body,
     this.backgroundAsset,
-    this.backgroundHeight = ProLayout.headerImageHeight,
     this.footer,
-    this.bottomNav,
     this.background = ProColors.paper100,
     this.scrollable = true,
     this.navWhenPushed,
@@ -23,9 +21,7 @@ class ProScreen extends StatelessWidget {
 
   final Widget body;
   final String? backgroundAsset;
-  final double backgroundHeight;
   final Widget? footer;
-  final Widget? bottomNav;
   final Color background;
   final bool scrollable;
 
@@ -37,8 +33,7 @@ class ProScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final top = MediaQuery.paddingOf(context).top;
     final pushed = ModalRoute.of(context)?.canPop ?? false;
-    final bottomNav = this.bottomNav ??
-        (navWhenPushed != null && pushed ? ProBottomNav(active: navWhenPushed) : null);
+    final bottomNav = navWhenPushed != null && pushed ? ProBottomNav(active: navWhenPushed) : null;
     final content = Stack(
       children: [
         if (backgroundAsset != null)
@@ -46,7 +41,7 @@ class ProScreen extends StatelessWidget {
             top: 0,
             left: 0,
             right: 0,
-            height: backgroundHeight,
+            height: ProLayout.headerImageHeight,
             child: Image.asset(
               backgroundAsset!,
               fit: BoxFit.cover,

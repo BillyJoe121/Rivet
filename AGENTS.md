@@ -19,8 +19,8 @@ Rivet es una plataforma móvil en Flutter (Dart) que conecta a propietarios de o
   - Validado en `AppTextField`: contraste WCAG, bordes de enfoque (`focusedBorder`), cursor tint de marca (`brand700`), cursor de 2.0px.
   - Viewport seguro en `LoginScreen` y `SignupScreen` con `SingleChildScrollView` y padding `bottomInset` que previene desbordamientos de teclado (`Bottom overflowed by XX pixels`).
   - Corregido desbordamiento de 19px en `LoginTabs` mediante `IntrinsicWidth`.
-- [x] **Quitar selector de 3 usuarios**: Retirado el rol de proveedor en `RoleSelectionScreen`, `AccountTypeSelector` y `account_role_sheet.dart`; solo existen **Cliente** y **Contratista**.
-- [x] **Transiciones y animaciones de pantalla**: Implementado `RivetPageRoute` y `AppNavigator` con transición suave combinada de `Fade` y `Slide` (curva `Curves.easeOutCubic`) entre bienvenida, selección de rol, auth y home.
+- [x] **Quitar selector de 3 usuarios**: Retirado el rol de proveedor en `AccountTypeSelector` (registro) y `account_role_sheet.dart` (cambio de rol); solo existen **Cliente** y **Contratista**.
+- [x] **Transiciones y animaciones de pantalla**: Implementado `RivetPageRoute` y `AppNavigator` con transición suave combinada de `Fade` y `Slide` (curva `Curves.easeOutCubic`) entre bienvenida, auth y home.
 - [x] **Simplificar pantallas cargadas**: Estructura de formularios limpia y espaciada con tarjetas modulares y pasos claros.
 - [x] **Flujo intuitivo y honestidad visual**: `InkWell` y `Material` interactivo con splash/highlight en botones y tarjetas de rol; estado de carga `isLoading` en `AuthGradientButton`.
 - [x] **Rediseño de Bienvenida y Recuperar acceso**:
