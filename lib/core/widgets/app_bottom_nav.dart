@@ -10,31 +10,49 @@ class AppNavDestination {
   final String label;
 }
 
-/// Destinos medidos en el Figma por rol.
+/// Destinos por rol. El último de cada barra es "Más", que abre el panel con
+/// los destinos de la lista `...More` sin cambiar de pantalla.
 abstract final class AppNavDestinations {
-  /// Propietario: Inicio · Contratistas · Propuestas · Mensajes · Más.
+  static const AppNavDestination _more = AppNavDestination(icon: LucideIcons.ellipsis, label: 'Más');
+  static const AppNavDestination _profile = AppNavDestination(icon: LucideIcons.circleUser, label: 'Mi perfil');
+
+  /// Propietario: Inicio · Proyectos · Contratistas · Bodega · Más.
   static const List<AppNavDestination> client = [
     AppNavDestination(icon: LucideIcons.house, label: 'Inicio'),
+    AppNavDestination(icon: LucideIcons.files, label: 'Proyectos'),
     AppNavDestination(icon: LucideIcons.hardHat, label: 'Contratistas'),
-    AppNavDestination(icon: LucideIcons.tag, label: 'Propuestas'),
-    AppNavDestination(icon: LucideIcons.messageSquare, label: 'Mensajes'),
-    AppNavDestination(icon: LucideIcons.ellipsis, label: 'Más'),
+    AppNavDestination(icon: LucideIcons.warehouse, label: 'Bodega'),
+    _more,
   ];
 
-  /// Contratista y proveedor: Inicio · Proyectos · Propuestas · Mensajes · Más.
+  /// Panel "Más" del propietario.
+  static const List<AppNavDestination> clientMore = [
+    AppNavDestination(icon: LucideIcons.tag, label: 'Propuestas'),
+    AppNavDestination(icon: LucideIcons.messageSquare, label: 'Mensajes'),
+    _profile,
+  ];
+
+  /// Contratista: Inicio · Proyectos · Propuestas · Mensajes · Más.
   static const List<AppNavDestination> professional = [
     AppNavDestination(icon: LucideIcons.house, label: 'Inicio'),
     AppNavDestination(icon: LucideIcons.files, label: 'Proyectos'),
     AppNavDestination(icon: LucideIcons.tag, label: 'Propuestas'),
     AppNavDestination(icon: LucideIcons.messageSquare, label: 'Mensajes'),
-    AppNavDestination(icon: LucideIcons.ellipsis, label: 'Más'),
+    _more,
+  ];
+
+  /// Panel "Más" del contratista.
+  static const List<AppNavDestination> professionalMore = [
+    AppNavDestination(icon: LucideIcons.warehouse, label: 'Bodega'),
+    _profile,
   ];
 }
 
 /// Barra de navegación principal del Figma (nodo "Navegación principal"):
 /// alto 80 + margen inferior del sistema, fondo blanco, borde superior de
 /// 1 px `#E6E9E4`, padding 14/12/0/12, iconos Lucide de 21 px, separación 8 y
-/// etiqueta Roboto 400 10/12. Activo `#004E49`, inactivo `#638097`.
+/// etiqueta Roboto 400 10/12. Activo `#08796F` (verde de marca, para que se note la pantalla actual),
+/// inactivo `#638097`.
 class AppBottomNav extends StatelessWidget {
   const AppBottomNav({
     super.key,
@@ -90,7 +108,7 @@ class _NavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = selected ? AppColors.brand700 : AppColors.ink500;
+    final color = selected ? AppColors.brandGradientStart : AppColors.ink500;
     return Semantics(
       selected: selected,
       button: true,

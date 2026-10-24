@@ -68,6 +68,7 @@ class Project {
     required this.createdAt,
     this.budgetEstimateCop = 0,
     this.description = '',
+    this.imageAsset,
   });
 
   final String id;
@@ -80,6 +81,9 @@ class Project {
   final DateTime createdAt;
   final int budgetEstimateCop;
   final String description;
+
+  /// Foto de referencia del espacio (asset de `Fondos/`).
+  final String? imageAsset;
 
   double get totalAreaM2 => surfaces.fold(0.0, (acc, s) => acc + s.areaM2);
 }

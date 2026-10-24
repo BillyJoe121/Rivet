@@ -111,15 +111,14 @@ abstract final class AppTheme {
   }
 }
 
-/// Comportamiento de scroll unificado con física Bouncing natural y sin deformaciones.
+/// Comportamiento de scroll unificado: se detiene en los bordes y no se
+/// desplaza cuando el contenido cabe en pantalla.
 class RivetScrollBehavior extends MaterialScrollBehavior {
   const RivetScrollBehavior();
 
   @override
   ScrollPhysics getScrollPhysics(BuildContext context) {
-    return const BouncingScrollPhysics(
-      parent: AlwaysScrollableScrollPhysics(),
-    );
+    return const ClampingScrollPhysics();
   }
 
   /// Quita el estiramiento de Android 12+ al llegar al borde: sin esto los

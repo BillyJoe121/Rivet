@@ -61,6 +61,7 @@ abstract final class MockData {
       description: 'Pared principal con humedad corregida, requiere dos manos de vinilo tipo 1 color Blanco Hueso.',
       status: ProjectStatus.published,
       createdAt: DateTime.now().subtract(const Duration(days: 2)),
+      imageAsset: 'Fondos/foto_sala_comedor.jpg',
       surfaces: const [
         SurfaceItem(
           id: 's-1',
@@ -96,6 +97,7 @@ abstract final class MockData {
       description: 'Acabado liso sobre revoque nuevo en dos muros de la habitación.',
       status: ProjectStatus.negotiating,
       createdAt: DateTime.now().subtract(const Duration(days: 5)),
+      imageAsset: 'Fondos/foto_pared_sin_terminar.jpg',
       surfaces: const [
         SurfaceItem(
           id: 's-4',

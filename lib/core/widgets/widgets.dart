@@ -24,4 +24,5 @@ export 'app_quick_action_tile.dart';
 export 'app_search_bar.dart';
 export 'app_section_header.dart';
 export 'app_bottom_nav.dart';
+export 'app_more_menu.dart';
 export 'rivet_header.dart';

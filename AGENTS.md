@@ -14,7 +14,7 @@ Rivet es una plataforma móvil en Flutter (Dart) que conecta a propietarios de o
 ## Backlog de Tareas — Sprint 1 (20 Oct – 27 Oct)
 
 ### 🎨 Tareas de Estilo y UX
-- [x] **Corregir scroll con efecto raro**: Normalizado con `RivetScrollBehavior` (`BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics())`) aplicado globalmente en `MaterialApp`.
+- [x] **Corregir scroll con efecto raro**: Normalizado con `RivetScrollBehavior` (`ClampingScrollPhysics`, sin rebote ni estiramiento y sin desplazamiento cuando el contenido cabe) aplicado globalmente en `MaterialApp`.
 - [x] **Corregir y pulir inputs**:
   - Validado en `AppTextField`: contraste WCAG, bordes de enfoque (`focusedBorder`), cursor tint de marca (`brand700`), cursor de 2.0px.
   - Viewport seguro en `LoginScreen` y `SignupScreen` con `SingleChildScrollView` y padding `bottomInset` que previene desbordamientos de teclado (`Bottom overflowed by XX pixels`).
