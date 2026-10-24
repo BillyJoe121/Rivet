@@ -6,6 +6,7 @@ import '../auth/login_screen.dart';
 import '../auth/signup_screen.dart';
 import '../projects/widgets/client_kit/client_kit.dart';
 import 'widgets/welcome_icon_morph.dart';
+import 'widgets/welcome_infinite_zoom.dart';
 import 'widgets/welcome_start_button.dart';
 
 /// Pantalla inicial editorial: fotografía a sangre completa con velo de marca,
@@ -18,17 +19,11 @@ class WelcomeScreen extends StatefulWidget {
 }
 
 class _WelcomeScreenState extends State<WelcomeScreen>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   /// Entrada escalonada del contenido.
   late final AnimationController _intro = AnimationController(
     vsync: this,
     duration: const Duration(milliseconds: 1200),
-  );
-
-  /// Acercamiento lento de la fotografía de fondo.
-  late final AnimationController _drift = AnimationController(
-    vsync: this,
-    duration: const Duration(seconds: 18),
   );
 
   @override
@@ -36,17 +31,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     super.didChangeDependencies();
     if (MediaQuery.disableAnimationsOf(context)) {
       _intro.value = 1;
-      _drift.stop();
     } else if (_intro.isDismissed) {
       _intro.forward();
-      _drift.forward();
     }
   }
 
   @override
   void dispose() {
     _intro.dispose();
-    _drift.dispose();
     super.dispose();
   }
 
@@ -76,13 +68,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
         body: Stack(
           fit: StackFit.expand,
           children: [
-            AnimatedBuilder(
-              animation: _drift,
-              builder: (context, child) => Transform.scale(
-                scale: 1 + 0.08 * Curves.easeOut.transform(_drift.value),
-                alignment: const Alignment(0.3, -0.4),
-                child: child,
-              ),
+            WelcomeInfiniteZoom(
+              focus: const Alignment(0.3, -0.4),
               child: Image.asset(
                 RvImages.sofaGreenWall,
                 fit: BoxFit.cover,
