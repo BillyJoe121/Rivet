@@ -7,6 +7,7 @@ export 'rv_button.dart';
 export 'rv_header.dart';
 export 'rv_icon_data.dart';
 export 'rv_icons.dart';
+export 'rv_icons_extra.dart';
 export 'rv_images.dart';
 export 'rv_page.dart';
 export 'rv_surfaces.dart';

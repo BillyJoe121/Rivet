@@ -11,7 +11,15 @@ import '../supplier/materials_catalog_screen.dart';
 import '../under_construction/under_construction_screen.dart';
 
 /// Pantallas que se muestran dentro del shell.
-enum _Page { home, projects, contractors, catalog, proposals, messages, profile }
+enum _Page {
+  home,
+  projects,
+  contractors,
+  catalog,
+  proposals,
+  messages,
+  profile,
+}
 
 /// Shell principal con la barra de navegación según el rol activo. "Más"
 /// abre un panel con el resto de destinos sin cambiar la pantalla actual.
@@ -26,9 +34,19 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   // Mismo orden que AppNavDestinations (la barra sin "Más" y el panel).
-  static const _clientBar = [_Page.home, _Page.projects, _Page.contractors, _Page.catalog];
+  static const _clientBar = [
+    _Page.home,
+    _Page.projects,
+    _Page.contractors,
+    _Page.catalog,
+  ];
   static const _clientMore = [_Page.proposals, _Page.messages, _Page.profile];
-  static const _proBar = [_Page.home, _Page.projects, _Page.proposals, _Page.messages];
+  static const _proBar = [
+    _Page.home,
+    _Page.projects,
+    _Page.proposals,
+    _Page.messages,
+  ];
   static const _proMore = [_Page.catalog, _Page.profile];
 
   late UserRole _currentRole;
@@ -55,9 +73,9 @@ class _AppShellState extends State<AppShell> {
   }
 
   void _open(_Page page) => setState(() {
-        _page = page;
-        _moreOpen = false;
-      });
+    _page = page;
+    _moreOpen = false;
+  });
 
   void _onBarSelected(int index) {
     if (index == _barPages.length) {
@@ -70,7 +88,9 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final moreIndex = _morePages.indexOf(_page);
-    final barIndex = _moreOpen || moreIndex >= 0 ? _barPages.length : _barPages.indexOf(_page);
+    final barIndex = _moreOpen || moreIndex >= 0
+        ? _barPages.length
+        : _barPages.indexOf(_page);
 
     return PopScope(
       canPop: !_moreOpen,
@@ -84,7 +104,9 @@ class _AppShellState extends State<AppShell> {
             KeyedSubtree(key: ValueKey(_page), child: _buildPage(_page)),
             AppMoreMenu(
               open: _moreOpen,
-              items: _isClient ? AppNavDestinations.clientMore : AppNavDestinations.professionalMore,
+              items: _isClient
+                  ? AppNavDestinations.clientMore
+                  : AppNavDestinations.professionalMore,
               selectedIndex: moreIndex >= 0 ? moreIndex : null,
               onSelected: (i) => _open(_morePages[i]),
               onDismiss: () => setState(() => _moreOpen = false),
@@ -92,7 +114,9 @@ class _AppShellState extends State<AppShell> {
           ],
         ),
         bottomNavigationBar: AppBottomNav(
-          destinations: _isClient ? AppNavDestinations.client : AppNavDestinations.professional,
+          destinations: _isClient
+              ? AppNavDestinations.client
+              : AppNavDestinations.professional,
           currentIndex: barIndex,
           onSelected: _onBarSelected,
         ),
@@ -102,29 +126,31 @@ class _AppShellState extends State<AppShell> {
 
   Widget _buildPage(_Page page) {
     return switch (page) {
-      _Page.home => _isContractor
-          ? ContractorHomeView(onSwitchRole: _switchRole)
-          : ClientHomeView(onOpenProjects: () => _open(_Page.projects)),
-      _Page.projects => _isClient
-          ? const MyProjectsScreen()
-          : UnderConstructionScreen(section: _sectionName(page)),
+      _Page.home =>
+        _isContractor
+            ? ContractorHomeView(onSwitchRole: _switchRole)
+            : ClientHomeView(onOpenProjects: () => _open(_Page.projects)),
+      _Page.projects =>
+        _isClient
+            ? const MyProjectsScreen()
+            : UnderConstructionScreen(section: _sectionName(page)),
       _Page.catalog => const MaterialsCatalogScreen(),
       _Page.profile => ProfileScreen(
-          currentRole: _currentRole,
-          onSwitchRole: _switchRole,
-          onBack: () => _open(_Page.home),
-        ),
+        currentRole: _currentRole,
+        onSwitchRole: _switchRole,
+        onBack: () => _open(_Page.home),
+      ),
       // Secciones fuera del alcance actual: pantalla de "en construcción".
       _ => UnderConstructionScreen(section: _sectionName(page)),
     };
   }
 
   String _sectionName(_Page page) => switch (page) {
-        _Page.projects => 'Proyectos',
-        _Page.contractors => 'Contratistas',
-        _Page.catalog => 'Bodega',
-        _Page.proposals => 'Propuestas',
-        _Page.messages => 'Mensajes',
-        _ => '',
-      };
+    _Page.projects => 'Proyectos',
+    _Page.contractors => 'Contratistas',
+    _Page.catalog => 'Bodega',
+    _Page.proposals => 'Propuestas',
+    _Page.messages => 'Mensajes',
+    _ => '',
+  };
 }

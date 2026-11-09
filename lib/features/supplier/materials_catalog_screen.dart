@@ -14,7 +14,7 @@ import 'presentation/bloc/catalog_bloc.dart';
 import 'widgets/catalog_filter_sheet.dart';
 import 'widgets/catalog_material_card.dart';
 
-/// Bodega Rivet: catálogo oficial de materiales gestionado por [CatalogBloc] (P-023).
+/// Bodega Rivet: catálogo de materiales gestionado por [CatalogBloc] (P-023).
 class MaterialsCatalogScreen extends StatelessWidget {
   const MaterialsCatalogScreen({
     super.key,

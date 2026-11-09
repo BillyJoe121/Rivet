@@ -130,7 +130,7 @@ class MaterialDetailScreen extends StatelessWidget {
                 AppSpecRow(
                   icon: LucideIcons.shieldCheck,
                   label: 'Distribución',
-                  value: 'Bodega Rivet Oficial',
+                  value: 'Bodega Rivet Directo',
                 ),
               ],
             ),

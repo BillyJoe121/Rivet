@@ -132,7 +132,7 @@ class _ProposalDetailView extends StatelessWidget {
                     const SizedBox(height: AppSpacing.md),
                     Row(
                       children: [
-                        const Icon(LucideIcons.star, size: 16, color: Color(0xFFD97706)),
+                        const Icon(LucideIcons.star, size: 16, color: AppColors.sun300),
                         const SizedBox(width: 4),
                         Text(
                           '${currentProposal.contractor.rating}',

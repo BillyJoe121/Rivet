@@ -42,7 +42,7 @@ abstract final class MockData {
       completedJobs: 22,
       zone: 'Cali y Jamundí',
       isVerified: true,
-      bio: 'Trabajo en alturas certificado, pintura impermeable y acabados texturizados de larga duración.',
+      bio: 'Experto en trabajo en alturas, pintura impermeable y acabados texturizados de larga duración.',
       portfolioImages: [
         'Fondos/Terraza mediterránea con vista al mar.png',
       ],
@@ -137,7 +137,7 @@ abstract final class MockData {
       materialsCostCop: 395000,
       estimatedDays: 4,
       status: 'Recibida',
-      observations: 'Aplicación con rodillo de microfibra anti-goteo, 2 manos de Viniltex lavable garantizado.',
+      observations: 'Aplicación con rodillo de microfibra anti-goteo, 2 manos de Viniltex lavable de alta durabilidad.',
     ),
   ];
 }

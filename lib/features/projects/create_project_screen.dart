@@ -204,14 +204,14 @@ class _CreateProjectViewState extends State<_CreateProjectView> {
                   Container(
                     padding: const EdgeInsets.all(AppSpacing.md),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFFDE8E8),
+                      color: AppColors.dangerLight,
                       borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
-                      border: Border.all(color: const Color(0xFFF8B4B4)),
+                      border: Border.all(color: AppColors.danger700.withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       _errorMessage!,
                       style: AppTypography.bodySmall.copyWith(
-                        color: const Color(0xFF9B1C1C),
+                        color: AppColors.danger700,
                       ),
                     ),
                   ),
@@ -302,7 +302,8 @@ class _CreateProjectViewState extends State<_CreateProjectView> {
                                   ),
                                 ),
                                 IconButton(
-                                  icon: const Icon(LucideIcons.trash2, size: 16, color: Color(0xFF9B1C1C)),
+                                  constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
+                                  icon: const Icon(LucideIcons.trash2, size: 18, color: AppColors.danger700),
                                   onPressed: () => _removeSurface(i),
                                   tooltip: 'Eliminar superficie',
                                 ),

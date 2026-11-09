@@ -177,7 +177,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                   const SizedBox(height: 14),
                   const ProNote(
-                    text: 'Tu dirección exacta se mantiene privada. Solo compartiremos tu zona con profesionales garantizados.',
+                    text: 'Tu dirección exacta se mantiene privada. Solo compartiremos tu zona con profesionales verificados.',
                   ),
                 ],
               ),
