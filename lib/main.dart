@@ -6,6 +6,12 @@ import 'core/theme/theme.dart';
 import 'features/auth/auth_service.dart';
 import 'features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'features/onboarding/welcome_screen.dart';
+import 'features/projects/presentation/bloc/projects_bloc.dart';
+import 'features/projects/projects_service.dart';
+import 'features/proposals/presentation/bloc/proposals_bloc.dart';
+import 'features/proposals/proposals_service.dart';
+import 'features/supplier/catalog_service.dart';
+import 'features/supplier/presentation/bloc/catalog_bloc.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,6 +33,24 @@ class RivetApp extends StatelessWidget {
             AuthService.instance.getCurrentUserUseCase,
             AuthService.instance.signOutUseCase,
           )..add(const AuthCheckRequested()),
+        ),
+        BlocProvider<ProjectsBloc>(
+          create: (_) => ProjectsBloc(
+            ProjectsService.instance.getMyProjectsUseCase,
+            ProjectsService.instance.createProjectUseCase,
+            ProjectsService.instance.getProjectDetailUseCase,
+          )..add(const LoadProjects()),
+        ),
+        BlocProvider<ProposalsBloc>(
+          create: (_) => ProposalsBloc(
+            ProposalsService.instance.getReceivedProposalsUseCase,
+            ProposalsService.instance.acceptProposalUseCase,
+          )..add(const LoadReceivedProposals()),
+        ),
+        BlocProvider<CatalogBloc>(
+          create: (_) => CatalogBloc(
+            CatalogService.instance.getCatalogMaterialsUseCase,
+          )..add(const LoadCatalogProducts()),
         ),
       ],
       child: MaterialApp(
