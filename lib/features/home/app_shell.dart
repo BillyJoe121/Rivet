@@ -6,6 +6,8 @@ import '../../core/widgets/app_more_menu.dart';
 import 'client_home_view.dart';
 import 'contractor_home_view.dart';
 import '../account/profile_screen.dart';
+import '../projects/my_projects_screen.dart';
+import '../supplier/materials_catalog_screen.dart';
 import '../under_construction/under_construction_screen.dart';
 
 /// Pantallas que se muestran dentro del shell.
@@ -103,6 +105,10 @@ class _AppShellState extends State<AppShell> {
       _Page.home => _isContractor
           ? ContractorHomeView(onSwitchRole: _switchRole)
           : ClientHomeView(onOpenProjects: () => _open(_Page.projects)),
+      _Page.projects => _isClient
+          ? const MyProjectsScreen()
+          : UnderConstructionScreen(section: _sectionName(page)),
+      _Page.catalog => const MaterialsCatalogScreen(),
       _Page.profile => ProfileScreen(
           currentRole: _currentRole,
           onSwitchRole: _switchRole,

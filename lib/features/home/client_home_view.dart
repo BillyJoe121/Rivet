@@ -5,6 +5,7 @@ import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import '../auth/auth_service.dart';
 import '../auth/domain/entities/rivet_user.dart';
+import '../projects/project_detail_screen.dart';
 import '../under_construction/under_construction_screen.dart';
 import 'widgets/client_home_cards.dart';
 
@@ -92,7 +93,7 @@ class _ClientHomeViewState extends State<ClientHomeView> {
                       proposalCount: MockData.proposals.where((p) => p.projectId == project.id).length,
                       onTap: () => AppNavigator.push(
                         context,
-                        const UnderConstructionScreen(section: 'Proyectos'),
+                        ProjectDetailScreen(project: project),
                       ),
                     ),
                   ),

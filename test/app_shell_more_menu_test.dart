@@ -1,13 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/core/models/models.dart';
 import 'package:rivet/core/widgets/app_back_button.dart';
 import 'package:rivet/features/home/app_shell.dart';
 import 'package:rivet/features/home/widgets/kit/kit.dart';
+import 'package:rivet/features/projects/my_projects_screen.dart';
+import 'package:rivet/features/projects/presentation/bloc/projects_bloc.dart';
+import 'package:rivet/features/projects/project_detail_screen.dart';
+import 'package:rivet/features/projects/projects_service.dart';
+import 'package:rivet/features/supplier/catalog_service.dart';
+import 'package:rivet/features/supplier/materials_catalog_screen.dart';
+import 'package:rivet/features/supplier/presentation/bloc/catalog_bloc.dart';
 
 void main() {
   Future<void> pumpShell(WidgetTester tester, UserRole role) async {
-    await tester.pumpWidget(MaterialApp(home: AppShell(initialRole: role)));
+    await tester.pumpWidget(
+      MultiBlocProvider(
+        providers: [
+          BlocProvider<ProjectsBloc>(
+            create: (_) => ProjectsBloc(
+              ProjectsService.instance.getMyProjectsUseCase,
+              ProjectsService.instance.createProjectUseCase,
+              ProjectsService.instance.getProjectDetailUseCase,
+            ),
+          ),
+          BlocProvider<CatalogBloc>(
+            create: (_) => CatalogBloc(
+              CatalogService.instance.getCatalogMaterialsUseCase,
+            ),
+          ),
+        ],
+        child: MaterialApp(home: AppShell(initialRole: role)),
+      ),
+    );
     await tester.pumpAndSettle();
   }
 
@@ -49,26 +75,26 @@ void main() {
     expect(find.bySemanticsLabel('Volver'), findsNothing);
   });
 
-  testWidgets('Ver todos lleva a la pestaña Proyectos en construcción', (tester) async {
+  testWidgets('Ver todos lleva a la pestaña Proyectos (MyProjectsScreen)', (tester) async {
     await pumpShell(tester, UserRole.client);
 
     await tester.tap(find.text('Ver todos'));
-    await advance(tester);
+    await tester.pumpAndSettle();
 
-    expect(find.text('Pantalla en construcción'), findsOneWidget);
+    expect(find.byType(MyProjectsScreen), findsOneWidget);
   });
 
-  testWidgets('Una tarjeta de proyecto abre la pantalla en construcción con volver', (tester) async {
+  testWidgets('Una tarjeta de proyecto abre ProjectDetailScreen con volver', (tester) async {
     await pumpShell(tester, UserRole.client);
 
     await tester.tap(find.byIcon(Icons.chevron_right).first);
-    await advance(tester);
+    await tester.pumpAndSettle();
 
-    expect(find.text('Pantalla en construcción'), findsOneWidget);
+    expect(find.byType(ProjectDetailScreen), findsOneWidget);
     expect(find.bySemanticsLabel('Volver'), findsOneWidget);
   });
 
-  testWidgets('Las pestañas Contratistas y Bodega del cliente están en construcción', (tester) async {
+  testWidgets('Pestaña Contratistas está en construcción y Bodega abre MaterialsCatalogScreen', (tester) async {
     await pumpShell(tester, UserRole.client);
 
     await tester.tap(find.text('Contratistas'));
@@ -76,8 +102,8 @@ void main() {
     expect(find.text('Pantalla en construcción'), findsOneWidget);
 
     await tester.tap(find.text('Bodega'));
-    await advance(tester);
-    expect(find.text('Pantalla en construcción'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.byType(MaterialsCatalogScreen), findsOneWidget);
   });
 
   testWidgets('El contratista tiene Bodega y Mi perfil en Más', (tester) async {
@@ -90,8 +116,8 @@ void main() {
     expect(find.text('Mi perfil').hitTestable(), findsOneWidget);
 
     await tester.tap(find.text('Bodega'));
-    await advance(tester);
-    expect(find.text('Pantalla en construcción'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.byType(MaterialsCatalogScreen), findsOneWidget);
   });
 
   testWidgets('El inicio del contratista no tiene accesos rápidos ni avatar', (tester) async {
