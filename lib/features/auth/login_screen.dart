@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/models/models.dart';
 import '../../core/utils/app_page_route.dart';
@@ -12,23 +13,55 @@ import '../home/app_shell.dart';
 import '../projects/widgets/client_kit/client_kit.dart';
 import 'auth_service.dart';
 import 'forgot_password_screen.dart';
+import 'presentation/bloc/login/login_bloc.dart';
 import 'signup_screen.dart';
 import 'widgets/login_card.dart';
 
-/// Inicio de sesión conectado a Supabase Auth (Sprint 1).
+/// Pantalla de inicio de sesión gobernada por [LoginBloc] (Sprint 1).
 ///
-/// Protegido contra desbordamientos de teclado mediante viewport adaptable,
-/// validación de credenciales estricta, focus traversal fluido y micro-animación de sacudida (shake).
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key, this.role = UserRole.client});
+/// Implementa Clean Architecture conectando eventos y estados con el caso de uso
+/// de autenticación en Supabase.
+class LoginScreen extends StatelessWidget {
+  const LoginScreen({
+    super.key,
+    this.role = UserRole.client,
+    this.loginBloc,
+  });
+
+  final UserRole role;
+  final LoginBloc? loginBloc;
+
+  @override
+  Widget build(BuildContext context) {
+    if (loginBloc != null) {
+      return BlocProvider<LoginBloc>.value(
+        value: loginBloc!,
+        child: _LoginView(role: role),
+      );
+    }
+
+    try {
+      context.read<LoginBloc>();
+      return _LoginView(role: role);
+    } catch (_) {
+      return BlocProvider<LoginBloc>(
+        create: (_) => LoginBloc(AuthService.instance.signInUseCase),
+        child: _LoginView(role: role),
+      );
+    }
+  }
+}
+
+class _LoginView extends StatefulWidget {
+  const _LoginView({required this.role});
 
   final UserRole role;
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<_LoginView> createState() => _LoginViewState();
 }
 
-class _LoginScreenState extends State<LoginScreen>
+class _LoginViewState extends State<_LoginView>
     with SingleTickerProviderStateMixin {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -43,7 +76,6 @@ class _LoginScreenState extends State<LoginScreen>
 
   bool _keepSession = true;
   bool _obscure = true;
-  bool _isLoading = false;
   String? _errorMessage;
 
   @override
@@ -68,8 +100,6 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  /// Cuando un campo recibe el foco, lo desplaza a la vista por encima del
-  /// teclado. Espera a que termine la animación del teclado.
   void _onFocusChanged() {
     if (!_emailFocusNode.hasFocus && !_passwordFocusNode.hasFocus) return;
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -88,7 +118,7 @@ class _LoginScreenState extends State<LoginScreen>
     );
   }
 
-  Future<void> _handleLogin() async {
+  void _handleLogin() {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
 
@@ -104,36 +134,16 @@ class _LoginScreenState extends State<LoginScreen>
     }
 
     _errorTimer?.cancel();
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    setState(() => _errorMessage = null);
 
-    try {
-      final user = await AuthService.instance.signIn(
-        email: email,
-        password: password,
-      );
-
-      if (!mounted) return;
-
-      AppNavigator.pushAndRemoveUntil(
-        context,
-        AppShell(initialRole: user.role),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      final cleanMessage = e.toString().replaceFirst('Exception: ', '');
-      _showError(cleanMessage);
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+    context.read<LoginBloc>().add(
+          LoginSubmitted(
+            email: email,
+            password: password,
+          ),
+        );
   }
 
-  /// Muestra el error una sola vez, en el banner de la tarjeta, y lo quita a
-  /// los 5 segundos. Un error nuevo reinicia el temporizador.
   void _showError(String message) {
     HapticFeedback.mediumImpact();
     _errorTimer?.cancel();
@@ -146,125 +156,158 @@ class _LoginScreenState extends State<LoginScreen>
     _errorTimer?.cancel();
     if (!mounted) return;
     setState(() => _errorMessage = null);
+    context.read<LoginBloc>().add(const LoginErrorDismissed());
   }
 
   @override
   Widget build(BuildContext context) {
     final topInset = MediaQuery.paddingOf(context).top;
 
-    return Scaffold(
-      backgroundColor: RvColors.surface0,
-      body: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          // La página completa (foto y fondo blanco) se desplaza junta. Así no
-          // quedan huecos ni franjas de foto al abrir el teclado.
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: ColoredBox(
-              color: RvColors.surface0,
-              child: Stack(
-                children: [
-                  // Imagen decorativa superior
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 340,
-                    child: Image.asset(RvImages.loginScandinavian, fit: BoxFit.cover),
-                  ),
-                  // Fundido orgánico hacia el blanco de la hoja
-                  const Positioned(
-                    top: 200,
-                    left: 0,
-                    right: 0,
-                    height: 160,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0x00FAF8F3), RvColors.surface0],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+    return BlocConsumer<LoginBloc, LoginState>(
+      listener: (context, state) {
+        if (state.isSuccess && state.user != null) {
+          AppNavigator.pushAndRemoveUntil(
+            context,
+            AppShell(initialRole: state.user!.role),
+          );
+        } else if (state.isFailure && state.errorMessage != null) {
+          _showError(state.errorMessage!);
+        }
+      },
+      builder: (context, state) {
+        final activeError = _errorMessage ?? state.errorMessage;
+
+        return Scaffold(
+          backgroundColor: RvColors.surface0,
+          body: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: ColoredBox(
+                  color: RvColors.surface0,
+                  child: Stack(
                     children: [
-                      Padding(
-                        // Caja de 48 con el círculo donde estaba el de 32 (x=46,
-                        // y=topInset+32): sobresale 8 px a la izquierda y arriba.
-                        padding: EdgeInsets.fromLTRB(22, topInset + 8, 30, 0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const AppBackButton(),
-                            const SizedBox(height: 10),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 8),
-                              child: Text(
-                                'Rivet',
-                                style: rvText(
-                                  38,
-                                  weight: FontWeight.w700,
-                                  lineHeight: 48.64,
-                                  color: RvColors.brand700,
-                                  family: RvFonts.serif,
-                                ),
-                              )
-                                  .animate()
-                                  .fadeIn(duration: 400.ms, curve: Curves.easeOutCubic)
-                                  .slideY(begin: -0.15, end: 0, curve: Curves.easeOutCubic),
-                            ),
-                          ],
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: 340,
+                        child: Image.asset(
+                          RvImages.loginScandinavian,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      const SizedBox(height: 110),
-                      AnimatedBuilder(
-                        animation: _shakeController,
-                        builder: (context, child) {
-                          final offset = math.sin(_shakeController.value * math.pi * 4) * 8.0;
-                          return Transform.translate(
-                            offset: Offset(offset, 0),
-                            child: child,
-                          );
-                        },
-                        child: LoginCard(
-                          emailController: _emailController,
-                          passwordController: _passwordController,
-                          emailFocusNode: _emailFocusNode,
-                          passwordFocusNode: _passwordFocusNode,
-                          obscurePassword: _obscure,
-                          onToggleObscure: () => setState(() => _obscure = !_obscure),
-                          keepSession: _keepSession,
-                          onKeepSessionChanged: (val) => setState(() => _keepSession = val),
-                          errorMessage: _errorMessage,
-                          onDismissError: _dismissError,
-                          isLoading: _isLoading,
-                          onLogin: _handleLogin,
-                          onCreateAccount: () => AppNavigator.push(
-                            context,
-                            SignupScreen(initialRole: widget.role),
-                          ),
-                          onForgotPassword: () => AppNavigator.push(
-                            context,
-                            const ForgotPasswordScreen(),
+                      const Positioned(
+                        top: 200,
+                        left: 0,
+                        right: 0,
+                        height: 160,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Color(0x00FAF8F3), RvColors.surface0],
+                            ),
                           ),
                         ),
-                      )
-                          .animate()
-                          .fadeIn(duration: 450.ms, curve: Curves.easeOutCubic)
-                          .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-                      const SizedBox(height: 24),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.fromLTRB(22, topInset + 8, 30, 0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const AppBackButton(),
+                                const SizedBox(height: 10),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: Text(
+                                    'Rivet',
+                                    style: rvText(
+                                      38,
+                                      weight: FontWeight.w700,
+                                      lineHeight: 48.64,
+                                      color: RvColors.brand700,
+                                      family: RvFonts.serif,
+                                    ),
+                                  )
+                                      .animate()
+                                      .fadeIn(
+                                        duration: 400.ms,
+                                        curve: Curves.easeOutCubic,
+                                      )
+                                      .slideY(
+                                        begin: -0.15,
+                                        end: 0,
+                                        curve: Curves.easeOutCubic,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 110),
+                          AnimatedBuilder(
+                            animation: _shakeController,
+                            builder: (context, child) {
+                              final offset = math.sin(
+                                    _shakeController.value * math.pi * 4,
+                                  ) *
+                                  8.0;
+                              return Transform.translate(
+                                offset: Offset(offset, 0),
+                                child: child,
+                              );
+                            },
+                            child: LoginCard(
+                              emailController: _emailController,
+                              passwordController: _passwordController,
+                              emailFocusNode: _emailFocusNode,
+                              passwordFocusNode: _passwordFocusNode,
+                              obscurePassword: _obscure,
+                              onToggleObscure: () =>
+                                  setState(() => _obscure = !_obscure),
+                              keepSession: _keepSession,
+                              onKeepSessionChanged: (val) =>
+                                  setState(() => _keepSession = val),
+                              errorMessage: activeError,
+                              onDismissError: _dismissError,
+                              isLoading: state.isLoading,
+                              onLogin: _handleLogin,
+                              onCreateAccount: () => AppNavigator.push(
+                                context,
+                                SignupScreen(initialRole: widget.role),
+                              ),
+                              onForgotPassword: () => AppNavigator.push(
+                                context,
+                                const ForgotPasswordScreen(),
+                              ),
+                            ),
+                          )
+                              .animate()
+                              .fadeIn(
+                                duration: 450.ms,
+                                curve: Curves.easeOutCubic,
+                              )
+                              .slideY(
+                                begin: 0.08,
+                                end: 0,
+                                curve: Curves.easeOutCubic,
+                              ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

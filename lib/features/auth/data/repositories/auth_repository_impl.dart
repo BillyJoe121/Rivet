@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../../../core/models/models.dart';
 import '../../domain/entities/rivet_user.dart';
+import '../../domain/errors/auth_failure.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../sources/supabase_auth_data_source.dart';
 
@@ -88,22 +89,22 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   /// Mapea códigos de error de Supabase a mensajes claros en español.
-  Exception _mapAuthException(AuthException e) {
+  AuthFailure _mapAuthException(AuthException e) {
     final msg = e.message.toLowerCase();
     if (msg.contains('invalid login credentials') ||
         msg.contains('invalid_credentials')) {
-      return Exception('Correo o contraseña incorrectos. Verifica tus datos.');
+      return const AuthFailure('Correo o contraseña incorrectos. Verifica tus datos.');
     }
     if (msg.contains('user already registered') ||
         msg.contains('user_already_exists')) {
-      return Exception('Ya existe una cuenta registrada con este correo electrónico.');
+      return const AuthFailure('Ya existe una cuenta registrada con este correo electrónico.');
     }
     if (msg.contains('password should be at least')) {
-      return Exception('La contraseña no cumple con los requisitos mínimos de seguridad.');
+      return const AuthFailure('La contraseña no cumple con los requisitos mínimos de seguridad.');
     }
     if (msg.contains('email not confirmed')) {
-      return Exception('Por favor confirma tu correo electrónico antes de ingresar.');
+      return const AuthFailure('Por favor confirma tu correo electrónico antes de ingresar.');
     }
-    return Exception(e.message);
+    return AuthFailure(e.message);
   }
 }

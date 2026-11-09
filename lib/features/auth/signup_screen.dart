@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/models/models.dart';
 import '../../core/utils/app_page_route.dart';
@@ -10,23 +11,57 @@ import '../../core/utils/validators.dart';
 import '../home/app_shell.dart';
 import '../projects/widgets/client_kit/client_kit.dart';
 import 'auth_service.dart';
+import 'presentation/bloc/signup/signup_bloc.dart';
 import 'widgets/signup_form_card.dart';
 import 'widgets/signup_parts.dart';
 
-/// Registro de usuarios conectado a Supabase (Sprint 1).
-///
-/// Aplica validaciones estrictas (RFC 5322, contraseña segura, teléfono colombiano),
-/// medidor interactivo de contraseña, focus traversal fluido, retroalimentación háptica y sacudida en error.
-class SignupScreen extends StatefulWidget {
-  const SignupScreen({super.key, this.initialRole = UserRole.client});
+/// Registro de usuarios conectado a Supabase y gestionado por [SignUpBloc] (Sprint 1).
+class SignupScreen extends StatelessWidget {
+  const SignupScreen({
+    super.key,
+    this.initialRole = UserRole.client,
+    this.signUpBloc,
+  });
+
+  final UserRole initialRole;
+  final SignUpBloc? signUpBloc;
+
+  @override
+  Widget build(BuildContext context) {
+    final role = initialRole == UserRole.supplier
+        ? UserRole.client
+        : initialRole;
+
+    if (signUpBloc != null) {
+      return BlocProvider<SignUpBloc>.value(
+        value: signUpBloc!,
+        child: _SignupView(initialRole: role),
+      );
+    }
+
+    try {
+      context.read<SignUpBloc>();
+      return _SignupView(initialRole: role);
+    } catch (_) {
+      return BlocProvider<SignUpBloc>(
+        create: (_) =>
+            SignUpBloc(AuthService.instance.signUpUseCase, initialRole: role),
+        child: _SignupView(initialRole: role),
+      );
+    }
+  }
+}
+
+class _SignupView extends StatefulWidget {
+  const _SignupView({required this.initialRole});
 
   final UserRole initialRole;
 
   @override
-  State<SignupScreen> createState() => _SignupScreenState();
+  State<_SignupView> createState() => _SignupViewState();
 }
 
-class _SignupScreenState extends State<SignupScreen>
+class _SignupViewState extends State<_SignupView>
     with SingleTickerProviderStateMixin {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -44,12 +79,9 @@ class _SignupScreenState extends State<SignupScreen>
   Timer? _errorTimer;
   static const _errorDuration = Duration(seconds: 5);
 
-  late UserRole _role = widget.initialRole == UserRole.supplier
-      ? UserRole.client
-      : widget.initialRole;
+  late UserRole _role = widget.initialRole;
 
   bool _obscure = true;
-  bool _isLoading = false;
   String? _errorMessage;
 
   @override
@@ -79,13 +111,12 @@ class _SignupScreenState extends State<SignupScreen>
     super.dispose();
   }
 
-  Future<void> _handleSignup() async {
+  void _handleSignup() {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
     final phone = _phoneController.text.trim();
     final password = _passwordController.text;
 
-    // Validación estricta paso a paso
     final nameError = Validators.fullName(name);
     if (nameError != null) {
       _showError(nameError);
@@ -114,40 +145,21 @@ class _SignupScreenState extends State<SignupScreen>
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+    _errorTimer?.cancel();
+    setState(() => _errorMessage = null);
 
-    try {
-      final sanitizedPhone = Validators.sanitizePhone(phone);
-      final user = await AuthService.instance.signUp(
+    final sanitizedPhone = Validators.sanitizePhone(phone);
+    context.read<SignUpBloc>().add(
+      SignUpSubmitted(
+        name: name,
         email: email,
-        password: password,
-        fullName: name,
-        role: _role,
         phone: sanitizedPhone,
-      );
-
-      if (!mounted) return;
-
-      AppNavigator.pushAndRemoveUntil(
-        context,
-        AppShell(initialRole: user.role),
-      );
-    } catch (e) {
-      if (!mounted) return;
-      final cleanMessage = e.toString().replaceFirst('Exception: ', '');
-      _showError(cleanMessage);
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
+        password: password,
+        role: _role,
+      ),
+    );
   }
 
-  /// Muestra el error una sola vez, en el banner de la tarjeta, y lo quita a
-  /// los 5 segundos. Un error nuevo reinicia el temporizador.
   void _showError(String message) {
     HapticFeedback.mediumImpact();
     _errorTimer?.cancel();
@@ -160,6 +172,7 @@ class _SignupScreenState extends State<SignupScreen>
     _errorTimer?.cancel();
     if (!mounted) return;
     setState(() => _errorMessage = null);
+    context.read<SignUpBloc>().add(const SignUpErrorDismissed());
   }
 
   List<FocusNode> get _focusNodes => [
@@ -169,8 +182,6 @@ class _SignupScreenState extends State<SignupScreen>
     _passwordFocusNode,
   ];
 
-  /// Cuando un campo recibe el foco, lo desplaza a la vista por encima del
-  /// teclado. Espera a que termine la animación del teclado.
   void _onFocusChanged() {
     if (!_focusNodes.any((node) => node.hasFocus)) return;
     Future.delayed(const Duration(milliseconds: 300), () {
@@ -193,116 +204,134 @@ class _SignupScreenState extends State<SignupScreen>
   Widget build(BuildContext context) {
     final topInset = MediaQuery.paddingOf(context).top;
 
-    return Scaffold(
-      backgroundColor: RvColors.paper100,
-      body: LayoutBuilder(
-        builder: (context, constraints) => SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          // La página completa (foto, degradado y fondo) se desplaza junta.
-          child: ConstrainedBox(
-            constraints: BoxConstraints(minHeight: constraints.maxHeight),
-            child: ColoredBox(
-              color: RvColors.paper100,
-              child: Stack(
-                children: [
-                  // Imagen decorativa superior
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: 309,
-                    child: Image.asset(
-                      RvImages.headerRoller,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  // Fundido orgánico
-                  const Positioned(
-                    top: 230,
-                    left: 0,
-                    right: 0,
-                    height: 42,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [Color(0x00FAF8F3), RvColors.paper100],
+    return BlocConsumer<SignUpBloc, SignUpState>(
+      listener: (context, state) {
+        if (state.isSuccess && state.user != null) {
+          AppNavigator.pushAndRemoveUntil(
+            context,
+            AppShell(initialRole: state.user!.role),
+          );
+        } else if (state.isFailure && state.errorMessage != null) {
+          _showError(state.errorMessage!);
+        }
+      },
+      builder: (context, state) {
+        final activeError = _errorMessage ?? state.errorMessage;
+
+        return Scaffold(
+          backgroundColor: RvColors.paper100,
+          body: LayoutBuilder(
+            builder: (context, constraints) => SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                child: ColoredBox(
+                  color: RvColors.paper100,
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: 309,
+                        child: Image.asset(
+                          RvImages.headerRoller,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                    ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: topInset),
-                        child: const SignupHeader()
-                            .animate()
-                            .fadeIn(
-                              duration: 400.ms,
-                              curve: Curves.easeOutCubic,
-                            )
-                            .slideY(
-                              begin: -0.15,
-                              end: 0,
-                              curve: Curves.easeOutCubic,
+                      const Positioned(
+                        top: 230,
+                        left: 0,
+                        right: 0,
+                        height: 42,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [Color(0x00FAF8F3), RvColors.paper100],
                             ),
-                      ),
-                      const SizedBox(height: 18),
-                      AnimatedBuilder(
-                            animation: _shakeController,
-                            builder: (context, child) {
-                              final offset =
-                                  math.sin(
-                                    _shakeController.value * math.pi * 4,
-                                  ) *
-                                  8.0;
-                              return Transform.translate(
-                                offset: Offset(offset, 0),
-                                child: child,
-                              );
-                            },
-                            child: SignupFormCard(
-                              nameController: _nameController,
-                              emailController: _emailController,
-                              phoneController: _phoneController,
-                              passwordController: _passwordController,
-                              nameFocusNode: _nameFocusNode,
-                              emailFocusNode: _emailFocusNode,
-                              phoneFocusNode: _phoneFocusNode,
-                              passwordFocusNode: _passwordFocusNode,
-                              obscurePassword: _obscure,
-                              onToggleObscure: () =>
-                                  setState(() => _obscure = !_obscure),
-                              selectedRole: _role,
-                              onRoleChanged: (r) => setState(() => _role = r),
-                              errorMessage: _errorMessage,
-                              onDismissError: _dismissError,
-                              isLoading: _isLoading,
-                              onSignup: _handleSignup,
-                            ),
-                          )
-                          .animate()
-                          .fadeIn(
-                            duration: 450.ms,
-                            delay: 100.ms,
-                            curve: Curves.easeOutCubic,
-                          )
-                          .slideY(
-                            begin: 0.08,
-                            end: 0,
-                            curve: Curves.easeOutCubic,
                           ),
-                      const SizedBox(height: 24),
+                        ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.only(top: topInset),
+                            child: const SignupHeader()
+                                .animate()
+                                .fadeIn(
+                                  duration: 400.ms,
+                                  curve: Curves.easeOutCubic,
+                                )
+                                .slideY(
+                                  begin: -0.15,
+                                  end: 0,
+                                  curve: Curves.easeOutCubic,
+                                ),
+                          ),
+                          const SizedBox(height: 18),
+                          AnimatedBuilder(
+                                animation: _shakeController,
+                                builder: (context, child) {
+                                  final offset =
+                                      math.sin(
+                                        _shakeController.value * math.pi * 4,
+                                      ) *
+                                      8.0;
+                                  return Transform.translate(
+                                    offset: Offset(offset, 0),
+                                    child: child,
+                                  );
+                                },
+                                child: SignupFormCard(
+                                  nameController: _nameController,
+                                  emailController: _emailController,
+                                  phoneController: _phoneController,
+                                  passwordController: _passwordController,
+                                  nameFocusNode: _nameFocusNode,
+                                  emailFocusNode: _emailFocusNode,
+                                  phoneFocusNode: _phoneFocusNode,
+                                  passwordFocusNode: _passwordFocusNode,
+                                  obscurePassword: _obscure,
+                                  onToggleObscure: () =>
+                                      setState(() => _obscure = !_obscure),
+                                  selectedRole: _role,
+                                  onRoleChanged: (r) {
+                                    setState(() => _role = r);
+                                    context.read<SignUpBloc>().add(
+                                      SignUpRoleChanged(r),
+                                    );
+                                  },
+                                  errorMessage: activeError,
+                                  onDismissError: _dismissError,
+                                  isLoading: state.isLoading,
+                                  onSignup: _handleSignup,
+                                ),
+                              )
+                              .animate()
+                              .fadeIn(
+                                duration: 450.ms,
+                                delay: 100.ms,
+                                curve: Curves.easeOutCubic,
+                              )
+                              .slideY(
+                                begin: 0.08,
+                                end: 0,
+                                curve: Curves.easeOutCubic,
+                              ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
