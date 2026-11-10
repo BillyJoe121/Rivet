@@ -50,39 +50,42 @@ class MockProjectRepository implements ProjectRepository {
 }
 
 void main() {
-  testWidgets('CreateProjectScreen valida campos y permite agregar superficies', (tester) async {
-    tester.view.physicalSize = const Size(800, 2400);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(tester.view.resetPhysicalSize);
+  testWidgets(
+    'CreateProjectScreen valida campos y permite agregar superficies',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 2400);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
 
-    final repo = MockProjectRepository();
-    final bloc = ProjectsBloc(
-      GetMyProjectsUseCase(repo),
-      CreateProjectUseCase(repo),
-      GetProjectDetailUseCase(repo),
-      UpdateProjectUseCase(repo),
-    );
+      final repo = MockProjectRepository();
+      final bloc = ProjectsBloc(
+        GetMyProjectsUseCase(repo),
+        CreateProjectUseCase(repo),
+        GetProjectDetailUseCase(repo),
+        UpdateProjectUseCase(repo),
+      );
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: CreateProjectScreen(projectsBloc: bloc),
-      ),
-    );
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        MaterialApp(home: CreateProjectScreen(projectsBloc: bloc)),
+      );
+      await tester.pumpAndSettle();
 
-    expect(find.text('Crear\nproyecto'), findsOneWidget);
-    expect(find.text('Título de la obra'), findsOneWidget);
+      expect(find.text('Crear\nproyecto'), findsOneWidget);
+      expect(find.text('Título de la obra'), findsOneWidget);
 
-    // Intentar avanzar con campos vacíos
-    final nextButton = find.text('Siguiente paso');
-    await tester.tap(nextButton);
-    await tester.pump();
+      // Intentar avanzar con campos vacíos
+      final nextButton = find.text('Siguiente paso');
+      await tester.tap(nextButton);
+      await tester.pump();
 
-    expect(find.text('Ingresa un título para el proyecto.'), findsOneWidget);
-    await tester.pump(const Duration(seconds: 6));
-  });
+      expect(find.text('Ingresa un título para el proyecto.'), findsOneWidget);
+      await tester.pump(const Duration(seconds: 6));
+    },
+  );
 
-  testWidgets('ProjectDetailScreen muestra ficha completa con resumen de m2', (tester) async {
+  testWidgets('ProjectDetailScreen muestra ficha completa con resumen de m2', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
@@ -94,8 +97,18 @@ void main() {
       city: 'Cali',
       neighborhood: 'Ciudad Jardín',
       surfaces: const [
-        SurfaceItem(id: 's-1', name: 'Muro 1', widthMeters: 5, heightMeters: 2.5),
-        SurfaceItem(id: 's-2', name: 'Muro 2', widthMeters: 3, heightMeters: 2.5),
+        SurfaceItem(
+          id: 's-1',
+          name: 'Muro 1',
+          widthMeters: 5,
+          heightMeters: 2.5,
+        ),
+        SurfaceItem(
+          id: 's-2',
+          name: 'Muro 2',
+          widthMeters: 3,
+          heightMeters: 2.5,
+        ),
       ],
       status: ProjectStatus.published,
       createdAt: DateTime.now(),
@@ -103,9 +116,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: ProjectDetailScreen(project: project),
-      ),
+      MaterialApp(home: ProjectDetailScreen(project: project)),
     );
     await tester.pumpAndSettle();
 
@@ -114,4 +125,3 @@ void main() {
     expect(find.text('Ver propuestas recibidas'), findsOneWidget);
   });
 }
-
