@@ -2,7 +2,6 @@
 /// Candidatos a promoverse a `lib/core/widgets` cuando el sistema de diseño los exponga.
 library;
 
-export 'rv_bottom_nav.dart';
 export 'rv_button.dart';
 export 'rv_header.dart';
 export 'rv_icon_data.dart';

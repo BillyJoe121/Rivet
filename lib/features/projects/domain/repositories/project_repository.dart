@@ -18,5 +18,8 @@ abstract interface class ProjectRepository {
     required int budgetEstimateCop,
     String? imageAsset,
   });
+
+  /// Guarda los cambios de un proyecto existente y lo devuelve actualizado.
+  Future<Project> updateProject(Project project);
 }
 

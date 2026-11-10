@@ -15,27 +15,18 @@ class RivetPageRoute<T> extends PageRouteBuilder<T> {
           transitionDuration: duration,
           reverseTransitionDuration: reverseDuration,
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            final curved = CurvedAnimation(
-              parent: animation,
-              curve: Curves.easeOutCubic,
-              reverseCurve: Curves.easeInCubic,
+            final curved = animation.drive(
+              CurveTween(curve: Curves.easeOutCubic),
             );
-
-            final slideAnimation = Tween<Offset>(
-              begin: slideOffset,
-              end: Offset.zero,
-            ).animate(curved);
-
-            final fadeAnimation = Tween<double>(
-              begin: 0.0,
-              end: 1.0,
-            ).animate(curved);
+            final slideAnimation = curved.drive(
+              Tween<Offset>(begin: slideOffset, end: Offset.zero),
+            );
 
             return SlideTransition(
               position: slideAnimation,
               child: FadeTransition(
-                opacity: fadeAnimation,
-                child: child,
+                opacity: curved,
+                child: RepaintBoundary(child: child),
               ),
             );
           },
@@ -58,11 +49,19 @@ abstract final class AppNavigator {
     );
   }
 
+  /// Reemplaza toda la app por [screen] (inicio y cierre de sesión): usa el
+  /// navegador raíz para salir también de la pila de la pestaña actual.
   static Future<T?> pushAndRemoveUntil<T>(BuildContext context, Widget screen) {
-    return Navigator.pushAndRemoveUntil<T>(
-      context,
+    return Navigator.of(context, rootNavigator: true).pushAndRemoveUntil<T>(
       RivetPageRoute<T>(builder: (_) => screen),
       (_) => false,
+    );
+  }
+
+  /// Abre [screen] sobre toda la app, cubriendo la barra de navegación.
+  static Future<T?> pushRoot<T>(BuildContext context, Widget screen) {
+    return Navigator.of(context, rootNavigator: true).push<T>(
+      RivetPageRoute<T>(builder: (_) => screen),
     );
   }
 }

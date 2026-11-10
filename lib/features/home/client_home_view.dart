@@ -5,8 +5,8 @@ import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import '../auth/auth_service.dart';
 import '../auth/domain/entities/rivet_user.dart';
+import '../messaging/client_notifications_screen.dart';
 import '../projects/project_detail_screen.dart';
-import '../under_construction/under_construction_screen.dart';
 import 'widgets/client_home_cards.dart';
 
 /// Inicio del propietario: saludo y sus proyectos.
@@ -59,14 +59,12 @@ class _ClientHomeViewState extends State<ClientHomeView> {
           showBackButton: false,
           showWordmark: true,
           title: name.isEmpty ? 'Hola' : 'Hola, $name',
-          backgroundImagePath: 'Fondos/Sala minimalista con plantas y luz suave.png',
+          backgroundImagePath:
+              'Fondos/Sala minimalista con plantas y luz suave.png',
           actions: [
-            // Notificaciones aún no está disponible.
             AppNotificationButton(
-              onPressed: () => AppNavigator.push(
-                context,
-                const UnderConstructionScreen(section: 'Notificaciones'),
-              ),
+              onPressed: () =>
+                  AppNavigator.push(context, const ClientNotificationsScreen()),
             ),
           ],
           body: ListView(
@@ -75,9 +73,11 @@ class _ClientHomeViewState extends State<ClientHomeView> {
               const SizedBox(height: AppSpacing.sm),
               Text(
                 '¿Qué vas a mejorar hoy?',
-                style: AppTypography.bodyMedium.copyWith(color: AppColors.ink700),
+                style: AppTypography.bodyMedium.copyWith(
+                  color: AppColors.ink700,
+                ),
               ),
-              const SizedBox(height: AppSpacing.xxl),
+              const SizedBox(height: 54),
               if (projects.isNotEmpty) ...[
                 AppSectionHeader(
                   title: 'Tus proyectos',
@@ -90,7 +90,9 @@ class _ClientHomeViewState extends State<ClientHomeView> {
                     padding: const EdgeInsets.only(bottom: AppSpacing.md),
                     child: ClientProjectCard(
                       project: project,
-                      proposalCount: MockData.proposals.where((p) => p.projectId == project.id).length,
+                      proposalCount: MockData.proposals
+                          .where((p) => p.projectId == project.id)
+                          .length,
                       onTap: () => AppNavigator.push(
                         context,
                         ProjectDetailScreen(project: project),

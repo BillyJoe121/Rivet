@@ -6,6 +6,7 @@ import 'package:rivet/features/projects/domain/repositories/project_repository.d
 import 'package:rivet/features/projects/domain/usecases/create_project_usecase.dart';
 import 'package:rivet/features/projects/domain/usecases/get_my_projects_usecase.dart';
 import 'package:rivet/features/projects/domain/usecases/get_project_detail_usecase.dart';
+import 'package:rivet/features/projects/domain/usecases/update_project_usecase.dart';
 import 'package:rivet/features/projects/presentation/bloc/projects_bloc.dart';
 import 'package:rivet/features/projects/project_detail_screen.dart';
 
@@ -43,6 +44,9 @@ class MockProjectRepository implements ProjectRepository {
     lastCreated = p;
     return p;
   }
+
+  @override
+  Future<Project> updateProject(Project project) async => project;
 }
 
 void main() {
@@ -56,6 +60,7 @@ void main() {
       GetMyProjectsUseCase(repo),
       CreateProjectUseCase(repo),
       GetProjectDetailUseCase(repo),
+      UpdateProjectUseCase(repo),
     );
 
     await tester.pumpWidget(
@@ -65,16 +70,16 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Crear proyecto'), findsOneWidget);
-    expect(find.text('Superficies a intervenir'), findsOneWidget);
+    expect(find.text('Crear\nproyecto'), findsOneWidget);
+    expect(find.text('Título de la obra'), findsOneWidget);
 
-    // Intentar publicar con campos vacíos
-    final submitButton = find.text('Publicar proyecto');
-    await tester.ensureVisible(submitButton);
-    await tester.tap(submitButton);
-    await tester.pumpAndSettle();
+    // Intentar avanzar con campos vacíos
+    final nextButton = find.text('Siguiente paso');
+    await tester.tap(nextButton);
+    await tester.pump();
 
     expect(find.text('Ingresa un título para el proyecto.'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 6));
   });
 
   testWidgets('ProjectDetailScreen muestra ficha completa con resumen de m2', (tester) async {
@@ -106,7 +111,7 @@ void main() {
 
     expect(find.text('Remodelación Integral'), findsAtLeastNWidgets(1));
     expect(find.text('20.0 m²'), findsOneWidget);
-    expect(find.text('Ver cotizaciones recibidas'), findsOneWidget);
+    expect(find.text('Ver propuestas recibidas'), findsOneWidget);
   });
 }
 

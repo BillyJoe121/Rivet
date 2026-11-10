@@ -8,7 +8,7 @@ void main() {
     await tester.pumpWidget(const MaterialApp(home: ReceivedProposalsScreen()));
     await tester.pump();
 
-    expect(find.text('Propuestas recibidas'), findsOneWidget);
+    expect(find.text('Propuestas\nrecibidas'), findsOneWidget);
     for (final proposal in MockData.proposals) {
       expect(find.text(proposal.contractor.name), findsWidgets);
     }

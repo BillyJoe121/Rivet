@@ -13,10 +13,12 @@ class AppStepProgress extends StatelessWidget {
     super.key,
     required this.steps,
     required this.currentStep,
+    this.onStepTap,
   });
 
   final List<String> steps;
   final int currentStep; // 0-indexed
+  final ValueChanged<int>? onStepTap;
 
   // Fondo de los pasos no activos; sin token propio en el tema.
   static const Color _idleFill = Color(0xFFDFE5E4);
@@ -37,40 +39,55 @@ class AppStepProgress extends StatelessWidget {
   Widget _step(int index) {
     final isCurrent = index == currentStep;
     final isCompleted = index < currentStep;
+    final content = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 28,
+          height: 28,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: isCurrent ? AppColors.brandGradient : null,
+            color: isCurrent
+                ? null
+                : (isCompleted ? AppColors.brandLight : _idleFill),
+          ),
+          child: Text(
+            '${index + 1}',
+            style: AppTypography.titleSmall.copyWith(
+              color: isCurrent
+                  ? AppColors.surface0
+                  : (isCompleted ? AppColors.brand700 : AppColors.ink900),
+            ),
+          ),
+        ),
+        const SizedBox(height: 5),
+        Text(
+          steps[index],
+          textAlign: TextAlign.center,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTypography.badgeText.copyWith(
+            color: isCurrent || isCompleted
+                ? AppColors.brand700
+                : AppColors.ink500,
+            fontWeight: isCurrent ? FontWeight.w600 : FontWeight.w400,
+          ),
+        ),
+      ],
+    );
+
     return Semantics(
-      label: 'Paso ${index + 1} de ${steps.length}: ${steps[index]}'
+      button: onStepTap != null,
+      label:
+          'Paso ${index + 1} de ${steps.length}: ${steps[index]}'
           '${isCurrent ? ', actual' : isCompleted ? ', completado' : ''}',
       excludeSemantics: true,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 28,
-            height: 28,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: isCurrent ? AppColors.brandGradient : null,
-              color: isCurrent ? null : _idleFill,
-            ),
-            child: Text(
-              '${index + 1}',
-              style: AppTypography.titleSmall.copyWith(
-                color: isCurrent ? AppColors.surface0 : AppColors.ink900,
-              ),
-            ),
-          ),
-          const SizedBox(height: 5),
-          Text(
-            steps[index],
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: AppTypography.badgeText.copyWith(
-              color: isCurrent ? AppColors.brand700 : AppColors.ink500,
-            ),
-          ),
-        ],
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onStepTap == null ? null : () => onStepTap!(index),
+        child: content,
       ),
     );
   }

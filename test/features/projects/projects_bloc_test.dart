@@ -4,6 +4,7 @@ import 'package:rivet/features/projects/domain/repositories/project_repository.d
 import 'package:rivet/features/projects/domain/usecases/create_project_usecase.dart';
 import 'package:rivet/features/projects/domain/usecases/get_my_projects_usecase.dart';
 import 'package:rivet/features/projects/domain/usecases/get_project_detail_usecase.dart';
+import 'package:rivet/features/projects/domain/usecases/update_project_usecase.dart';
 import 'package:rivet/features/projects/presentation/bloc/projects_bloc.dart';
 
 class FakeProjectRepository implements ProjectRepository {
@@ -51,6 +52,13 @@ class FakeProjectRepository implements ProjectRepository {
     projects.add(p);
     return p;
   }
+
+  @override
+  Future<Project> updateProject(Project project) async {
+    if (errorToThrow != null) throw errorToThrow!;
+    projects = [for (final p in projects) p.id == project.id ? project : p];
+    return project;
+  }
 }
 
 void main() {
@@ -77,6 +85,62 @@ void main() {
       GetMyProjectsUseCase(repo),
       CreateProjectUseCase(repo),
       GetProjectDetailUseCase(repo),
+      UpdateProjectUseCase(repo),
+    );
+  });
+
+  test('UpdateProjectSubmitted reemplaza el proyecto en la lista', () async {
+    bloc.add(const LoadProjects());
+    await expectLater(
+      bloc.stream,
+      emitsThrough(isA<ProjectsState>().having((s) => s.isSuccess, 'success', true)),
+    );
+
+    bloc.add(UpdateProjectSubmitted(sampleProject.copyWith(title: 'Pintura Comedor')));
+
+    await expectLater(
+      bloc.stream,
+      emitsInOrder([
+        isA<ProjectsState>().having((s) => s.status, 'status', ProjectsStatus.loading),
+        isA<ProjectsState>()
+            .having((s) => s.status, 'status', ProjectsStatus.success)
+            .having((s) => s.projects.length, 'count', 1)
+            .having((s) => s.projects.first.title, 'title', 'Pintura Comedor'),
+      ]),
+    );
+  });
+
+  test('UpdateProjectSubmitted emite failure si el título queda vacío', () async {
+    bloc.add(UpdateProjectSubmitted(sampleProject.copyWith(title: ' ')));
+
+    await expectLater(
+      bloc.stream,
+      emitsInOrder([
+        isA<ProjectsState>().having((s) => s.status, 'status', ProjectsStatus.loading),
+        isA<ProjectsState>()
+            .having((s) => s.status, 'status', ProjectsStatus.failure)
+            .having((s) => s.errorMessage, 'error', 'Ingresa un título para el proyecto.'),
+      ]),
+    );
+  });
+
+  test('LoadProjects emite failure y luego se recupera al reintentar', () async {
+    repo.errorToThrow = Exception('Sin conexión');
+    bloc.add(const LoadProjects());
+    await expectLater(
+      bloc.stream,
+      emitsThrough(
+        isA<ProjectsState>()
+            .having((s) => s.status, 'status', ProjectsStatus.failure)
+            .having((s) => s.errorMessage, 'error', 'Sin conexión'),
+      ),
+    );
+
+    repo.errorToThrow = null;
+    bloc.add(const LoadProjects());
+    await expectLater(
+      bloc.stream,
+      emitsThrough(isA<ProjectsState>().having((s) => s.isSuccess, 'success', true)),
     );
   });
 

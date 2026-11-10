@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
+import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import 'create_project_screen.dart';
 import 'presentation/bloc/projects_bloc.dart';
@@ -47,6 +48,7 @@ class MyProjectsScreen extends StatelessWidget {
           ProjectsService.instance.getMyProjectsUseCase,
           ProjectsService.instance.createProjectUseCase,
           ProjectsService.instance.getProjectDetailUseCase,
+          ProjectsService.instance.updateProjectUseCase,
         )..add(const LoadProjects()),
         child: _MyProjectsView(
           forContractor: forContractor,
@@ -69,8 +71,8 @@ class _MyProjectsView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final title = forContractor
-        ? (showBidsOnly ? 'Mis Propuestas' : 'Oportunidades')
-        : 'Mis Proyectos';
+        ? (showBidsOnly ? 'Mis\npropuestas' : 'Oportunidades')
+        : 'Mis\nproyectos';
 
     return BlocBuilder<ProjectsBloc, ProjectsState>(
       builder: (context, state) {
@@ -78,32 +80,40 @@ class _MyProjectsView extends StatelessWidget {
 
         return RivetScaffold(
           title: title,
-          showBackButton: false,
-          backgroundImagePath: 'Fondos/Checklist, plantas y cajas sostenibles.png',
-          body: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          showBackButton: true,
+          backgroundImagePath: AppHeroImages.planning,
+          body: AppPageBody(
+            onRefresh: () async {
+              context.read<ProjectsBloc>().add(const LoadProjects());
+            },
+            fixedHeader: AppSegmentedControl<int>(
+              items: {
+                0: 'Todos (${state.projects.length})',
+                1:
+                    'En curso (${state.projects.where((p) => p.status != ProjectStatus.completed).length})',
+                2:
+                    'Completados (${state.projects.where((p) => p.status == ProjectStatus.completed).length})',
+              },
+              selected: state.selectedTab,
+              onChanged: (val) {
+                context.read<ProjectsBloc>().add(FilterProjectsByTab(val));
+              },
+            ),
+            footer: AppButton(
+              text: 'Nuevo proyecto',
+              icon: LucideIcons.plus,
+              showChevron: true,
+              onPressed: () => _openCreateProject(context),
+            ),
             children: [
-              const SizedBox(height: AppSpacing.sm),
-              AppSegmentedControl<int>(
-                items: {
-                  0: 'Todos (${state.projects.length})',
-                  1: 'En curso (${state.projects.where((p) => p.status != ProjectStatus.completed).length})',
-                  2: 'Completados (${state.projects.where((p) => p.status == ProjectStatus.completed).length})',
-                },
-                selected: state.selectedTab,
-                onChanged: (val) {
-                  context.read<ProjectsBloc>().add(FilterProjectsByTab(val));
-                },
-              ),
-              const SizedBox(height: AppSpacing.lg),
               if (state.isLoading && state.projects.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(AppSpacing.xxl),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(AppColors.brand700),
-                    ),
-                  ),
+                const AppLoadingState(label: 'Cargando tus proyectos')
+              else if (state.isFailure && state.projects.isEmpty)
+                AppErrorState(
+                  message:
+                      state.errorMessage ?? 'No pudimos cargar tus proyectos.',
+                  onRetry: () =>
+                      context.read<ProjectsBloc>().add(const LoadProjects()),
                 )
               else if (projects.isEmpty)
                 AppEmptyState(
@@ -116,110 +126,101 @@ class _MyProjectsView extends StatelessWidget {
                   icon: state.selectedTab == 2
                       ? LucideIcons.checkCheck
                       : LucideIcons.folderPlus,
-                  actionLabel: state.selectedTab == 0 ? 'Publicar proyecto' : null,
+                  actionLabel:
+                      state.selectedTab == 0 ? 'Publicar proyecto' : null,
                   onAction: state.selectedTab == 0
                       ? () => _openCreateProject(context)
                       : null,
                 )
               else
-                for (final proj in projects)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ProjectDetailScreen(project: proj),
-                          ),
-                        );
-                      },
-                      child: AppCard(
-                        child: Column(
+                for (var i = 0; i < projects.length; i++) ...[
+                  AppCard(
+                    backgroundColor: AppColors.paper100,
+                    onTap: () => AppNavigator.push(
+                      context,
+                      ProjectDetailScreen(project: projects[i]),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        proj.title,
-                                        style: AppTypography.subheading.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 2),
-                                      Text(
-                                        '${proj.city} · ${proj.neighborhood}',
-                                        style: AppTypography.caption,
-                                      ),
-                                    ],
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    projects[i].title,
+                                    style: AppTypography.subheading,
                                   ),
-                                ),
-                                AppBadge(
-                                  text: proj.status.label,
-                                  variant: proj.status == ProjectStatus.published
-                                      ? AppBadgeVariant.brand
-                                      : AppBadgeVariant.warning,
-                                ),
-                              ],
-                            ),
-                            if (proj.description.isNotEmpty) ...[
-                              const SizedBox(height: AppSpacing.sm),
-                              Text(
-                                proj.description,
-                                style: AppTypography.bodySmall,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    '${projects[i].city} · ${projects[i].neighborhood}',
+                                    style: AppTypography.caption,
+                                  ),
+                                ],
                               ),
-                            ],
-                            const SizedBox(height: AppSpacing.md),
-                            Row(
-                              children: [
-                                const Icon(
-                                  LucideIcons.ruler,
-                                  size: 16,
-                                  color: AppColors.brand700,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${proj.totalAreaM2.toStringAsFixed(1)} m²',
-                                  style: AppTypography.caption.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.ink900,
-                                  ),
-                                ),
-                                const SizedBox(width: AppSpacing.lg),
-                                const Icon(
-                                  LucideIcons.layers,
-                                  size: 16,
-                                  color: AppColors.brand700,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  '${proj.surfaces.length} paredes',
-                                  style: AppTypography.caption.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.ink900,
-                                  ),
-                                ),
-                              ],
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            AppBadge(
+                              text: projects[i].status.label,
+                              variant:
+                                  projects[i].status == ProjectStatus.published
+                                  ? AppBadgeVariant.brand
+                                  : AppBadgeVariant.warning,
                             ),
                           ],
                         ),
-                      ),
+                        if (projects[i].description.isNotEmpty) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            projects[i].description,
+                            style: AppTypography.bodySmall,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.md),
+                        Row(
+                          children: [
+                            const Icon(
+                              LucideIcons.ruler,
+                              size: 16,
+                              color: AppColors.brand700,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                '${projects[i].totalAreaM2.toStringAsFixed(1)} m²',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTypography.captionStrong,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.lg),
+                            const Icon(
+                              LucideIcons.layers,
+                              size: 16,
+                              color: AppColors.brand700,
+                            ),
+                            const SizedBox(width: 4),
+                            Flexible(
+                              child: Text(
+                                '${projects[i].surfaces.length} paredes',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTypography.captionStrong,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
-              const SizedBox(height: AppSpacing.lg),
-              AppButton(
-                text: 'Nuevo proyecto',
-                icon: LucideIcons.plus,
-                onPressed: () => _openCreateProject(context),
-              ),
-              const SizedBox(height: AppSpacing.xxl),
+                  if (i < projects.length - 1)
+                    const SizedBox(height: AppSpacing.md),
+                ],
             ],
           ),
         );
@@ -228,11 +229,6 @@ class _MyProjectsView extends StatelessWidget {
   }
 
   void _openCreateProject(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => const CreateProjectScreen(),
-      ),
-    );
+    AppNavigator.push(context, const CreateProjectScreen());
   }
 }

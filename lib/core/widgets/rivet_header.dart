@@ -33,32 +33,40 @@ class RivetHeader extends StatelessWidget {
     final style = titleStyle ?? AppTypography.pageTitle;
     final titleText = title == null
         ? null
-        : Text(title!, style: style, maxLines: titleMaxLines, overflow: TextOverflow.ellipsis);
+        : ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 225),
+            child: Text(
+              title!,
+              style: style,
+              maxLines: titleMaxLines,
+              overflow: TextOverflow.ellipsis,
+            ),
+          );
 
     if (showBackButton) {
-      // La caja de 48 sobresale 8 px a la izquierda y 8 px arriba del hueco que
-      // ocupaba el chevron: así el título conserva x=64 e y≈10.
       return Padding(
         padding: const EdgeInsets.fromLTRB(
           AppSpacing.headerGutter - AppBackButton.bleed,
-          2,
+          0,
           AppSpacing.headerGutter,
-          2,
+          8,
         ),
-        child: Row(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            AppBackButton(onPressed: onBack),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: titleText ?? const SizedBox(height: 28),
-              ),
+            Row(
+              children: [
+                AppBackButton(onPressed: onBack),
+                const Spacer(),
+                if (actions != null)
+                  Row(mainAxisSize: MainAxisSize.min, children: actions!),
+              ],
             ),
-            if (actions != null)
+            if (titleText != null)
               Padding(
-                padding: const EdgeInsets.only(top: 8, left: 8),
-                child: Row(mainAxisSize: MainAxisSize.min, children: actions!),
+                padding: const EdgeInsets.only(left: AppBackButton.bleed),
+                child: titleText,
               ),
           ],
         ),
@@ -67,9 +75,14 @@ class RivetHeader extends StatelessWidget {
 
     final hasBrandRow = showWordmark || (actions?.isNotEmpty ?? false);
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.headerGutter, 14, AppSpacing.headerGutter, 0),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.headerGutter,
+        14,
+        AppSpacing.headerGutter,
+        8,
+      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (hasBrandRow)
@@ -82,7 +95,9 @@ class RivetHeader extends StatelessWidget {
                   ...?actions,
                 ],
               ),
-            ),
+            )
+          else
+            const SizedBox(height: 30),
           if (hasBrandRow && titleText != null) const SizedBox(height: 8),
           ?titleText,
         ],

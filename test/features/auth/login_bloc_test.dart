@@ -49,6 +49,12 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Stream<RivetUser?> get authStateChanges => _controller.stream;
+
+  @override
+  Future<void> updatePassword(String newPassword) async {}
+
+  @override
+  Stream<void> get onPasswordRecovery => const Stream.empty();
 }
 
 void main() {

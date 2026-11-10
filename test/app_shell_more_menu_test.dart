@@ -23,6 +23,7 @@ void main() {
               ProjectsService.instance.getMyProjectsUseCase,
               ProjectsService.instance.createProjectUseCase,
               ProjectsService.instance.getProjectDetailUseCase,
+              ProjectsService.instance.updateProjectUseCase,
             ),
           ),
           BlocProvider<CatalogBloc>(
@@ -60,19 +61,17 @@ void main() {
     expect(find.text('Mi perfil').hitTestable(), findsNothing);
   });
 
-  testWidgets('Un destino del panel sin construir muestra la pantalla en construcción', (tester) async {
+  testWidgets('El panel Más del cliente abre Propuestas (AllProposalsScreen)', (tester) async {
     await pumpShell(tester, UserRole.client);
 
     await tester.tap(find.text('Más'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Propuestas'));
-    await advance(tester);
+    await tester.pumpAndSettle();
 
-    expect(find.text('Pantalla en construcción'), findsOneWidget);
-    expect(find.text('Esta sección aún no está disponible.'), findsOneWidget);
+    expect(find.text('Propuestas'), findsWidgets);
     expect(find.text('Mi perfil').hitTestable(), findsNothing);
-    // Pestaña raíz del shell: sin botón volver.
-    expect(find.bySemanticsLabel('Volver'), findsNothing);
+    expect(find.bySemanticsLabel('Volver'), findsOneWidget);
   });
 
   testWidgets('Ver todos lleva a la pestaña Proyectos (MyProjectsScreen)', (tester) async {
@@ -94,12 +93,12 @@ void main() {
     expect(find.bySemanticsLabel('Volver'), findsOneWidget);
   });
 
-  testWidgets('Pestaña Contratistas está en construcción y Bodega abre MaterialsCatalogScreen', (tester) async {
+  testWidgets('Pestaña Contratistas abre directorio y Bodega abre MaterialsCatalogScreen', (tester) async {
     await pumpShell(tester, UserRole.client);
 
     await tester.tap(find.text('Contratistas'));
-    await advance(tester);
-    expect(find.text('Pantalla en construcción'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text('Profesionales disponibles'), findsOneWidget);
 
     await tester.tap(find.text('Bodega'));
     await tester.pumpAndSettle();
@@ -128,17 +127,20 @@ void main() {
     expect(find.byType(ProInitialsAvatar), findsNothing);
   });
 
-  for (final role in [UserRole.client, UserRole.contractor]) {
-    testWidgets('La campana del inicio (${role.name}) abre Notificaciones en construcción', (tester) async {
-      await pumpShell(tester, role);
+  testWidgets('La campana del inicio (client) abre ClientNotificationsScreen', (tester) async {
+    await pumpShell(tester, UserRole.client);
+    await tester.tap(find.bySemanticsLabel('Notificaciones'));
+    await tester.pumpAndSettle();
+    expect(find.text('Actividad reciente'), findsOneWidget);
+  });
 
-      await tester.tap(find.bySemanticsLabel('Notificaciones'));
-      await advance(tester);
-
-      expect(find.text('Notificaciones'), findsOneWidget);
-      expect(find.text('Pantalla en construcción'), findsOneWidget);
-    });
-  }
+  testWidgets('La campana del inicio (contractor) abre construcción', (tester) async {
+    await pumpShell(tester, UserRole.contractor);
+    await tester.tap(find.bySemanticsLabel('Notificaciones'));
+    await advance(tester);
+    expect(find.text('Notificaciones'), findsOneWidget);
+    expect(find.text('Pantalla en construcción'), findsOneWidget);
+  });
 
   testWidgets('Una entrada de actividad reciente abre la pantalla en construcción', (tester) async {
     await pumpShell(tester, UserRole.contractor);

@@ -22,6 +22,7 @@ class RivetScaffold extends StatelessWidget {
     this.titleStyle,
     this.showWordmark = false,
     this.showHeroImage = true,
+    this.heroVeil = false,
   });
 
   final Widget body;
@@ -40,6 +41,10 @@ class RivetScaffold extends StatelessWidget {
   final bool showWordmark;
   final bool showHeroImage;
 
+  /// Propiedad conservada por compatibilidad; las ilustraciones de cabecera se
+  /// muestran siempre nítidas sin velo encima.
+  final bool heroVeil;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,12 +56,14 @@ class RivetScaffold extends StatelessWidget {
               top: 0,
               left: 0,
               right: 0,
-              child: AspectRatio(
-                aspectRatio: 412 / AppSpacing.heroHeight,
+              height: AppSpacing.heroHeight,
+              child: RepaintBoundary(
                 child: Image.asset(
                   backgroundImagePath,
                   fit: BoxFit.cover,
                   alignment: Alignment.topCenter,
+                  cacheWidth: 824,
+                  gaplessPlayback: true,
                   errorBuilder: (_, _, _) => const SizedBox.shrink(),
                 ),
               ),

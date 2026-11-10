@@ -59,7 +59,23 @@ class AuthRepositoryImpl implements AuthRepository {
     } on AuthException catch (e) {
       throw _mapAuthException(e);
     } catch (e) {
-      throw Exception('Error al solicitar recuperación: ${e.toString()}');
+      throw AuthFailure(
+        'No pudimos enviar el correo de recuperación. Revisa tu conexión e intenta de nuevo.',
+      );
+    }
+  }
+
+  @override
+  Future<void> updatePassword(String newPassword) async {
+    try {
+      await _dataSource.updatePassword(newPassword);
+    } on AuthException catch (e) {
+      throw _mapAuthException(e);
+    } catch (e) {
+      if (e is AuthFailure) rethrow;
+      throw AuthFailure(
+        'No pudimos actualizar tu contraseña: ${e.toString()}',
+      );
     }
   }
 
@@ -88,6 +104,13 @@ class AuthRepositoryImpl implements AuthRepository {
     });
   }
 
+  @override
+  Stream<void> get onPasswordRecovery {
+    return _dataSource.onAuthStateChange
+        .where((state) => state.event == AuthChangeEvent.passwordRecovery)
+        .map((_) {});
+  }
+
   /// Mapea códigos de error de Supabase a mensajes claros en español.
   AuthFailure _mapAuthException(AuthException e) {
     final msg = e.message.toLowerCase();
@@ -101,6 +124,13 @@ class AuthRepositoryImpl implements AuthRepository {
     }
     if (msg.contains('password should be at least')) {
       return const AuthFailure('La contraseña no cumple con los requisitos mínimos de seguridad.');
+    }
+    if (e.statusCode == '429' ||
+        msg.contains('rate limit') ||
+        msg.contains('for security purposes')) {
+      return const AuthFailure(
+        'Se enviaron demasiados correos en poco tiempo. Espera unos minutos e intenta de nuevo.',
+      );
     }
     if (msg.contains('email not confirmed')) {
       return const AuthFailure('Por favor confirma tu correo electrónico antes de ingresar.');

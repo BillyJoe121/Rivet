@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
+import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import 'catalog_filters.dart';
 import 'catalog_mock.dart';
@@ -21,30 +22,44 @@ class MaterialsCatalogScreen extends StatelessWidget {
     this.priceTier = MaterialPriceTier.client,
     this.products = CatalogMock.products,
     this.catalogBloc,
+    this.preselectedProjectId,
   });
 
   final MaterialPriceTier priceTier;
   final List<MaterialProduct> products;
   final CatalogBloc? catalogBloc;
+  final String? preselectedProjectId;
 
   @override
   Widget build(BuildContext context) {
     if (catalogBloc != null) {
       return BlocProvider<CatalogBloc>.value(
         value: catalogBloc!,
-        child: _MaterialsCatalogView(priceTier: priceTier, initialProducts: products),
+        child: _MaterialsCatalogView(
+          priceTier: priceTier,
+          initialProducts: products,
+          preselectedProjectId: preselectedProjectId,
+        ),
       );
     }
 
     try {
       context.read<CatalogBloc>();
-      return _MaterialsCatalogView(priceTier: priceTier, initialProducts: products);
+      return _MaterialsCatalogView(
+        priceTier: priceTier,
+        initialProducts: products,
+        preselectedProjectId: preselectedProjectId,
+      );
     } catch (_) {
       return BlocProvider<CatalogBloc>(
         create: (_) => CatalogBloc(
           CatalogService.instance.getCatalogMaterialsUseCase,
         )..add(const LoadCatalogProducts()),
-        child: _MaterialsCatalogView(priceTier: priceTier, initialProducts: products),
+        child: _MaterialsCatalogView(
+          priceTier: priceTier,
+          initialProducts: products,
+          preselectedProjectId: preselectedProjectId,
+        ),
       );
     }
   }
@@ -54,10 +69,12 @@ class _MaterialsCatalogView extends StatefulWidget {
   const _MaterialsCatalogView({
     required this.priceTier,
     required this.initialProducts,
+    this.preselectedProjectId,
   });
 
   final MaterialPriceTier priceTier;
   final List<MaterialProduct> initialProducts;
+  final String? preselectedProjectId;
 
   @override
   State<_MaterialsCatalogView> createState() => _MaterialsCatalogViewState();
@@ -74,8 +91,10 @@ class _MaterialsCatalogViewState extends State<_MaterialsCatalogView> {
     super.dispose();
   }
 
-  List<String> _options(List<MaterialProduct> list, String? Function(MaterialProduct p) pick) =>
-      ({for (final p in list) ?pick(p)}.toList()..sort());
+  List<String> _options(
+    List<MaterialProduct> list,
+    String? Function(MaterialProduct p) pick,
+  ) => ({for (final p in list) ?pick(p)}.toList()..sort());
 
   Future<void> _openFilters(List<MaterialProduct> list) async {
     final result = await showCatalogFilterSheet(
@@ -89,10 +108,10 @@ class _MaterialsCatalogViewState extends State<_MaterialsCatalogView> {
   }
 
   void _clearAll() => setState(() {
-        _filters = const MaterialFilters();
-        _query = '';
-        _searchController.clear();
-      });
+    _filters = const MaterialFilters();
+    _query = '';
+    _searchController.clear();
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -109,54 +128,57 @@ class _MaterialsCatalogViewState extends State<_MaterialsCatalogView> {
 
         return RivetScaffold(
           title: 'Bodega',
-          showBackButton: false,
+          showBackButton: true,
           backgroundImagePath: AppHeroImages.paintShelf,
-          body: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-            children: [
-              const SizedBox(height: AppSpacing.sm),
-              AppSearchBar(
-                controller: _searchController,
-                hintText: 'Buscar por nombre, marca o categoría',
-                onChanged: (value) => setState(() => _query = value),
-              ),
-              const SizedBox(height: 6),
-              AppFilterField(
-                icon: LucideIcons.slidersHorizontal,
-                label: 'Filtros',
-                value: activeCount == 0
-                    ? null
-                    : activeCount == 1
-                        ? '1 filtro activo'
-                        : '$activeCount filtros activos',
-                onTap: () => _openFilters(availableProducts),
-              ),
-              if (tier.isUnverifiedPro) ...[
+          body: AppPageBody(
+            fixedHeader: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                AppSearchBar(
+                  controller: _searchController,
+                  hintText: 'Buscar por nombre, marca o categoría',
+                  onChanged: (value) => setState(() => _query = value),
+                ),
+                const SizedBox(height: 6),
+                AppFilterField(
+                  icon: LucideIcons.slidersHorizontal,
+                  label: 'Filtros',
+                  value: activeCount == 0
+                      ? null
+                      : activeCount == 1
+                          ? '1 filtro activo'
+                          : '$activeCount filtros activos',
+                  onTap: () => _openFilters(availableProducts),
+                ),
+                if (tier.isUnverifiedPro) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  const AppInfoBanner(
+                    compact: true,
+                    message:
+                        'Verifica tu cuenta para acceder a precios de contratista.',
+                  ),
+                ],
                 const SizedBox(height: AppSpacing.md),
-                const AppInfoBanner(
-                  compact: true,
-                  message: 'Verifica tu cuenta para acceder a precios de contratista.',
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppSectionHeader(
+                        title: 'Materiales',
+                        count: results.length,
+                      ),
+                    ),
+                    if (tier.isVerifiedPro)
+                      const AppBadge(
+                        text: 'Precios de contratista',
+                        variant: AppBadgeVariant.success,
+                        icon: LucideIcons.badgeCheck,
+                        compact: true,
+                      ),
+                  ],
                 ),
               ],
-              const SizedBox(height: AppSpacing.lg),
-              Row(
-                children: [
-                  Expanded(
-                    child: AppSectionHeader(
-                      title: 'Materiales',
-                      count: results.length,
-                    ),
-                  ),
-                  if (tier.isVerifiedPro)
-                    const AppBadge(
-                      text: 'Precios de contratista',
-                      variant: AppBadgeVariant.success,
-                      icon: LucideIcons.badgeCheck,
-                      compact: true,
-                    ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.md),
+            ),
+            children: [
               if (state.isLoading && availableProducts.isEmpty)
                 const Padding(
                   padding: EdgeInsets.all(AppSpacing.xxl),
@@ -169,31 +191,30 @@ class _MaterialsCatalogViewState extends State<_MaterialsCatalogView> {
               else if (results.isEmpty)
                 AppEmptyState(
                   title: 'Sin resultados',
-                  message: 'Ningún material coincide con tu búsqueda o filtros.',
+                  message:
+                      'Ningún material coincide con tu búsqueda o filtros.',
                   icon: LucideIcons.searchX,
                   actionLabel: 'Limpiar filtros',
                   onAction: _clearAll,
                 )
               else
-                for (final product in results)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => MaterialDetailScreen(
-                              product: product,
-                              tier: tier,
-                            ),
-                          ),
-                        );
-                      },
-                      child: CatalogMaterialCard(product: product, tier: tier),
+                for (var i = 0; i < results.length; i++) ...[
+                  CatalogMaterialCard(
+                    product: results[i],
+                    tier: tier,
+                    preselectedProjectId: widget.preselectedProjectId,
+                    onTap: () => AppNavigator.push(
+                      context,
+                      MaterialDetailScreen(
+                        product: results[i],
+                        tier: tier,
+                        preselectedProjectId: widget.preselectedProjectId,
+                      ),
                     ),
                   ),
-              const SizedBox(height: AppSpacing.xxl),
+                  if (i < results.length - 1)
+                    const SizedBox(height: AppSpacing.md),
+                ],
             ],
           ),
         );

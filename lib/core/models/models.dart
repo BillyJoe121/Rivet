@@ -55,6 +55,33 @@ class SurfaceItem {
   double get areaM2 => widthMeters * heightMeters;
 }
 
+/// Renglón de la lista de materiales de un proyecto.
+class ProjectMaterial {
+  const ProjectMaterial({
+    required this.productId,
+    required this.name,
+    required this.unit,
+    required this.unitPriceCop,
+    required this.quantity,
+  });
+
+  final String productId;
+  final String name;
+  final String unit;
+  final int unitPriceCop;
+  final int quantity;
+
+  int get subtotalCop => unitPriceCop * quantity;
+
+  ProjectMaterial withQuantity(int value) => ProjectMaterial(
+        productId: productId,
+        name: name,
+        unit: unit,
+        unitPriceCop: unitPriceCop,
+        quantity: value,
+      );
+}
+
 /// Proyecto de pintura o estuco.
 class Project {
   const Project({
@@ -69,6 +96,9 @@ class Project {
     this.budgetEstimateCop = 0,
     this.description = '',
     this.imageAsset,
+    this.photoAssets = const [],
+    this.materials = const [],
+    this.aiReviewAuthorized = false,
   });
 
   final String id;
@@ -85,7 +115,50 @@ class Project {
   /// Foto de referencia del espacio (asset de `Fondos/`).
   final String? imageAsset;
 
+  /// Fotos del espacio aportadas por el cliente.
+  final List<String> photoAssets;
+
+  /// Lista de materiales del proyecto (estimada o armada desde la Bodega).
+  final List<ProjectMaterial> materials;
+
+  /// El cliente autorizó la revisión asistida de sus fotos.
+  final bool aiReviewAuthorized;
+
   double get totalAreaM2 => surfaces.fold(0.0, (acc, s) => acc + s.areaM2);
+
+  int get materialsTotalCop =>
+      materials.fold(0, (acc, m) => acc + m.subtotalCop);
+
+  Project copyWith({
+    String? title,
+    String? city,
+    String? neighborhood,
+    List<SurfaceItem>? surfaces,
+    ProjectStatus? status,
+    int? budgetEstimateCop,
+    String? description,
+    String? imageAsset,
+    List<String>? photoAssets,
+    List<ProjectMaterial>? materials,
+    bool? aiReviewAuthorized,
+  }) {
+    return Project(
+      id: id,
+      title: title ?? this.title,
+      clientName: clientName,
+      city: city ?? this.city,
+      neighborhood: neighborhood ?? this.neighborhood,
+      surfaces: surfaces ?? this.surfaces,
+      status: status ?? this.status,
+      createdAt: createdAt,
+      budgetEstimateCop: budgetEstimateCop ?? this.budgetEstimateCop,
+      description: description ?? this.description,
+      imageAsset: imageAsset ?? this.imageAsset,
+      photoAssets: photoAssets ?? this.photoAssets,
+      materials: materials ?? this.materials,
+      aiReviewAuthorized: aiReviewAuthorized ?? this.aiReviewAuthorized,
+    );
+  }
 }
 
 /// Perfil de contratista profesional.
@@ -154,6 +227,9 @@ class MaterialProduct {
     this.finish,
     this.inStock = true,
     this.imageAsset,
+    this.presentation,
+    this.description = '',
+    this.coverageM2,
   });
 
   final String id;
@@ -170,4 +246,11 @@ class MaterialProduct {
   final String? finish;
   final bool inStock;
   final String? imageAsset;
+
+  /// Presentación comercial, por ejemplo "Galón 3,78 L" o "Bulto 25 kg".
+  final String? presentation;
+  final String description;
+
+  /// Rendimiento aproximado por unidad a una mano; null cuando no aplica.
+  final double? coverageM2;
 }

@@ -16,6 +16,7 @@ void main() {
       SizedBox(
         width: 368,
         child: AppCard(
+          padding: const EdgeInsets.all(10),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,

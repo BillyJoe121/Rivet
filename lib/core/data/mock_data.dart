@@ -139,5 +139,25 @@ abstract final class MockData {
       status: 'Recibida',
       observations: 'Aplicación con rodillo de microfibra anti-goteo, 2 manos de Viniltex lavable de alta durabilidad.',
     ),
+    Proposal(
+      id: 'prop-203',
+      projectId: 'proj-102',
+      contractor: contractors[1],
+      laborCostCop: 540000,
+      materialsCostCop: 310000,
+      estimatedDays: 3,
+      status: 'En negociación',
+      observations: 'Incluye sellador acrílico previo, tres capas de estuco plástico liso, lijado libre de polvo y dos manos de acabado.',
+    ),
+    Proposal(
+      id: 'prop-204',
+      projectId: 'proj-102',
+      contractor: contractors[0],
+      laborCostCop: 590000,
+      materialsCostCop: 330000,
+      estimatedDays: 2,
+      status: 'Recibida',
+      observations: 'Nivelación de revoque nuevo con estuco profesional, acabado terso listo para pintura y entrega con aseo.',
+    ),
   ];
 }

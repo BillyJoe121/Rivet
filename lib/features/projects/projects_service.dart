@@ -38,5 +38,8 @@ class ProjectsService {
 
   GetProjectDetailUseCase get getProjectDetailUseCase =>
       GetProjectDetailUseCase(repository);
+
+  UpdateProjectUseCase get updateProjectUseCase =>
+      UpdateProjectUseCase(repository);
 }
 

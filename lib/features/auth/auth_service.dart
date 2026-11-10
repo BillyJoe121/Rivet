@@ -35,6 +35,8 @@ class AuthService {
   SignOutUseCase get signOutUseCase => SignOutUseCase(repository);
   SendPasswordResetUseCase get sendPasswordResetUseCase =>
       SendPasswordResetUseCase(repository);
+  UpdatePasswordUseCase get updatePasswordUseCase =>
+      UpdatePasswordUseCase(repository);
   GetCurrentUserUseCase get getCurrentUserUseCase =>
       GetCurrentUserUseCase(repository);
 
@@ -68,15 +70,22 @@ class AuthService {
   Future<void> sendPasswordResetEmail(String email) =>
       repository.sendPasswordResetEmail(email);
 
+  Future<void> updatePassword(String newPassword) =>
+      repository.updatePassword(newPassword);
+
   Future<void> signOut() async {
     await repository.signOut();
     _currentUser = null;
   }
 
-  Future<RivetUser?> getCurrentUser() async =>
-      _currentUser = await repository.getCurrentUser();
+  Future<RivetUser?> getCurrentUser() async {
+    if (_currentUser != null) return _currentUser;
+    return _currentUser = await repository.getCurrentUser();
+  }
 
   Stream<RivetUser?> get authStateChanges => repository.authStateChanges;
+
+  Stream<void> get onPasswordRecovery => repository.onPasswordRecovery;
 }
 
 /// Repositorio de respaldo para entornos de prueba donde Supabase no está inicializado.
@@ -87,10 +96,16 @@ class _FallbackNoopAuthRepository implements AuthRepository {
   Stream<RivetUser?> get authStateChanges => const Stream.empty();
 
   @override
+  Stream<void> get onPasswordRecovery => const Stream.empty();
+
+  @override
   Future<RivetUser?> getCurrentUser() async => null;
 
   @override
   Future<void> sendPasswordResetEmail(String email) async {}
+
+  @override
+  Future<void> updatePassword(String newPassword) async {}
 
   @override
   Future<RivetUser> signIn({

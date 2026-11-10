@@ -68,8 +68,14 @@ class AppSpecRow extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(width: 10),
-            const Icon(LucideIcons.chevronRight, size: 15, color: AppColors.brand700),
+            if (onTap != null) ...[
+              const SizedBox(width: 10),
+              const Icon(
+                LucideIcons.chevronRight,
+                size: 15,
+                color: AppColors.brand700,
+              ),
+            ],
           ],
         ),
       ),

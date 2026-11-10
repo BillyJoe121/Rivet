@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../domain/usecases/create_project_usecase.dart';
 import '../../domain/usecases/get_my_projects_usecase.dart';
 import '../../domain/usecases/get_project_detail_usecase.dart';
+import '../../domain/usecases/update_project_usecase.dart';
 import 'projects_event.dart';
 import 'projects_state.dart';
 
@@ -15,7 +16,9 @@ class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState> {
     this._getMyProjectsUseCase,
     this._createProjectUseCase,
     this._getProjectDetailUseCase,
+    this._updateProjectUseCase,
   ) : super(const ProjectsState()) {
+    on<UpdateProjectSubmitted>(_onUpdateProject);
     on<LoadProjects>(_onLoadProjects);
     on<FilterProjectsByTab>(_onFilterByTab);
     on<CreateProjectSubmitted>(_onCreateProject);
@@ -26,6 +29,31 @@ class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState> {
   final GetMyProjectsUseCase _getMyProjectsUseCase;
   final CreateProjectUseCase _createProjectUseCase;
   final GetProjectDetailUseCase _getProjectDetailUseCase;
+  final UpdateProjectUseCase _updateProjectUseCase;
+
+  Future<void> _onUpdateProject(
+    UpdateProjectSubmitted event,
+    Emitter<ProjectsState> emit,
+  ) async {
+    emit(state.copyWith(status: ProjectsStatus.loading, clearError: true));
+    try {
+      final saved = await _updateProjectUseCase(event.project);
+      final known = state.projects.any((p) => p.id == saved.id);
+      emit(state.copyWith(
+        status: ProjectsStatus.success,
+        projects: known
+            ? [for (final p in state.projects) p.id == saved.id ? saved : p]
+            : [saved, ...state.projects],
+        selectedProject: saved,
+      ));
+    } catch (e) {
+      final clean = e.toString().replaceFirst('Exception: ', '');
+      emit(state.copyWith(
+        status: ProjectsStatus.failure,
+        errorMessage: clean,
+      ));
+    }
+  }
 
   Future<void> _onLoadProjects(
     LoadProjects event,

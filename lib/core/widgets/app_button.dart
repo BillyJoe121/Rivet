@@ -112,42 +112,28 @@ class AppButton extends StatelessWidget {
       if (trailing != null) ...[SizedBox(width: spec.gap), trailing],
     ];
 
+    final border = _border();
     final decoration = BoxDecoration(
       color: _backgroundColor(),
       gradient: _isDisabled || variant != AppButtonVariant.primary
           ? null
           : (isHero ? _heroGradient : AppColors.brandGradient),
       borderRadius: radius,
+      border: border,
+      boxShadow: isHero && !_isDisabled ? AppSpacing.shadowBrand : null,
     );
-    final border = _border();
 
-    // El trazo es interior (como en Figma) y se pinta encima sin desplazar
-    // la etiqueta.
-    Widget button = Container(
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        boxShadow: isHero && !_isDisabled ? AppSpacing.shadowBrand : null,
-      ),
-      foregroundDecoration: border == null
-          ? null
-          : BoxDecoration(borderRadius: radius, border: border),
-      child: Material(
-        type: MaterialType.transparency,
-        child: Ink(
-          height: spec.height,
-          decoration: decoration,
-          child: InkWell(
-            onTap: isLoading ? null : onPressed,
-            borderRadius: radius,
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: spec.paddingH),
-              child: Row(
-                mainAxisSize: isFullWidth ? MainAxisSize.max : MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: children,
-              ),
-            ),
-          ),
+    Widget button = GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: isLoading ? null : onPressed,
+      child: Container(
+        height: spec.height,
+        padding: EdgeInsets.symmetric(horizontal: spec.paddingH),
+        decoration: decoration,
+        child: Row(
+          mainAxisSize: isFullWidth ? MainAxisSize.max : MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: children,
         ),
       ),
     );

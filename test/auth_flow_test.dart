@@ -56,6 +56,9 @@ class MockAuthRepository implements AuthRepository {
   Future<void> sendPasswordResetEmail(String email) async {}
 
   @override
+  Future<void> updatePassword(String newPassword) async {}
+
+  @override
   Future<void> signOut() async {
     currentUser = null;
     _controller.add(null);
@@ -66,6 +69,9 @@ class MockAuthRepository implements AuthRepository {
 
   @override
   Stream<RivetUser?> get authStateChanges => _controller.stream;
+
+  @override
+  Stream<void> get onPasswordRecovery => const Stream.empty();
 }
 
 void main() {

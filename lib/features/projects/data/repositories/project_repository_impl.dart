@@ -51,5 +51,14 @@ class ProjectRepositoryImpl implements ProjectRepository {
       throw ProjectFailure('No fue posible guardar el proyecto: ${e.toString()}');
     }
   }
+
+  @override
+  Future<Project> updateProject(Project project) async {
+    try {
+      return await _dataSource.updateProject(project);
+    } catch (e) {
+      throw ProjectFailure('No fue posible guardar los cambios: ${e.toString()}');
+    }
+  }
 }
 

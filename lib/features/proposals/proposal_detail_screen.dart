@@ -4,7 +4,11 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
+import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../agreements/agreements_screens.dart';
+import '../contractors/contractors_screens.dart';
+import '../messaging/messaging_screens.dart';
 import '../supplier/material_price_tier.dart';
 import 'presentation/bloc/proposals_bloc.dart';
 import 'proposals_service.dart';
@@ -49,18 +53,23 @@ class _ProposalDetailView extends StatelessWidget {
 
   final Proposal proposal;
 
-  Future<void> _confirmAcceptance(BuildContext context) async {
+  Future<void> _confirmAcceptance(
+    BuildContext context,
+    Proposal currentProposal,
+  ) async {
     final confirmed = await showAppConfirmDialog(
       context,
       title: '¿Aceptar esta propuesta?',
       message:
-          'Al aceptar, fijarás las condiciones de mano de obra y materiales con ${proposal.contractor.name}.',
+          'Al aceptar, revisarás el acuerdo de obra y el pago simulado con ${currentProposal.contractor.name}.',
       confirmLabel: 'Aceptar propuesta',
       cancelLabel: 'Revisar después',
     );
 
     if (confirmed == true && context.mounted) {
-      context.read<ProposalsBloc>().add(AcceptProposalSubmitted(proposal.id));
+      context.read<ProposalsBloc>().add(
+        AcceptProposalSubmitted(currentProposal.id),
+      );
     }
   }
 
@@ -69,11 +78,13 @@ class _ProposalDetailView extends StatelessWidget {
     return BlocConsumer<ProposalsBloc, ProposalsState>(
       listener: (context, state) {
         if (state.acceptedProposalId == proposal.id) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Propuesta aceptada. Se formalizó el acuerdo de obra.'),
-              backgroundColor: AppColors.brand700,
-            ),
+          final currentProposal = state.proposals.firstWhere(
+            (p) => p.id == proposal.id,
+            orElse: () => proposal,
+          );
+          AppNavigator.push(
+            context,
+            AgreementSummaryScreen(proposal: currentProposal),
           );
         }
       },
@@ -87,13 +98,48 @@ class _ProposalDetailView extends StatelessWidget {
             state.acceptedProposalId == proposal.id;
 
         return RivetScaffold(
-          title: 'Detalle de cotización',
+          title: 'Detalle de\npropuesta',
           showBackButton: true,
-          backgroundImagePath: 'Fondos/Checklist, plantas y cajas sostenibles.png',
-          body: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+          backgroundImagePath: AppHeroImages.greenery,
+          body: AppPageBody(
+            footer: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (!isAccepted)
+                  AppButton(
+                    text: state.isLoading
+                        ? 'Formalizando...'
+                        : 'Aceptar propuesta y ver acuerdo',
+                    isLoading: state.isLoading,
+                    showChevron: true,
+                    onPressed: () =>
+                        _confirmAcceptance(context, currentProposal),
+                  )
+                else
+                  AppButton(
+                    text: 'Ir al acuerdo y pago simulado',
+                    showChevron: true,
+                    onPressed: () => AppNavigator.push(
+                      context,
+                      AgreementSummaryScreen(proposal: currentProposal),
+                    ),
+                  ),
+                const SizedBox(height: AppSpacing.sm),
+                AppButton(
+                  text: 'Escribir o contraofertar',
+                  variant: AppButtonVariant.outline,
+                  icon: LucideIcons.messageSquare,
+                  onPressed: () => AppNavigator.push(
+                    context,
+                    ProjectChatScreen(
+                      conversationId: 'conv-001',
+                      contractorName: currentProposal.contractor.name,
+                    ),
+                  ),
+                ),
+              ],
+            ),
             children: [
-              const SizedBox(height: AppSpacing.sm),
               AppCard(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,13 +153,11 @@ class _ProposalDetailView extends StatelessWidget {
                             children: [
                               Text(
                                 currentProposal.contractor.name,
-                                style: AppTypography.sectionTitle.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
+                                style: AppTypography.sectionTitle,
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                currentProposal.contractor.trade,
+                                '${currentProposal.contractor.trade} · ${currentProposal.contractor.zone}',
                                 style: AppTypography.caption.copyWith(
                                   color: AppColors.ink700,
                                 ),
@@ -121,8 +165,11 @@ class _ProposalDetailView extends StatelessWidget {
                             ],
                           ),
                         ),
+                        const SizedBox(width: AppSpacing.sm),
                         AppBadge(
-                          text: isAccepted ? 'Aceptada' : currentProposal.status,
+                          text: isAccepted
+                              ? 'Aceptada'
+                              : currentProposal.status,
                           variant: isAccepted
                               ? AppBadgeVariant.success
                               : AppBadgeVariant.brand,
@@ -132,37 +179,62 @@ class _ProposalDetailView extends StatelessWidget {
                     const SizedBox(height: AppSpacing.md),
                     Row(
                       children: [
-                        const Icon(LucideIcons.star, size: 16, color: AppColors.sun300),
+                        const Icon(
+                          LucideIcons.star,
+                          size: 16,
+                          color: AppColors.sun300,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           '${currentProposal.contractor.rating}',
-                          style: AppTypography.bodySmall.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+                          style: AppTypography.bodyStrong,
                         ),
                         const SizedBox(width: 6),
-                        Text(
-                          '(${currentProposal.contractor.reviewCount} reseñas)',
-                          style: AppTypography.caption,
+                        Expanded(
+                          child: Text(
+                            '(${currentProposal.contractor.reviewCount} reseñas · ${currentProposal.contractor.completedJobs} obras)',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.caption,
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.sm),
+                    AppListTile(
+                      leadingIcon: LucideIcons.userCheck,
+                      title: 'Ver perfil completo del contratista',
+                      subtitle: 'Portafolio y solicitud de visita técnica',
+                      showDivider: false,
+                      onTap: () => AppNavigator.push(
+                        context,
+                        ContractorProfileScreen(
+                          contractor: currentProposal.contractor,
+                          projectId: currentProposal.projectId,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
                     Container(
                       padding: const EdgeInsets.all(AppSpacing.md),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppColors.brandLight,
-                        borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                        borderRadius: AppSpacing.roundedSm,
                       ),
                       child: Column(
                         children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Mano de obra:', style: AppTypography.bodySmall),
+                              Flexible(
+                                child: Text(
+                                  'Mano de obra:',
+                                  style: AppTypography.bodySmall,
+                                ),
+                              ),
                               Text(
                                 '\$ ${formatCop(currentProposal.laborCostCop)} COP',
-                                style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
+                                style: AppTypography.bodyStrong,
                               ),
                             ],
                           ),
@@ -170,10 +242,15 @@ class _ProposalDetailView extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Materiales Bodega Rivet:', style: AppTypography.bodySmall),
+                              Flexible(
+                                child: Text(
+                                  'Materiales Bodega Rivet:',
+                                  style: AppTypography.bodySmall,
+                                ),
+                              ),
                               Text(
                                 '\$ ${formatCop(currentProposal.materialsCostCop)} COP',
-                                style: AppTypography.bodySmall.copyWith(fontWeight: FontWeight.w600),
+                                style: AppTypography.bodyStrong,
                               ),
                             ],
                           ),
@@ -181,14 +258,15 @@ class _ProposalDetailView extends StatelessWidget {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                'Total cotizado:',
-                                style: AppTypography.subheading.copyWith(fontWeight: FontWeight.w700),
+                              Flexible(
+                                child: Text(
+                                  'Total cotizado:',
+                                  style: AppTypography.subheading,
+                                ),
                               ),
                               Text(
                                 '\$ ${formatCop(currentProposal.totalCostCop)} COP',
                                 style: AppTypography.subheading.copyWith(
-                                  fontWeight: FontWeight.w700,
                                   color: AppColors.brand700,
                                 ),
                               ),
@@ -197,17 +275,18 @@ class _ProposalDetailView extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.md),
                     AppSpecRow(
                       icon: LucideIcons.calendar,
                       label: 'Tiempo estimado de ejecución',
                       value: '${currentProposal.estimatedDays} días hábiles',
+                      showDivider: false,
                     ),
                     if (currentProposal.observations.isNotEmpty) ...[
                       const SizedBox(height: AppSpacing.md),
                       Text(
                         'Alcance y especificaciones',
-                        style: AppTypography.caption.copyWith(fontWeight: FontWeight.w700),
+                        style: AppTypography.captionStrong,
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -218,36 +297,6 @@ class _ProposalDetailView extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: AppSpacing.xl),
-              if (!isAccepted)
-                AppButton(
-                  text: state.isLoading ? 'Formalizando...' : 'Aceptar propuesta',
-                  icon: LucideIcons.check,
-                  onPressed: state.isLoading ? () {} : () => _confirmAcceptance(context),
-                )
-              else
-                Container(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  decoration: BoxDecoration(
-                    color: AppColors.brandLight,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusPill),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(LucideIcons.checkCircle2, color: AppColors.brand700, size: 20),
-                      const SizedBox(width: AppSpacing.sm),
-                      Text(
-                        'Propuesta aceptada formalmente',
-                        style: AppTypography.bodySmall.copyWith(
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.brand700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              const SizedBox(height: AppSpacing.xxl),
             ],
           ),
         );
@@ -255,4 +304,3 @@ class _ProposalDetailView extends StatelessWidget {
     );
   }
 }
-

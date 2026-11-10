@@ -11,13 +11,14 @@ class SupabaseProjectDataSource {
 
   // Almacén en memoria para permitir persistencia local en pruebas y sesión actual
   final List<Project> _localProjects = List.from(MockData.projects);
+  bool _useLocalFastPath = false;
 
   /// Obtiene los proyectos del cliente.
   Future<List<Project>> getMyProjects({ProjectStatus? status}) async {
     final client = _client;
     final currentUserId = client?.auth.currentUser?.id;
 
-    if (client != null && currentUserId != null) {
+    if (!_useLocalFastPath && client != null && currentUserId != null) {
       try {
         var query = client
             .from('projects')
@@ -28,14 +29,18 @@ class SupabaseProjectDataSource {
           query = query.eq('status', status.name);
         }
 
-        final data = await query.order('created_at', ascending: false);
+        final data = await query
+            .order('created_at', ascending: false)
+            .timeout(const Duration(milliseconds: 900));
         final list = (data as List)
             .map((item) => _mapFromSupabase(item as Map<String, dynamic>))
             .toList();
 
         if (list.isNotEmpty) return list;
+        _useLocalFastPath = true;
       } catch (_) {
         // Fallback a almacenamiento local si la tabla aún no existe o está offline
+        _useLocalFastPath = true;
       }
     }
 
@@ -48,18 +53,21 @@ class SupabaseProjectDataSource {
   /// Consulta el detalle de un proyecto por ID.
   Future<Project> getProjectDetail(String projectId) async {
     final client = _client;
-    if (client != null) {
+    if (!_useLocalFastPath && client != null) {
       try {
         final data = await client
             .from('projects')
             .select('*, project_spaces(*)')
             .eq('id', projectId)
-            .maybeSingle();
+            .maybeSingle()
+            .timeout(const Duration(milliseconds: 900));
 
         if (data != null) {
           return _mapFromSupabase(data);
         }
-      } catch (_) {}
+      } catch (_) {
+        _useLocalFastPath = true;
+      }
     }
 
     final local = _localProjects.firstWhere(
@@ -114,6 +122,17 @@ class SupabaseProjectDataSource {
 
     _localProjects.insert(0, newProject);
     return newProject;
+  }
+
+  /// Guarda los cambios de un proyecto en la memoria de la sesión.
+  Future<Project> updateProject(Project project) async {
+    final index = _localProjects.indexWhere((p) => p.id == project.id);
+    if (index >= 0) {
+      _localProjects[index] = project;
+    } else {
+      _localProjects.insert(0, project);
+    }
+    return project;
   }
 
   Project _mapFromSupabase(Map<String, dynamic> json) {

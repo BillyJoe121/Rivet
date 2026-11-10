@@ -42,10 +42,14 @@ class ProScreen extends StatelessWidget {
             left: 0,
             right: 0,
             height: ProLayout.headerImageHeight,
-            child: Image.asset(
-              backgroundAsset!,
-              fit: BoxFit.cover,
-              errorBuilder: (_, _, _) => const SizedBox.shrink(),
+            child: RepaintBoundary(
+              child: Image.asset(
+                backgroundAsset!,
+                fit: BoxFit.cover,
+                cacheWidth: 824,
+                gaplessPlayback: true,
+                errorBuilder: (_, _, _) => const SizedBox.shrink(),
+              ),
             ),
           ),
         Padding(padding: EdgeInsets.only(top: top), child: body),

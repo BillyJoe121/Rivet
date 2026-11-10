@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/core/models/models.dart';
 import 'package:rivet/features/auth/domain/entities/rivet_user.dart';
+import 'package:rivet/features/auth/domain/errors/auth_failure.dart';
 import 'package:rivet/features/auth/domain/repositories/auth_repository.dart';
 import 'package:rivet/features/auth/domain/usecases/send_password_reset_usecase.dart';
 import 'package:rivet/features/auth/presentation/bloc/forgot_password/forgot_password_bloc.dart';
@@ -9,10 +10,12 @@ import 'package:rivet/features/auth/presentation/bloc/forgot_password/forgot_pas
 class FakeResetAuthRepository implements AuthRepository {
   final _controller = StreamController<RivetUser?>.broadcast();
   String? lastEmailSent;
+  Object? errorToThrow;
 
   @override
   Future<void> sendPasswordResetEmail(String email) async {
     lastEmailSent = email;
+    if (errorToThrow != null) throw errorToThrow!;
   }
 
   @override
@@ -37,6 +40,12 @@ class FakeResetAuthRepository implements AuthRepository {
 
   @override
   Stream<RivetUser?> get authStateChanges => _controller.stream;
+
+  @override
+  Future<void> updatePassword(String newPassword) async {}
+
+  @override
+  Stream<void> get onPasswordRecovery => const Stream.empty();
 }
 
 void main() {
@@ -101,5 +110,35 @@ void main() {
       ),
     );
   });
-}
 
+  test('emite [loading, failure] con el mensaje cuando el envío falla', () async {
+    repo.errorToThrow = const AuthFailure('Se enviaron demasiados correos.');
+    bloc.add(const ForgotPasswordSubmitted('usuario@rivet.com'));
+
+    await expectLater(
+      bloc.stream,
+      emitsInOrder([
+        isA<ForgotPasswordState>()
+            .having((s) => s.status, 'status', ForgotPasswordStatus.loading),
+        isA<ForgotPasswordState>()
+            .having((s) => s.status, 'status', ForgotPasswordStatus.failure)
+            .having((s) => s.errorMessage, 'errorMessage',
+                'Se enviaron demasiados correos.'),
+      ]),
+    );
+  });
+
+  test('un error inesperado muestra un mensaje genérico, no éxito', () async {
+    repo.errorToThrow = Exception('socket');
+    bloc.add(const ForgotPasswordSubmitted('usuario@rivet.com'));
+
+    await expectLater(
+      bloc.stream,
+      emitsThrough(
+        isA<ForgotPasswordState>()
+            .having((s) => s.status, 'status', ForgotPasswordStatus.failure)
+            .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
+      ),
+    );
+  });
+}

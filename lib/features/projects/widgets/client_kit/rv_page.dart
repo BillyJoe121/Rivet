@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 
-import 'rv_bottom_nav.dart';
 import 'rv_tokens.dart';
 
 /// Lienzo de pantalla de Figma: imagen de cabecera de 412×232 al fondo,
-/// zona de barra de estado, cabecera, cuerpo desplazable, acciones al pie,
-/// navegación principal y zona de la barra de gestos.
+/// zona de barra de estado, cabecera, cuerpo desplazable, acciones al pie
+/// y zona de la barra de gestos. La navegación principal la pone el shell.
 class RvPage extends StatelessWidget {
   const RvPage({
     super.key,
@@ -15,8 +14,6 @@ class RvPage extends StatelessWidget {
     this.headerImageHeight = RvLayout.headerImage,
     this.footer,
     this.footerPadding = const EdgeInsets.fromLTRB(22, 0, 22, 6),
-    this.navIndex,
-    this.onNavSelect,
     this.background = RvColors.paper100,
     this.scrollable = true,
   });
@@ -32,9 +29,6 @@ class RvPage extends StatelessWidget {
   final Widget? footer;
   final EdgeInsets footerPadding;
 
-  /// Destino activo de la navegación principal; null la oculta.
-  final int? navIndex;
-  final ValueChanged<int>? onNavSelect;
   final Color background;
   final bool scrollable;
 
@@ -64,7 +58,6 @@ class RvPage extends StatelessWidget {
                     : body,
               ),
               if (footer != null) Padding(padding: footerPadding, child: footer),
-              if (navIndex != null) RvBottomNav(activeIndex: navIndex!, onSelect: onNavSelect),
               Container(height: padding.bottom, color: RvColors.surface0),
             ],
           ),

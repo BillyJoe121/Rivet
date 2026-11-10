@@ -1,6 +1,6 @@
 # Pantallas y trazabilidad de Rivet
 
-Este catálogo describe las pantallas de la propuesta Flutter y su relación con los requisitos funcionales. Cliente, contratista y proveedor comparten una aplicación con accesos por rol; administración es una superficie interna. Una pantalla puede tener variantes por rol sin exponer datos privados de otros participantes.
+Este catálogo describe las pantallas de la propuesta Flutter y su relación con los requisitos funcionales. Cliente y contratista comparten una aplicación con accesos por rol, mientras que la Bodega Rivet opera como una sección integrada de suministro directo; administración es una superficie interna. Una pantalla puede tener variantes por rol sin exponer datos privados de otros participantes.
 
 ## Convenciones y estados comunes
 
@@ -448,8 +448,8 @@ Cada RF V1 tiene al menos una pantalla que muestra su efecto o permite la acció
 
 ## Recorridos principales
 
-Cliente: registro y perfil → proyecto y superficies → autorización y fotos revisadas → dossier y materiales → publicación → comparación → acuerdo → pago de prueba → seguimiento y cierre.
-Contratista: perfil → proyectos → dossier → catálogo autorizado → propuesta → negociación → acuerdo → seguimiento → doble confirmación → liquidación.
-Proveedor: perfil y catálogo → autorización de tarifas → solicitud de materiales → confirmación y entrega → recepción → liquidación de materiales.
-Visita: búsqueda y perfil → solicitud → acuerdo y dirección autorizada → pago de prueba → cumplimiento → cierre o reclamación.
+Cliente: registro y perfil → proyecto (datos, superficies, fotos con cámara, materiales, presupuesto de materiales y mano de obra, publicación) → propuestas y comparación → acuerdo → pago simulado → seguimiento y cierre.
+Contratista: perfil → proyectos → expediente → catálogo autorizado (Bodega) → propuesta → negociación → acuerdo → seguimiento → doble confirmación → liquidación.
+Bodega Rivet: catálogo y filtros → ficha técnica desplegable → agregar al proyecto actual / elegir proyecto o pedir ahora mismo con pago simulado.
+Visita: búsqueda y perfil → solicitud → acuerdo y dirección autorizada → pago simulado → cumplimiento → cierre o reclamación.
 Reclamación: incidencia → evidencia y plazos → revisión administrativa → resolución registrada; fecha vencida nunca libera por sí sola.

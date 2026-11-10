@@ -21,33 +21,31 @@ class _FieldShell extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Material(
-      color: AppColors.surface0,
-      shape: const RoundedRectangleBorder(
+    final box = Container(
+      height: height,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      decoration: BoxDecoration(
+        color: AppColors.surface0,
         borderRadius: AppSpacing.roundedMd,
-        side: BorderSide(
+        border: Border.all(
           color: AppColors.line300,
           width: AppSpacing.strokeDivider,
-          strokeAlign: BorderSide.strokeAlignInside,
         ),
       ),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: AppSpacing.roundedMd,
-        child: SizedBox(
-          height: height,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-            child: Row(
-              children: [
-                Icon(icon, size: 19, color: AppColors.brand700),
-                const SizedBox(width: 10),
-                Expanded(child: child),
-              ],
-            ),
-          ),
-        ),
+      child: Row(
+        children: [
+          Icon(icon, size: 19, color: AppColors.brand700),
+          const SizedBox(width: 10),
+          Expanded(child: child),
+        ],
       ),
+    );
+
+    if (onTap == null) return box;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: box,
     );
   }
 }

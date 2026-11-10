@@ -34,30 +34,37 @@ class AppAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Widget content = image != null
-        ? Image(image: image!, width: size, height: size, fit: BoxFit.cover)
-        : Center(
-            child: Text(
+    final avatar = Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        shape: BoxShape.circle,
+        image: image != null
+            ? DecorationImage(image: image!, fit: BoxFit.cover)
+            : null,
+      ),
+      alignment: image == null ? Alignment.center : null,
+      child: image == null
+          ? Text(
               initials!,
               maxLines: 1,
               style: textStyle ?? _defaultStyle,
-            ),
-          );
+            )
+          : null,
+    );
+
     return Semantics(
       label: semanticLabel ?? initials,
       image: image != null,
       button: onTap != null,
-      child: GestureDetector(
-        onTap: onTap,
-        child: ClipOval(
-          child: Container(
-            width: size,
-            height: size,
-            color: backgroundColor,
-            child: content,
-          ),
-        ),
-      ),
+      child: onTap != null
+          ? GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: onTap,
+              child: avatar,
+            )
+          : avatar,
     );
   }
 }

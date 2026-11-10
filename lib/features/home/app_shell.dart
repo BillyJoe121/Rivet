@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
+import '../../core/widgets/app_back_button.dart';
 import '../../core/widgets/app_bottom_nav.dart';
 import '../../core/widgets/app_more_menu.dart';
 import 'client_home_view.dart';
 import 'contractor_home_view.dart';
 import '../account/profile_screen.dart';
+import '../contractors/contractors_directory_screen.dart';
+import '../messaging/messaging_screens.dart';
 import '../projects/my_projects_screen.dart';
+import '../proposals/all_proposals_screen.dart';
 import '../supplier/materials_catalog_screen.dart';
 import '../under_construction/under_construction_screen.dart';
 
@@ -21,8 +26,10 @@ enum _Page {
   profile,
 }
 
-/// Shell principal con la barra de navegación según el rol activo. "Más"
-/// abre un panel con el resto de destinos sin cambiar la pantalla actual.
+/// Shell principal con la barra de navegación según el rol activo. Cada
+/// destino tiene su propia pila de navegación, así la barra sigue visible en
+/// las pantallas internas y cada pestaña conserva dónde quedó. "Más" abre un
+/// panel con el resto de destinos sin cambiar la pantalla actual.
 class AppShell extends StatefulWidget {
   const AppShell({super.key, this.initialRole = UserRole.client});
 
@@ -53,6 +60,11 @@ class _AppShellState extends State<AppShell> {
   _Page _page = _Page.home;
   bool _moreOpen = false;
 
+  /// Pila de cada destino ya visitado; se crea al abrirlo por primera vez.
+  final Map<_Page, GlobalKey<NavigatorState>> _navigators = {
+    _Page.home: GlobalKey<NavigatorState>(),
+  };
+
   bool get _isClient => _currentRole == UserRole.client;
   bool get _isContractor => _currentRole == UserRole.contractor;
   List<_Page> get _barPages => _isClient ? _clientBar : _proBar;
@@ -69,13 +81,23 @@ class _AppShellState extends State<AppShell> {
       _currentRole = newRole;
       _page = _Page.home;
       _moreOpen = false;
+      // Las pilas del rol anterior no aplican al nuevo.
+      _navigators
+        ..clear()
+        ..[_Page.home] = GlobalKey<NavigatorState>();
     });
   }
 
-  void _open(_Page page) => setState(() {
-    _page = page;
-    _moreOpen = false;
-  });
+  void _open(_Page page) {
+    // Al tocar cualquier botón de la barra inferior siempre se vuelve a la
+    // pantalla principal de esa sección.
+    _navigators[page]?.currentState?.popUntil((route) => route.isFirst);
+    setState(() {
+      _navigators.putIfAbsent(page, GlobalKey<NavigatorState>.new);
+      _page = page;
+      _moreOpen = false;
+    });
+  }
 
   void _onBarSelected(int index) {
     if (index == _barPages.length) {
@@ -83,6 +105,25 @@ class _AppShellState extends State<AppShell> {
     } else {
       _open(_barPages[index]);
     }
+  }
+
+  /// Atrás del sistema: cierra "Más", luego la pantalla interna de la pestaña,
+  /// luego vuelve a Inicio y por último sale de la app.
+  Future<void> _handleBack() async {
+    if (_moreOpen) {
+      setState(() => _moreOpen = false);
+      return;
+    }
+    final navigator = _navigators[_page]?.currentState;
+    if (navigator != null && navigator.canPop()) {
+      await navigator.maybePop();
+      return;
+    }
+    if (_page != _Page.home) {
+      _open(_Page.home);
+      return;
+    }
+    await SystemNavigator.pop();
   }
 
   @override
@@ -93,15 +134,32 @@ class _AppShellState extends State<AppShell> {
         : _barPages.indexOf(_page);
 
     return PopScope(
-      canPop: !_moreOpen,
+      canPop: false,
       onPopInvokedWithResult: (didPop, _) {
-        if (!didPop) setState(() => _moreOpen = false);
+        if (!didPop) _handleBack();
       },
-      child: Scaffold(
-        backgroundColor: AppColors.paper100,
-        body: Stack(
+      child: NotificationListener<AppShellBackNotification>(
+        onNotification: (_) {
+          _handleBack();
+          return true;
+        },
+        child: Scaffold(
+          backgroundColor: AppColors.paper100,
+          resizeToAvoidBottomInset: false,
+          body: Stack(
           children: [
-            KeyedSubtree(key: ValueKey(_page), child: _buildPage(_page)),
+            for (final entry in _navigators.entries)
+              Offstage(
+                key: ValueKey(entry.key),
+                offstage: entry.key != _page,
+                child: TickerMode(
+                  enabled: entry.key == _page,
+                  child: _TabNavigator(
+                    navigatorKey: entry.value,
+                    builder: (_) => _buildPage(entry.key),
+                  ),
+                ),
+              ),
             AppMoreMenu(
               open: _moreOpen,
               items: _isClient
@@ -113,12 +171,13 @@ class _AppShellState extends State<AppShell> {
             ),
           ],
         ),
-        bottomNavigationBar: AppBottomNav(
-          destinations: _isClient
-              ? AppNavDestinations.client
-              : AppNavDestinations.professional,
-          currentIndex: barIndex,
-          onSelected: _onBarSelected,
+          bottomNavigationBar: AppBottomNav(
+            destinations: _isClient
+                ? AppNavDestinations.client
+                : AppNavDestinations.professional,
+            currentIndex: barIndex,
+            onSelected: _onBarSelected,
+          ),
         ),
       ),
     );
@@ -134,14 +193,24 @@ class _AppShellState extends State<AppShell> {
         _isClient
             ? const MyProjectsScreen()
             : UnderConstructionScreen(section: _sectionName(page)),
+      _Page.contractors =>
+        _isClient
+            ? const ContractorsDirectoryScreen()
+            : UnderConstructionScreen(section: _sectionName(page)),
       _Page.catalog => const MaterialsCatalogScreen(),
+      _Page.proposals =>
+        _isClient
+            ? const AllProposalsScreen()
+            : UnderConstructionScreen(section: _sectionName(page)),
+      _Page.messages =>
+        _isClient
+            ? const ConversationsListScreen()
+            : UnderConstructionScreen(section: _sectionName(page)),
       _Page.profile => ProfileScreen(
         currentRole: _currentRole,
         onSwitchRole: _switchRole,
         onBack: () => _open(_Page.home),
       ),
-      // Secciones fuera del alcance actual: pantalla de "en construcción".
-      _ => UnderConstructionScreen(section: _sectionName(page)),
     };
   }
 
@@ -153,4 +222,25 @@ class _AppShellState extends State<AppShell> {
     _Page.messages => 'Mensajes',
     _ => '',
   };
+}
+
+/// Pila de navegación de un destino del shell.
+class _TabNavigator extends StatelessWidget {
+  const _TabNavigator({required this.navigatorKey, required this.builder});
+
+  final GlobalKey<NavigatorState> navigatorKey;
+  final WidgetBuilder builder;
+
+  @override
+  Widget build(BuildContext context) {
+    return Navigator(
+      key: navigatorKey,
+      onGenerateRoute: (settings) => PageRouteBuilder<void>(
+        settings: settings,
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (context, _, _) => builder(context),
+      ),
+    );
+  }
 }

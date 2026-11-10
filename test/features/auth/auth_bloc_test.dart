@@ -46,6 +46,12 @@ class FakeSessionAuthRepository implements AuthRepository {
 
   @override
   Future<void> sendPasswordResetEmail(String email) async {}
+
+  @override
+  Future<void> updatePassword(String newPassword) async {}
+
+  @override
+  Stream<void> get onPasswordRecovery => const Stream.empty();
 }
 
 void main() {

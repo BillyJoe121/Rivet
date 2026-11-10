@@ -4,6 +4,12 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../theme/theme.dart';
 
+/// Notificación enviada por [AppBackButton] cuando la pila actual está en su
+/// ruta raíz para que el shell principal pueda regresar a Inicio.
+class AppShellBackNotification extends Notification {
+  const AppShellBackNotification();
+}
+
 /// Botón volver único de la app: misma apariencia y misma área táctil en todas
 /// las pantallas.
 ///
@@ -44,7 +50,10 @@ class _AppBackButtonState extends State<AppBackButton> {
     final onPressed = widget.onPressed;
     if (onPressed != null) {
       onPressed();
+    } else if (Navigator.canPop(context)) {
+      Navigator.maybePop(context);
     } else {
+      const AppShellBackNotification().dispatch(context);
       Navigator.maybePop(context);
     }
   }

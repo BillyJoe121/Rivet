@@ -21,6 +21,9 @@ abstract interface class AuthRepository {
   /// Envía un correo transaccional de recuperación de contraseña.
   Future<void> sendPasswordResetEmail(String email);
 
+  /// Actualiza la contraseña del usuario en la sesión activa de recuperación.
+  Future<void> updatePassword(String newPassword);
+
   /// Cierra la sesión activa.
   Future<void> signOut();
 
@@ -29,4 +32,7 @@ abstract interface class AuthRepository {
 
   /// Flujo reactivo de cambios en el estado de autenticación.
   Stream<RivetUser?> get authStateChanges;
+
+  /// Notificaciones de recuperación de contraseña activadas por enlaces.
+  Stream<void> get onPasswordRecovery;
 }

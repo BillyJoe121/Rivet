@@ -31,14 +31,16 @@ class ClientProjectCard extends StatelessWidget {
       child: Row(
         children: [
           if (project.imageAsset != null) ...[
-            ClipRRect(
-              borderRadius: AppSpacing.roundedMd,
-              child: Image.asset(
-                project.imageAsset!,
-                width: 72,
-                height: 72,
-                fit: BoxFit.cover,
-                errorBuilder: (_, _, _) => const SizedBox(width: 72, height: 72),
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: AppColors.brandLight,
+                borderRadius: AppSpacing.roundedMd,
+                image: DecorationImage(
+                  image: ResizeImage(AssetImage(project.imageAsset!), width: 180),
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
             const SizedBox(width: AppSpacing.md),

@@ -10,6 +10,7 @@ class SupabaseCatalogDataSource {
   final SupabaseClient? _client;
 
   final List<MaterialProduct> _localProducts = List.from(CatalogMock.products);
+  bool _useLocalFastPath = false;
 
   /// Obtiene los productos aplicando filtros de búsqueda y categoría.
   Future<List<MaterialProduct>> getProducts({
@@ -17,7 +18,7 @@ class SupabaseCatalogDataSource {
     String? searchQuery,
   }) async {
     final client = _client;
-    if (client != null) {
+    if (!_useLocalFastPath && client != null) {
       try {
         var query = client.from('materials').select();
         if (category != null && category != 'Todos') {
@@ -26,10 +27,13 @@ class SupabaseCatalogDataSource {
         if (searchQuery != null && searchQuery.trim().isNotEmpty) {
           query = query.ilike('name', '%${searchQuery.trim()}%');
         }
-        final data = await query;
+        final data = await query.timeout(const Duration(milliseconds: 900));
         final list = (data as List).map((m) => _mapFromSupabase(m as Map<String, dynamic>)).toList();
         if (list.isNotEmpty) return list;
-      } catch (_) {}
+        _useLocalFastPath = true;
+      } catch (_) {
+        _useLocalFastPath = true;
+      }
     }
 
     Iterable<MaterialProduct> result = _localProducts;

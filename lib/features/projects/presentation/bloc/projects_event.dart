@@ -40,6 +40,13 @@ final class CreateProjectSubmitted extends ProjectsEvent {
   final String? imageAsset;
 }
 
+/// Guarda los cambios de un proyecto existente.
+final class UpdateProjectSubmitted extends ProjectsEvent {
+  const UpdateProjectSubmitted(this.project);
+
+  final Project project;
+}
+
 /// Consulta el detalle de un proyecto específico.
 final class LoadProjectDetail extends ProjectsEvent {
   const LoadProjectDetail(this.projectId);

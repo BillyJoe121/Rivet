@@ -10,20 +10,26 @@ class SupabaseProposalDataSource {
   final SupabaseClient? _client;
 
   final List<Proposal> _localProposals = List.from(MockData.proposals);
+  bool _useLocalFastPath = false;
 
   /// Consulta las propuestas recibidas.
   Future<List<Proposal>> getReceivedProposals({String? projectId}) async {
     final client = _client;
-    if (client != null) {
+    if (!_useLocalFastPath && client != null) {
       try {
         var query = client.from('proposals').select('*, contractor:profiles(*)');
         if (projectId != null) {
           query = query.eq('project_id', projectId);
         }
-        final data = await query.order('created_at', ascending: false);
+        final data = await query
+            .order('created_at', ascending: false)
+            .timeout(const Duration(milliseconds: 900));
         final list = (data as List).map((p) => _mapFromSupabase(p as Map<String, dynamic>)).toList();
         if (list.isNotEmpty) return list;
-      } catch (_) {}
+        _useLocalFastPath = true;
+      } catch (_) {
+        _useLocalFastPath = true;
+      }
     }
 
     if (projectId != null) {
@@ -35,17 +41,20 @@ class SupabaseProposalDataSource {
   /// Consulta el detalle de una propuesta por ID.
   Future<Proposal> getProposalDetail(String proposalId) async {
     final client = _client;
-    if (client != null) {
+    if (!_useLocalFastPath && client != null) {
       try {
         final data = await client
             .from('proposals')
             .select('*, contractor:profiles(*)')
             .eq('id', proposalId)
-            .maybeSingle();
+            .maybeSingle()
+            .timeout(const Duration(milliseconds: 900));
         if (data != null) {
           return _mapFromSupabase(data);
         }
-      } catch (_) {}
+      } catch (_) {
+        _useLocalFastPath = true;
+      }
     }
 
     return _localProposals.firstWhere(
