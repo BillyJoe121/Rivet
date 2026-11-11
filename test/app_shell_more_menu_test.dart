@@ -1,38 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/core/models/models.dart';
 import 'package:rivet/core/widgets/app_back_button.dart';
+import 'package:rivet/core/widgets/pro_rows.dart';
+import 'package:rivet/core/widgets/pro_surfaces.dart';
 import 'package:rivet/features/home/app_shell.dart';
-import 'package:rivet/features/home/widgets/kit/kit.dart';
 import 'package:rivet/features/projects/my_projects_screen.dart';
-import 'package:rivet/features/projects/presentation/bloc/projects_bloc.dart';
 import 'package:rivet/features/projects/project_detail_screen.dart';
-import 'package:rivet/features/projects/projects_service.dart';
-import 'package:rivet/features/supplier/catalog_service.dart';
 import 'package:rivet/features/supplier/materials_catalog_screen.dart';
-import 'package:rivet/features/supplier/presentation/bloc/catalog_bloc.dart';
+
+import 'helpers/repositories_test_harness.dart';
 
 void main() {
   Future<void> pumpShell(WidgetTester tester, UserRole role) async {
     await tester.pumpWidget(
-      MultiBlocProvider(
-        providers: [
-          BlocProvider<ProjectsBloc>(
-            create: (_) => ProjectsBloc(
-              ProjectsService.instance.getMyProjectsUseCase,
-              ProjectsService.instance.createProjectUseCase,
-              ProjectsService.instance.getProjectDetailUseCase,
-              ProjectsService.instance.updateProjectUseCase,
-            ),
-          ),
-          BlocProvider<CatalogBloc>(
-            create: (_) => CatalogBloc(
-              CatalogService.instance.getCatalogMaterialsUseCase,
-            ),
-          ),
-        ],
-        child: MaterialApp(home: AppShell(initialRole: role)),
+      withRepositories(
+        withAppBlocs(
+          MaterialApp(home: AppShell(initialRole: role)),
+          load: false,
+        ),
       ),
     );
     await tester.pumpAndSettle();

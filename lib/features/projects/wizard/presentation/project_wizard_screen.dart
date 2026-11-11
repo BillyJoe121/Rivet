@@ -7,8 +7,8 @@ import '../../../../core/models/models.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../presentation/bloc/projects_bloc.dart';
-import '../../projects_service.dart';
-import '../data/local_project_draft_repository.dart';
+import '../../domain/repositories/project_repository.dart';
+import '../../domain/usecases/usecases.dart';
 import '../domain/estimate_materials_usecase.dart';
 import '../domain/project_draft_repository.dart';
 import '../domain/publish_project_wizard_usecase.dart';
@@ -53,13 +53,14 @@ class _ProjectWizardScreenState extends State<ProjectWizardScreen> {
     if (_ownedWizardBloc != null) return _ownedWizardBloc!;
 
     final draftRepo =
-        widget.draftRepository ?? LocalProjectDraftRepository.instance;
+        widget.draftRepository ?? context.read<ProjectDraftRepository>();
+    final projectRepository = context.read<ProjectRepository>();
     final bloc = ProjectWizardBloc(
       draftRepository: draftRepo,
       estimateMaterialsUseCase: const EstimateMaterialsUseCase(),
       publishProjectWizardUseCase: PublishProjectWizardUseCase(
-        createProjectUseCase: ProjectsService.instance.createProjectUseCase,
-        updateProjectUseCase: ProjectsService.instance.updateProjectUseCase,
+        createProjectUseCase: CreateProjectUseCase(projectRepository),
+        updateProjectUseCase: UpdateProjectUseCase(projectRepository),
         draftRepository: draftRepo,
       ),
     )..add(WizardInitialized(initialProject: widget.initialProject));

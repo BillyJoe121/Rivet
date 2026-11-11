@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/models/models.dart';
-import '../../core/utils/app_page_route.dart';
-import '../auth/auth_service.dart';
-import '../auth/domain/entities/rivet_user.dart';
-import '../home/widgets/kit/kit.dart';
+import '../auth/presentation/bloc/auth/auth_bloc.dart';
+import '../../core/design_system/design_system.dart';
 import '../onboarding/welcome_screen.dart';
 import '../under_construction/under_construction_screen.dart';
 import 'account_mock.dart';
@@ -33,40 +32,11 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  RivetUser? _realUser;
-
-  @override
-  void initState() {
-    super.initState();
-    _realUser = _cachedUser();
-    _loadProfile();
-  }
-
-  static RivetUser? _cachedUser() {
-    try {
-      return AuthService.instance.currentUser;
-    } catch (_) {
-      return null;
-    }
-  }
-
-  Future<void> _loadProfile() async {
-    try {
-      final user = await AuthService.instance.getCurrentUser();
-      if (mounted) {
-        setState(() {
-          _realUser = user;
-        });
-      }
-    } catch (_) {}
-  }
-
   Future<void> _handleSignOut() async {
     final confirmed = await ConfirmSignOutDialog.show(context);
 
-    if (confirmed == true) {
-      await AuthService.instance.signOut();
-      if (!mounted) return;
+    if (confirmed == true && mounted) {
+      context.read<AuthBloc>().add(const AuthSignOutRequested());
       AppNavigator.pushAndRemoveUntil(context, const WelcomeScreen());
     }
   }
@@ -74,17 +44,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final fallbackMock = AccountProfile.forRole(widget.currentRole);
+    final realUser = context.select((AuthBloc bloc) => bloc.state.user);
 
     // Solo datos del usuario real; sin sesión cargada los campos quedan vacíos
     // en lugar de mostrar el perfil de ejemplo.
-    final displayName = _realUser?.fullName ?? '';
-    final displayEmail = _realUser?.email ?? '';
-    final displayPhone = _realUser?.phone ?? '';
+    final displayName = realUser?.fullName ?? '';
+    final displayEmail = realUser?.email ?? '';
+    final displayPhone = realUser?.phone ?? '';
 
     final initials = displayName.trim().split(' ').map((p) => p.isNotEmpty ? p[0] : '').take(2).join().toUpperCase();
 
     return ProScreen(
-      backgroundAsset: ProAssets.headerLivingRoom,
+      backgroundAsset: AppImages.headerGreenCream,
       navWhenPushed: ProNavDestination.more,
       footer: Padding(
         padding: const EdgeInsets.fromLTRB(22, 0, 22, 8),
@@ -140,7 +111,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Expanded(
                         child: Text(
                           'Información personal',
-                          style: ProText.serif(19, color: ProColors.ink700, lineHeight: 22.8),
+                          style: AppTypography.proportional(19, family: AppTypography.serif, weight: FontWeight.w600, color: AppColors.ink700, lineHeight: 22.8),
                         ),
                       ),
                       // Provisional: la edición real reemplazará esta pantalla.
@@ -150,12 +121,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           const UnderConstructionScreen(section: 'Editar perfil'),
                         ),
                         style: TextButton.styleFrom(
-                          foregroundColor: ProColors.brand700,
+                          foregroundColor: AppColors.brand700,
                           minimumSize: const Size(48, 36),
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         ),
-                        child: Text('Editar', style: ProText.labelStrong.copyWith(color: ProColors.brand700)),
+                        child: Text('Editar', style: AppTypography.labelStrongProportional.copyWith(color: AppColors.brand700)),
                       ),
                     ],
                   ),

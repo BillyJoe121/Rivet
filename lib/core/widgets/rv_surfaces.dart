@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'rv_icon_data.dart';
-import 'rv_tokens.dart';
+import 'icons/rv_icon_data.dart';
+import '../theme/theme.dart';
 
 /// Tarjeta blanca de Figma con trazo interior (0.6 `#E6E9E4` por defecto).
 class RvCard extends StatelessWidget {
@@ -9,10 +9,10 @@ class RvCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(10),
-    this.radius = RvRadii.lg,
-    this.color = RvColors.surface0,
-    this.borderColor = RvColors.line300,
-    this.borderWidth = RvLayout.cardStroke,
+    this.radius = AppSpacing.radiusLg,
+    this.color = AppColors.surface0,
+    this.borderColor = AppColors.line300,
+    this.borderWidth = AppSpacing.strokeCard,
     this.width,
     this.height,
     this.onTap,
@@ -55,11 +55,11 @@ class RvChip extends StatelessWidget {
   const RvChip({
     super.key,
     required this.label,
-    this.background = RvColors.warningLight,
-    this.foreground = RvColors.sun300,
+    this.background = AppColors.warningLight,
+    this.foreground = AppColors.sun300,
     this.padding = const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
     this.textStyle,
-    this.radius = RvRadii.xl,
+    this.radius = AppSpacing.radiusXl,
   });
 
   final String label;
@@ -74,7 +74,7 @@ class RvChip extends StatelessWidget {
     return Container(
       padding: padding,
       decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(radius)),
-      child: Text(label, style: textStyle ?? rvText(11, lineHeight: 13.2, color: foreground)),
+      child: Text(label, style: textStyle ?? AppTypography.style(11, lineHeight: 13.2, color: foreground)),
     );
   }
 }
@@ -91,7 +91,7 @@ class RvSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Text(title, style: style ?? RvText.sectionTitle)),
+        Expanded(child: Text(title, style: style ?? AppTypography.sectionHeading)),
         ?trailing,
       ],
     );
@@ -106,7 +106,7 @@ class RvField extends StatelessWidget {
     required this.text,
     this.icon,
     this.height = 54,
-    this.textColor = RvColors.ink500,
+    this.textColor = AppColors.ink500,
     this.trailing,
     this.iconSize = 19,
     this.onTap,
@@ -124,14 +124,14 @@ class RvField extends StatelessWidget {
   Widget build(BuildContext context) {
     return RvCard(
       height: height,
-      radius: RvRadii.md,
+      radius: AppSpacing.radiusMd,
       borderWidth: 1,
       onTap: onTap,
       padding: const EdgeInsets.symmetric(horizontal: 12),
       child: Row(
         children: [
           if (icon != null) ...[RvIcon(icon!, size: iconSize), const SizedBox(width: 10)],
-          Expanded(child: Text(text, style: RvText.field.copyWith(color: textColor))),
+          Expanded(child: Text(text, style: AppTypography.fieldText.copyWith(color: textColor))),
           ?trailing,
         ],
       ),
@@ -153,10 +153,10 @@ class RvProgressBar extends StatelessWidget {
       width: width,
       height: height,
       alignment: Alignment.centerLeft,
-      decoration: BoxDecoration(color: RvColors.progressTrack, borderRadius: BorderRadius.circular(5)),
+      decoration: BoxDecoration(color: AppColors.leaf300, borderRadius: BorderRadius.circular(5)),
       child: Container(
         width: width * progress,
-        decoration: BoxDecoration(color: RvColors.success700, borderRadius: BorderRadius.circular(5)),
+        decoration: BoxDecoration(color: AppColors.success700, borderRadius: BorderRadius.circular(5)),
       ),
     );
   }
@@ -187,20 +187,20 @@ class RvStepIndicator extends StatelessWidget {
                     height: 28,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      gradient: i <= current ? RvColors.brandGradient : null,
-                      color: i <= current ? null : RvColors.stepIdle,
-                      borderRadius: BorderRadius.circular(RvRadii.xl),
+                      gradient: i <= current ? AppColors.brandGradientDiagonal : null,
+                      color: i <= current ? null : AppColors.stepIdle,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
                     ),
                     child: Text(
                       '${i + 1}',
-                      style: RvText.titleSmall.copyWith(color: i <= current ? RvColors.surface0 : RvColors.ink900),
+                      style: AppTypography.titleSmall.copyWith(color: i <= current ? AppColors.surface0 : AppColors.ink900),
                     ),
                   ),
                   const SizedBox(height: 5),
                   Text(
                     labels[i],
                     textAlign: TextAlign.center,
-                    style: RvText.micro.copyWith(color: i <= current ? RvColors.brand700 : RvColors.ink500),
+                    style: AppTypography.micro.copyWith(color: i <= current ? AppColors.brand700 : AppColors.ink500),
                   ),
                 ],
               ),

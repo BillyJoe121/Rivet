@@ -7,7 +7,8 @@ import '../../../core/models/models.dart';
 import '../../../core/theme/theme.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../projects/presentation/bloc/projects_bloc.dart';
-import '../../projects/wizard/data/local_project_draft_repository.dart';
+import '../../projects/wizard/domain/add_material_to_draft_usecase.dart';
+import '../../projects/wizard/domain/project_draft_repository.dart';
 import '../material_price_tier.dart';
 
 /// Abre el flujo para agregar un material al proyecto actual o elegir uno de
@@ -87,18 +88,9 @@ class _AddMaterialToProjectSheetState
     );
 
     if (_selectedProjectId == 'draft') {
-      final repo = LocalProjectDraftRepository.instance;
-      final draft = repo.loadDraft();
-      if (draft != null) {
-        final next = [...draft.materials];
-        final idx = next.indexWhere((m) => m.productId == newItem.productId);
-        if (idx >= 0) {
-          next[idx] = next[idx].withQuantity(next[idx].quantity + _quantity);
-        } else {
-          next.add(newItem);
-        }
-        repo.saveDraft(draft.copyWith(materials: next));
-      }
+      AddMaterialToDraftUseCase(context.read<ProjectDraftRepository>())(
+        newItem,
+      );
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()

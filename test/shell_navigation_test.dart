@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/core/models/models.dart';
 import 'package:rivet/core/widgets/widgets.dart';
 import 'package:rivet/features/home/app_shell.dart';
 import 'package:rivet/features/projects/my_projects_screen.dart';
-import 'package:rivet/features/projects/presentation/bloc/projects_bloc.dart';
 import 'package:rivet/features/projects/project_detail_screen.dart';
-import 'package:rivet/features/projects/projects_service.dart';
-import 'package:rivet/features/proposals/presentation/bloc/proposals_bloc.dart';
-import 'package:rivet/features/proposals/proposals_service.dart';
-import 'package:rivet/features/supplier/catalog_service.dart';
 import 'package:rivet/features/supplier/materials_catalog_screen.dart';
-import 'package:rivet/features/supplier/presentation/bloc/catalog_bloc.dart';
+
+import 'helpers/repositories_test_harness.dart';
 
 void main() {
   Future<void> pumpShell(WidgetTester tester) async {
@@ -21,29 +16,10 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      MultiBlocProvider(
-        providers: [
-          BlocProvider<ProjectsBloc>(
-            create: (_) => ProjectsBloc(
-              ProjectsService.instance.getMyProjectsUseCase,
-              ProjectsService.instance.createProjectUseCase,
-              ProjectsService.instance.getProjectDetailUseCase,
-              ProjectsService.instance.updateProjectUseCase,
-            )..add(const LoadProjects()),
-          ),
-          BlocProvider<ProposalsBloc>(
-            create: (_) => ProposalsBloc(
-              ProposalsService.instance.getReceivedProposalsUseCase,
-              ProposalsService.instance.acceptProposalUseCase,
-            )..add(const LoadReceivedProposals()),
-          ),
-          BlocProvider<CatalogBloc>(
-            create: (_) => CatalogBloc(
-              CatalogService.instance.getCatalogMaterialsUseCase,
-            )..add(const LoadCatalogProducts()),
-          ),
-        ],
-        child: const MaterialApp(home: AppShell(initialRole: UserRole.client)),
+      withRepositories(
+        withAppBlocs(
+          const MaterialApp(home: AppShell(initialRole: UserRole.client)),
+        ),
       ),
     );
     await tester.pumpAndSettle();

@@ -1,4 +1,4 @@
-import 'kit/kit.dart';
+import '../../../core/design_system/design_system.dart';
 
 /// Proyecto resumido en tarjetas de inicio.
 class ProProjectSummary {
@@ -41,7 +41,7 @@ abstract final class ContractorHomeMock {
     title: 'Remodelación de cocina',
     category: 'Remodelación interior',
     location: 'Medellín, Antioquia',
-    image: ProAssets.kitchen,
+    image: AppImages.proKitchen,
     badge: 'Nuevo',
   );
 
@@ -49,7 +49,7 @@ abstract final class ContractorHomeMock {
     title: 'Pintura exterior fachada',
     category: 'Pintura exterior',
     location: 'Cali, Valle del Cauca',
-    image: ProAssets.facade,
+    image: AppImages.proFacade,
     stagesDone: 2,
     stagesTotal: 4,
     progress: 60 / 188,

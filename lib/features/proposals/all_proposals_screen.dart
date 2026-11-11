@@ -10,7 +10,9 @@ import '../agreements/agreements_screens.dart';
 import '../projects/presentation/bloc/projects_bloc.dart';
 import 'presentation/bloc/proposals_bloc.dart';
 import 'proposal_detail_screen.dart';
-import 'proposals_service.dart';
+import 'domain/repositories/proposal_repository.dart';
+import 'domain/usecases/accept_proposal_usecase.dart';
+import 'domain/usecases/get_received_proposals_usecase.dart';
 import 'widgets/proposal_card.dart';
 
 /// Destino global "Cotizaciones" del menú Más: agrupa cotizaciones por proyecto.
@@ -31,9 +33,10 @@ class _AllProposalsScreenState extends State<AllProposalsScreen> {
     try {
       return context.read<ProposalsBloc>();
     } catch (_) {
+      final repository = context.read<ProposalRepository>();
       return _localBloc ??= ProposalsBloc(
-        ProposalsService.instance.getReceivedProposalsUseCase,
-        ProposalsService.instance.acceptProposalUseCase,
+        GetReceivedProposalsUseCase(repository),
+        AcceptProposalUseCase(repository),
       );
     }
   }

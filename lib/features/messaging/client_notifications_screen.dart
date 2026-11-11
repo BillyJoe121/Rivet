@@ -32,14 +32,17 @@ class ClientNotificationsScreen extends StatelessWidget {
       return const _ClientNotificationsView();
     } catch (_) {
       return BlocProvider<MessagingBloc>(
-        create: (_) => MessagingBloc(
-          MessagingService.instance.getConversationsUseCase,
-          MessagingService.instance.sendChatMessageUseCase,
-          MessagingService.instance.sendCounterOfferUseCase,
-          MessagingService.instance.respondCounterOfferUseCase,
-          MessagingService.instance.getClientNotificationsUseCase,
-          MessagingService.instance.markNotificationReadUseCase,
-        )..add(const LoadMessagingData()),
+        create: (context) {
+          final repository = context.read<MessagingRepository>();
+          return MessagingBloc(
+            GetConversationsUseCase(repository),
+            SendChatMessageUseCase(repository),
+            SendCounterOfferUseCase(repository),
+            RespondCounterOfferUseCase(repository),
+            GetClientNotificationsUseCase(repository),
+            MarkNotificationReadUseCase(repository),
+          )..add(const LoadMessagingData());
+        },
         child: const _ClientNotificationsView(),
       );
     }

@@ -3,10 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../core/utils/validators.dart';
-import '../../core/widgets/app_back_button.dart';
-import '../projects/widgets/client_kit/client_kit.dart';
-import 'auth_service.dart';
+import '../../core/design_system/design_system.dart';
+import 'domain/repositories/auth_repository.dart';
+import 'domain/usecases/usecases.dart';
 import 'presentation/bloc/forgot_password/forgot_password_bloc.dart';
 import 'widgets/forgot_password_cards.dart';
 
@@ -37,7 +36,7 @@ class ForgotPasswordScreen extends StatelessWidget {
     } catch (_) {
       return BlocProvider<ForgotPasswordBloc>(
         create: (_) => ForgotPasswordBloc(
-          AuthService.instance.sendPasswordResetUseCase,
+          SendPasswordResetUseCase(context.read<AuthRepository>()),
         ),
         child: const _ForgotPasswordView(),
       );
@@ -65,7 +64,7 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    precacheImage(const AssetImage(RvImages.mailEnvelope), context);
+    precacheImage(const AssetImage(AppImages.mailEnvelope), context);
   }
 
   @override
@@ -104,14 +103,14 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView>
       ..showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: RvColors.ink900,
+          backgroundColor: AppColors.ink900,
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 5),
           shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              RoundedRectangleBorder(borderRadius: AppSpacing.roundedSm),
           action: SnackBarAction(
             label: 'OK',
-            textColor: const Color(0xFFEAF5F0),
+            textColor: AppColors.snackActionInk,
             onPressed: () =>
                 ScaffoldMessenger.of(context).hideCurrentSnackBar(),
           ),
@@ -134,25 +133,25 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView>
         final sentTo = state.sentToEmail ?? _emailController.text.trim();
 
         return Scaffold(
-          backgroundColor: RvColors.surface0,
+          backgroundColor: AppColors.surface0,
           body: Stack(
             children: [
               Positioned(
                 top: 0,
                 left: 0,
                 right: 0,
-                height: 380,
+                height: AppSpacing.forgotHeroHeight,
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 500),
                   switchInCurve: Curves.easeOutCubic,
                   child: Image.asset(
                     isSubmitted
-                        ? RvImages.mailEnvelope
-                        : RvImages.headerPrivacy,
+                        ? AppImages.mailEnvelope
+                        : AppImages.headerPrivacy,
                     key: ValueKey(isSubmitted),
                     fit: BoxFit.cover,
                     width: double.infinity,
-                    height: 380,
+                    height: AppSpacing.forgotHeroHeight,
                     alignment: isSubmitted
                         ? const Alignment(0.2, 0)
                         : Alignment.centerRight,
@@ -163,25 +162,30 @@ class _ForgotPasswordViewState extends State<_ForgotPasswordView>
                 bottom: false,
                 child: SingleChildScrollView(
                   physics: const ClampingScrollPhysics(),
-                  padding: EdgeInsets.only(bottom: bottomInset + 24),
+                  padding: EdgeInsets.only(bottom: bottomInset + AppSpacing.xxl),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: EdgeInsets.fromLTRB(22, 8, 30, 0),
+                          padding: EdgeInsets.fromLTRB(
+                            AppSpacing.screenGutter,
+                            AppSpacing.sm,
+                            AppSpacing.space30,
+                            0,
+                          ),
                           child: AppBackButton(),
                         ),
                       ),
-                      const SizedBox(height: 192),
+                      const SizedBox(height: AppSpacing.forgotCardOffset),
                       AnimatedBuilder(
                         animation: _shakeController,
                         builder: (context, child) {
                           final offset = math.sin(
                                 _shakeController.value * math.pi * 4,
                               ) *
-                              8.0;
+                              AppSpacing.shakeDistance;
                           return Transform.translate(
                             offset: Offset(offset, 0),
                             child: child,

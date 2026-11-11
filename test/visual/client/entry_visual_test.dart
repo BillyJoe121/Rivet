@@ -3,6 +3,7 @@ import 'package:rivet/features/auth/login_screen.dart';
 import 'package:rivet/features/auth/signup_screen.dart';
 import 'package:rivet/features/onboarding/welcome_screen.dart';
 
+import '../../helpers/auth_test_harness.dart';
 import 'client_harness.dart';
 
 void main() {
@@ -13,10 +14,10 @@ void main() {
   });
 
   testWidgets('93:56 login', skip: harnessSkipReason != null, (tester) async {
-    await renderFrame(tester, const LoginScreen(), name: '93-56');
+    await renderFrame(tester, withAuth(const LoginScreen()), name: '93-56');
   });
 
   testWidgets('11:196 signup', skip: harnessSkipReason != null, (tester) async {
-    await renderFrame(tester, const SignupScreen(), name: '11-196');
+    await renderFrame(tester, withAuth(const SignupScreen()), name: '11-196');
   });
 }

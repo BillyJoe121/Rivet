@@ -40,13 +40,14 @@ class _ProjectChatScreenState extends State<ProjectChatScreen> {
     try {
       return context.read<MessagingBloc>();
     } catch (_) {
+      final repository = context.read<MessagingRepository>();
       return MessagingBloc(
-        MessagingService.instance.getConversationsUseCase,
-        MessagingService.instance.sendChatMessageUseCase,
-        MessagingService.instance.sendCounterOfferUseCase,
-        MessagingService.instance.respondCounterOfferUseCase,
-        MessagingService.instance.getClientNotificationsUseCase,
-        MessagingService.instance.markNotificationReadUseCase,
+        GetConversationsUseCase(repository),
+        SendChatMessageUseCase(repository),
+        SendCounterOfferUseCase(repository),
+        RespondCounterOfferUseCase(repository),
+        GetClientNotificationsUseCase(repository),
+        MarkNotificationReadUseCase(repository),
       )..add(const LoadMessagingData());
     }
   }

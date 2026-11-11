@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../core/widgets/app_back_button.dart';
-import 'rv_tokens.dart';
+import 'app_back_button.dart';
+import '../theme/theme.dart';
 
 /// Cabecera de pantalla de Figma: [AppBackButton] común (caja de 48×48) y
 /// título Lora 600 28/33.6. Debajo admite contenido extra ([children]).
@@ -56,7 +56,7 @@ class RvHeader extends StatelessWidget {
         ),
       Padding(
         padding: EdgeInsets.only(left: bleed),
-        child: Text(title, style: titleStyle ?? RvText.pageTitle),
+        child: Text(title, style: titleStyle ?? AppTypography.pageTitle),
       ),
       ...children.map((c) => Padding(padding: EdgeInsets.only(left: bleed), child: c)),
     ];

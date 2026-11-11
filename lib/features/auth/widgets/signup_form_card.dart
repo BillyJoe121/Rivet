@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/models/models.dart';
-import '../../projects/widgets/client_kit/client_kit.dart';
+import '../../../core/design_system/design_system.dart';
 import 'auth_widgets.dart';
 import 'signup_parts.dart';
 
@@ -58,15 +58,15 @@ class PasswordStrengthMeter extends StatelessWidget {
     ].where((b) => b).length;
 
     final (color, label) = switch (score) {
-      1 => (const Color(0xFFE02424), 'Muy débil'),
-      2 => (const Color(0xFFFF5A1F), 'Débil'),
-      3 => (const Color(0xFFD97706), 'Aceptable'),
-      4 => (const Color(0xFF0E9F6E), 'Contraseña segura'),
-      _ => (const Color(0xFFE02424), 'Muy débil'),
+      1 => (AppColors.passwordVeryWeak, 'Muy débil'),
+      2 => (AppColors.passwordWeak, 'Débil'),
+      3 => (AppColors.passwordFair, 'Aceptable'),
+      4 => (AppColors.passwordStrong, 'Contraseña segura'),
+      _ => (AppColors.passwordVeryWeak, 'Muy débil'),
     };
 
     return Padding(
-      padding: const EdgeInsets.only(top: 8, bottom: 4),
+      padding: const EdgeInsets.only(top: AppSpacing.sm, bottom: AppSpacing.xs),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -77,19 +77,19 @@ class PasswordStrengthMeter extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 250),
                     curve: Curves.easeOutCubic,
-                    height: 4,
-                    margin: EdgeInsets.only(right: i < 4 ? 4 : 0),
+                    height: AppSpacing.xs,
+                    margin: EdgeInsets.only(right: i < 4 ? AppSpacing.xs : 0),
                     decoration: BoxDecoration(
-                      color: i <= score ? color : const Color(0xFFE5E7EB),
-                      borderRadius: BorderRadius.circular(2),
+                      color: i <= score ? color : AppColors.gray200,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusXxs),
                     ),
                   ),
                 ),
               ],
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.sm),
               Text(
                 label,
-                style: rvText(
+                style: AppTypography.style(
                   11,
                   weight: FontWeight.w600,
                   color: color,
@@ -98,10 +98,10 @@ class PasswordStrengthMeter extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: AppSpacing.space6),
           Wrap(
-            spacing: 6,
-            runSpacing: 4,
+            spacing: AppSpacing.space6,
+            runSpacing: AppSpacing.xs,
             children: [
               _CriterionChip('8+ car.', hasMinLength),
               _CriterionChip('Mayús.', hasUpper),
@@ -125,13 +125,16 @@ class _CriterionChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.space6,
+        vertical: AppSpacing.xxs,
+      ),
       decoration: BoxDecoration(
-        color: met ? const Color(0xFFDEF7EC) : const Color(0xFFF3F4F6),
-        borderRadius: BorderRadius.circular(4),
+        color: met ? AppColors.passwordRuleMetFill : AppColors.gray100,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
         border: Border.all(
-          color: met ? const Color(0xFF31C48D) : const Color(0xFFE5E7EB),
-          width: 0.8,
+          color: met ? AppColors.passwordRuleMetBorder : AppColors.gray200,
+          width: AppSpacing.strokeChip,
         ),
       ),
       child: Row(
@@ -139,16 +142,16 @@ class _CriterionChip extends StatelessWidget {
         children: [
           Icon(
             met ? Icons.check_circle_rounded : Icons.radio_button_unchecked,
-            size: 11,
-            color: met ? const Color(0xFF0E9F6E) : const Color(0xFF9CA3AF),
+            size: AppSpacing.iconXxs,
+            color: met ? AppColors.passwordStrong : AppColors.gray400,
           ),
-          const SizedBox(width: 3),
+          const SizedBox(width: AppSpacing.space3),
           Text(
             text,
-            style: rvText(
+            style: AppTypography.style(
               10,
               weight: FontWeight.w500,
-              color: met ? const Color(0xFF03543F) : const Color(0xFF6B7280),
+              color: met ? AppColors.passwordRuleMetInk : AppColors.gray500,
               lineHeight: 12,
             ),
           ),
@@ -230,11 +233,11 @@ class _SignupFormCardState extends State<SignupFormCard> {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: Color(0xD6FFFFFF),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        color: AppColors.surfaceFrosted,
+        borderRadius: AppSpacing.roundedSheetTop,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -242,27 +245,27 @@ class _SignupFormCardState extends State<SignupFormCard> {
               firstChild: const SizedBox.shrink(),
               secondChild: widget.errorMessage != null
                   ? Container(
-                      padding: const EdgeInsets.all(12),
-                      margin: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      margin: const EdgeInsets.only(bottom: AppSpacing.md),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFFDE8E8),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: const Color(0xFFF8B4B4)),
+                        color: AppColors.errorSurface,
+                        borderRadius: AppSpacing.roundedSm,
+                        border: Border.all(color: AppColors.errorBorder),
                       ),
                       child: Row(
                         children: [
                           const Icon(
                             Icons.error_outline,
-                            color: Color(0xFF9B1C1C),
-                            size: 20,
+                            color: AppColors.errorInk,
+                            size: AppSpacing.iconMd,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: AppSpacing.sm),
                           Expanded(
                             child: Text(
                               widget.errorMessage ?? '',
-                              style: rvText(
+                              style: AppTypography.style(
                                 13,
-                                color: const Color(0xFF9B1C1C),
+                                color: AppColors.errorInk,
                                 lineHeight: 16,
                               ),
                             ),
@@ -272,8 +275,8 @@ class _SignupFormCardState extends State<SignupFormCard> {
                               onTap: widget.onDismissError,
                               child: const Icon(
                                 Icons.close,
-                                size: 16,
-                                color: Color(0xFF9B1C1C),
+                                size: AppSpacing.iconXs,
+                                color: AppColors.errorInk,
                               ),
                             ),
                         ],
@@ -304,7 +307,7 @@ class _SignupFormCardState extends State<SignupFormCard> {
                   curve: Curves.easeOutCubic,
                 )
                 .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             SignupField(
                   focusNode: widget.emailFocusNode,
                   icon: RvIcons.correoElectronico,
@@ -325,7 +328,7 @@ class _SignupFormCardState extends State<SignupFormCard> {
                   curve: Curves.easeOutCubic,
                 )
                 .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             SignupField(
                   focusNode: widget.phoneFocusNode,
                   icon: RvIcons.phone,
@@ -351,7 +354,7 @@ class _SignupFormCardState extends State<SignupFormCard> {
                   curve: Curves.easeOutCubic,
                 )
                 .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.sm),
             SignupField(
                   focusNode: widget.passwordFocusNode,
                   icon: RvIcons.contrasena,
@@ -368,10 +371,10 @@ class _SignupFormCardState extends State<SignupFormCard> {
                     behavior: HitTestBehavior.opaque,
                     onTap: widget.onToggleObscure,
                     child: Padding(
-                      padding: const EdgeInsets.all(4),
+                      padding: const EdgeInsets.all(AppSpacing.xs),
                       child: RvIcon(
                         widget.obscurePassword ? RvIcons.eye : RvIcons.eyeOff,
-                        color: AuthColors.mutedInk,
+                        color: AppColors.fieldLabel,
                       ),
                     ),
                   ),
@@ -388,7 +391,7 @@ class _SignupFormCardState extends State<SignupFormCard> {
               delay: 250.ms,
               curve: Curves.easeOutCubic,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.lg),
             AccountTypeSelector(
                   selected: widget.selectedRole,
                   onChanged: widget.onRoleChanged,
@@ -400,10 +403,10 @@ class _SignupFormCardState extends State<SignupFormCard> {
                   curve: Curves.easeOutCubic,
                 )
                 .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.xl),
             AuthGradientButton(
                   label: 'Crear cuenta',
-                  height: 56,
+                  height: AppSpacing.authCompactButtonHeight,
                   isLoading: widget.isLoading,
                   onPressed: widget.onSignup,
                 )

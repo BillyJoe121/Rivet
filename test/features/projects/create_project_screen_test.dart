@@ -10,6 +10,8 @@ import 'package:rivet/features/projects/domain/usecases/update_project_usecase.d
 import 'package:rivet/features/projects/presentation/bloc/projects_bloc.dart';
 import 'package:rivet/features/projects/project_detail_screen.dart';
 
+import '../../helpers/repositories_test_harness.dart';
+
 class MockProjectRepository implements ProjectRepository {
   Project? lastCreated;
 
@@ -66,7 +68,10 @@ void main() {
       );
 
       await tester.pumpWidget(
-        MaterialApp(home: CreateProjectScreen(projectsBloc: bloc)),
+        withRepositories(
+          MaterialApp(home: CreateProjectScreen(projectsBloc: bloc)),
+          projects: repo,
+        ),
       );
       await tester.pumpAndSettle();
 

@@ -3,18 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../projects/widgets/client_kit/client_kit.dart';
-
-/// Colores propios de las pantallas de acceso (Figma 93:56 y 11:196).
-abstract final class AuthColors {
-  static const fieldStroke = Color(0xFFE7E8E1);
-  static const iconTile = Color(0xFFF2F0EB);
-  static const softTile = Color(0xFFF3F4F0);
-  static const labelInk = Color(0xFF142D3D);
-  static const mutedInk = Color(0xFF607587);
-  // Contraste mejorado para accesibilidad WCAG 2.2
-  static const placeholder = Color(0xFF6E7E8B);
-}
+import '../../../core/design_system/design_system.dart';
 
 /// Botón principal de acceso con física de pulsación táctil, soporte de carga y micro-animaciones.
 class AuthGradientButton extends StatefulWidget {
@@ -22,7 +11,7 @@ class AuthGradientButton extends StatefulWidget {
     super.key,
     required this.label,
     required this.onPressed,
-    this.height = 60,
+    this.height = AppSpacing.authButtonHeight,
     this.isLoading = false,
   });
 
@@ -71,68 +60,62 @@ class _AuthGradientButtonState extends State<AuthGradientButton> {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(32),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusPillButton),
               onTap: widget.isLoading ? null : widget.onPressed,
-              splashColor: Colors.white.withValues(alpha: 0.15),
-              highlightColor: Colors.white.withValues(alpha: 0.08),
+              splashColor: AppColors.surface0.withValues(alpha: 0.15),
+              highlightColor: AppColors.surface0.withValues(alpha: 0.08),
               child: Ink(
                 height: widget.height,
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
                 decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(32),
+                  borderRadius: BorderRadius.circular(AppSpacing.radiusPillButton),
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: const Alignment(0.7, 1),
                     colors: widget.isLoading
                         ? [
-                            const Color(0xFF1A6B63),
-                            const Color(0xFF064F48),
-                            const Color(0xFF002B27),
+                            AppColors.buttonPressedTop,
+                            AppColors.buttonPressedMid,
+                            AppColors.buttonPressedEnd,
                           ]
                         : [
-                            const Color(0xFF278D82),
-                            const Color(0xFF08655D),
-                            const Color(0xFF003D38),
+                            AppColors.buttonGradientTop,
+                            AppColors.buttonGradientMid,
+                            AppColors.brandGradientEnd,
                           ],
                     stops: const [0, 0.46, 1],
                   ),
-                  boxShadow: const [
-                    BoxShadow(
-                      color: Color(0x1F004E49),
-                      offset: Offset(0, 5),
-                      blurRadius: 16,
-                    ),
-                  ],
+                  boxShadow: AppSpacing.shadowBrand,
                 ),
                 child: Row(
                   children: [
-                    const SizedBox(width: 32),
+                    const SizedBox(width: AppSpacing.iconTileSize),
                     Expanded(
                       child: widget.isLoading
                           ? const Center(
                               child: SizedBox(
-                                width: 22,
-                                height: 22,
+                                width: AppSpacing.iconLg,
+                                height: AppSpacing.iconLg,
                                 child: CircularProgressIndicator(
-                                  strokeWidth: 2.5,
-                                  color: RvColors.surface0,
+                                  strokeWidth: AppSpacing.strokeSpinner,
+                                  color: AppColors.surface0,
                                 ),
                               ),
                             )
                           : Text(
                               widget.label,
                               textAlign: TextAlign.center,
-                              style: rvText(
+                              style: AppTypography.style(
                                 17,
                                 weight: FontWeight.w600,
                                 lineHeight: 19.92,
-                                color: RvColors.surface0,
+                                color: AppColors.surface0,
                               ),
                             ),
                     ),
                     SizedBox(
-                      width: 32,
-                      height: 32,
+                      width: AppSpacing.iconTileSize,
+                      height: AppSpacing.iconTileSize,
                       // El chevrón avanza al presionar y regresa al soltar.
                       child: AnimatedSlide(
                         offset: _isPressed
@@ -142,8 +125,8 @@ class _AuthGradientButtonState extends State<AuthGradientButton> {
                         curve: Curves.easeOutCubic,
                         child: const Icon(
                           LucideIcons.chevronRight,
-                          size: 22,
-                          color: RvColors.surface0,
+                          size: AppSpacing.iconLg,
+                          color: AppColors.surface0,
                         ),
                       ),
                     ),
@@ -157,7 +140,7 @@ class _AuthGradientButtonState extends State<AuthGradientButton> {
     ).animate().shimmer(
       delay: const Duration(milliseconds: 900),
       duration: const Duration(milliseconds: 1400),
-      color: Colors.white.withValues(alpha: 0.15),
+      color: AppColors.surface0.withValues(alpha: 0.15),
     );
   }
 }
@@ -190,7 +173,7 @@ class AuthInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = rvText(15, lineHeight: 17.58, color: AuthColors.labelInk);
+    final style = AppTypography.style(15, lineHeight: 17.58, color: AppColors.inputInk);
     return TextField(
       controller: controller,
       focusNode: focusNode,
@@ -202,9 +185,9 @@ class AuthInput extends StatelessWidget {
       onChanged: onChanged,
       onSubmitted: onSubmitted,
       style: style,
-      cursorColor: RvColors.brand700,
-      cursorWidth: 2.0,
-      cursorRadius: const Radius.circular(2.0),
+      cursorColor: AppColors.brand700,
+      cursorWidth: AppSpacing.cursorWidth,
+      cursorRadius: const Radius.circular(AppSpacing.radiusXxs),
       decoration: InputDecoration(
         isCollapsed: true,
         filled: false,
@@ -216,7 +199,7 @@ class AuthInput extends StatelessWidget {
         errorBorder: InputBorder.none,
         focusedErrorBorder: InputBorder.none,
         hintText: hint,
-        hintStyle: style.copyWith(color: AuthColors.placeholder),
+        hintStyle: style.copyWith(color: AppColors.inputPlaceholder),
       ),
     );
   }

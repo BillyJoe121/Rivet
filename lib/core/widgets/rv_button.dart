@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import 'rv_icon_data.dart';
-import 'rv_icons.dart';
-import 'rv_tokens.dart';
+import 'icons/rv_icon_data.dart';
+import 'icons/rv_icons.dart';
+import '../theme/theme.dart';
 
 enum RvButtonVariant { primary, outline }
 
@@ -36,7 +36,7 @@ class RvButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final primary = variant == RvButtonVariant.primary;
-    final fg = primary ? RvColors.surface0 : RvColors.brand700;
+    final fg = primary ? AppColors.surface0 : AppColors.brand700;
     return Semantics(
       button: true,
       enabled: onPressed != null,
@@ -48,10 +48,10 @@ class RvButton extends StatelessWidget {
           height: height,
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
           decoration: BoxDecoration(
-            gradient: primary ? RvColors.brandGradient : null,
-            color: primary ? null : RvColors.paper100,
-            borderRadius: BorderRadius.circular(RvRadii.button),
-            border: primary ? null : Border.all(color: RvColors.brand700, width: 1),
+            gradient: primary ? AppColors.brandGradientDiagonal : null,
+            color: primary ? null : AppColors.paper100,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusButton),
+            border: primary ? null : Border.all(color: AppColors.brand700, width: 1),
           ),
           child: Row(
             children: [
@@ -60,7 +60,7 @@ class RvButton extends StatelessWidget {
                   label,
                   textAlign: TextAlign.center,
                   maxLines: 1,
-                  style: textStyle ?? RvText.button.copyWith(color: fg),
+                  style: textStyle ?? AppTypography.buttonLarge.copyWith(color: fg),
                 ),
               ),
               if (showChevron) RvIcon(RvIcons.chevronRight, size: chevronSize, color: fg),

@@ -6,12 +6,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/models/models.dart';
-import '../../core/utils/app_page_route.dart';
-import '../../core/utils/validators.dart';
-import '../../core/widgets/app_back_button.dart';
 import '../home/app_shell.dart';
-import '../projects/widgets/client_kit/client_kit.dart';
-import 'auth_service.dart';
+import '../../core/design_system/design_system.dart';
+import 'domain/repositories/auth_repository.dart';
+import 'domain/usecases/usecases.dart';
+import 'presentation/bloc/auth/auth_bloc.dart';
 import 'forgot_password_screen.dart';
 import 'presentation/bloc/login/login_bloc.dart';
 import 'signup_screen.dart';
@@ -45,7 +44,7 @@ class LoginScreen extends StatelessWidget {
       return _LoginView(role: role);
     } catch (_) {
       return BlocProvider<LoginBloc>(
-        create: (_) => LoginBloc(AuthService.instance.signInUseCase),
+        create: (_) => LoginBloc(SignInUseCase(context.read<AuthRepository>())),
         child: _LoginView(role: role),
       );
     }
@@ -166,6 +165,7 @@ class _LoginViewState extends State<_LoginView>
     return BlocConsumer<LoginBloc, LoginState>(
       listener: (context, state) {
         if (state.isSuccess && state.user != null) {
+          context.read<AuthBloc>().add(AuthUserChanged(state.user));
           AppNavigator.pushAndRemoveUntil(
             context,
             AppShell(initialRole: state.user!.role),
@@ -178,37 +178,37 @@ class _LoginViewState extends State<_LoginView>
         final activeError = _errorMessage ?? state.errorMessage;
 
         return Scaffold(
-          backgroundColor: RvColors.surface0,
+          backgroundColor: AppColors.surface0,
           body: LayoutBuilder(
             builder: (context, constraints) => SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: ColoredBox(
-                  color: RvColors.surface0,
+                  color: AppColors.surface0,
                   child: Stack(
                     children: [
                       Positioned(
                         top: 0,
                         left: 0,
                         right: 0,
-                        height: 340,
+                        height: AppSpacing.authHeroHeight,
                         child: Image.asset(
-                          RvImages.loginScandinavian,
+                          AppImages.loginScandinavian,
                           fit: BoxFit.cover,
                         ),
                       ),
                       const Positioned(
-                        top: 200,
+                        top: AppSpacing.authHeroFadeTop,
                         left: 0,
                         right: 0,
-                        height: 160,
+                        height: AppSpacing.authHeroFadeHeight,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Color(0x00FAF8F3), RvColors.surface0],
+                              colors: [AppColors.paperTransparent, AppColors.surface0],
                             ),
                           ),
                         ),
@@ -217,22 +217,27 @@ class _LoginViewState extends State<_LoginView>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Padding(
-                            padding: EdgeInsets.fromLTRB(22, topInset + 8, 30, 0),
+                            padding: EdgeInsets.fromLTRB(
+                              AppSpacing.screenGutter,
+                              topInset + AppSpacing.sm,
+                              AppSpacing.space30,
+                              0,
+                            ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const AppBackButton(),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: AppSpacing.space10),
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 8),
+                                  padding: const EdgeInsets.only(left: AppSpacing.sm),
                                   child: Text(
                                     'Rivet',
-                                    style: rvText(
+                                    style: AppTypography.style(
                                       38,
                                       weight: FontWeight.w700,
                                       lineHeight: 48.64,
-                                      color: RvColors.brand700,
-                                      family: RvFonts.serif,
+                                      color: AppColors.brand700,
+                                      family: AppTypography.serif,
                                     ),
                                   )
                                       .animate()
@@ -249,14 +254,14 @@ class _LoginViewState extends State<_LoginView>
                               ],
                             ),
                           ),
-                          const SizedBox(height: 110),
+                          const SizedBox(height: AppSpacing.authCardOffset),
                           AnimatedBuilder(
                             animation: _shakeController,
                             builder: (context, child) {
                               final offset = math.sin(
                                     _shakeController.value * math.pi * 4,
                                   ) *
-                                  8.0;
+                                  AppSpacing.shakeDistance;
                               return Transform.translate(
                                 offset: Offset(offset, 0),
                                 child: child,
@@ -297,7 +302,7 @@ class _LoginViewState extends State<_LoginView>
                                 end: 0,
                                 curve: Curves.easeOutCubic,
                               ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: AppSpacing.xxl),
                         ],
                       ),
                     ],

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rivet/features/projects/widgets/client_kit/client_kit.dart';
+import 'package:rivet/core/design_system/design_system.dart';
 
 const Size kFigmaFrameSize = Size(412, 868);
 const String kVisualOutputDir = 'build/visual/client';
@@ -56,7 +56,7 @@ Future<File> renderFrame(
   EdgeInsets systemPadding = kFigmaSystemPadding,
   bool statusBar = true,
   bool gestureBar = true,
-  Color statusInk = RvColors.statusInk,
+  Color statusInk = AppColors.statusInk,
   double pixelRatio = 2,
 }) async {
   await tester.runAsync(loadHarnessFonts);
@@ -148,7 +148,7 @@ Future<void> _settle(WidgetTester tester) async {
 
 /// Barra de estado Android de los frames (alto 36, padding 25).
 class FigmaStatusBar extends StatelessWidget {
-  const FigmaStatusBar({super.key, this.ink = RvColors.statusInk});
+  const FigmaStatusBar({super.key, this.ink = AppColors.statusInk});
 
   final Color ink;
 
@@ -161,7 +161,7 @@ class FigmaStatusBar extends StatelessWidget {
           Positioned(
             left: 25,
             top: 9.5,
-            child: Text('9:41', style: rvText(14, weight: FontWeight.w600, lineHeight: 16.8, color: ink)),
+            child: Text('9:41', style: AppTypography.style(14, weight: FontWeight.w600, lineHeight: 16.8, color: ink)),
           ),
           Positioned(
             left: 201.5,
@@ -201,7 +201,7 @@ class FigmaGestureIndicator extends StatelessWidget {
         child: Container(
           width: 108,
           height: 4,
-          decoration: BoxDecoration(color: RvColors.gestureBar, borderRadius: BorderRadius.circular(2)),
+          decoration: BoxDecoration(color: AppColors.gestureBar, borderRadius: BorderRadius.circular(2)),
         ),
       ),
     );

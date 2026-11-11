@@ -46,10 +46,6 @@ class AppTextField extends StatefulWidget {
   State<AppTextField> createState() => _AppTextFieldState();
 }
 
-// Colores medidos del campo que no tienen token propio en el tema.
-const Color _fieldBorder = Color(0xFFE7E8E1); // Borde del campo
-const Color _fieldLabel = Color(0xFF607587); // Etiqueta e icono de ojo
-
 class _AppTextFieldState extends State<AppTextField> {
   bool _obscureText = true;
   TextEditingController? _localController;
@@ -94,7 +90,7 @@ class _AppTextFieldState extends State<AppTextField> {
         ? AppColors.danger700
         : _focusNode.hasFocus
             ? AppColors.brand700
-            : _fieldBorder;
+            : AppColors.fieldBorder;
 
     final borderWidth = _focusNode.hasFocus ? 1.5 : AppSpacing.strokeDivider;
 
@@ -149,7 +145,7 @@ class _AppTextFieldState extends State<AppTextField> {
             child: Icon(
               _obscureText ? LucideIcons.eye : LucideIcons.eyeOff,
               size: 24,
-              color: _fieldLabel,
+              color: AppColors.fieldLabel,
             ),
           ),
         ),
@@ -196,7 +192,7 @@ class _AppTextFieldState extends State<AppTextField> {
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       height: 15.2 / 13,
-                      color: _fieldLabel,
+                      color: AppColors.fieldLabel,
                     ),
                   ),
                   const SizedBox(height: 3),

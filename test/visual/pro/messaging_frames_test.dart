@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rivet/features/home/widgets/kit/kit.dart';
+import 'package:rivet/core/design_system/design_system.dart';
 import 'package:rivet/features/messaging/notifications_screen.dart';
 
 import 'pro_harness.dart';

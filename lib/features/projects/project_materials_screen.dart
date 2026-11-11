@@ -9,7 +9,8 @@ import '../../core/widgets/widgets.dart';
 import '../supplier/material_price_tier.dart';
 import '../supplier/materials_catalog_screen.dart';
 import 'presentation/bloc/projects_bloc.dart';
-import 'projects_service.dart';
+import 'domain/repositories/project_repository.dart';
+import 'domain/usecases/usecases.dart';
 
 /// Lista editable de materiales de un proyecto para el cliente (P-014).
 class ProjectMaterialsScreen extends StatelessWidget {
@@ -44,12 +45,15 @@ class ProjectMaterialsScreen extends StatelessWidget {
       );
     } catch (_) {
       return BlocProvider<ProjectsBloc>(
-        create: (_) => ProjectsBloc(
-          ProjectsService.instance.getMyProjectsUseCase,
-          ProjectsService.instance.createProjectUseCase,
-          ProjectsService.instance.getProjectDetailUseCase,
-          ProjectsService.instance.updateProjectUseCase,
-        )..add(const LoadProjects()),
+        create: (context) {
+          final repository = context.read<ProjectRepository>();
+          return ProjectsBloc(
+            GetMyProjectsUseCase(repository),
+            CreateProjectUseCase(repository),
+            GetProjectDetailUseCase(repository),
+            UpdateProjectUseCase(repository),
+          )..add(const LoadProjects());
+        },
         child: _ProjectMaterialsView(
           projectId: projectId,
           initialProject: initialProject,

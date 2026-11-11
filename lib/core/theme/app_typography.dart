@@ -247,4 +247,147 @@ abstract final class AppTypography {
     leadingDistribution: TextLeadingDistribution.even,
     color: AppColors.ink900,
   );
+
+  static const TextStyle sectionHeading = TextStyle(
+    fontFamily: sans,
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    height: 18 / 15,
+    letterSpacing: 0,
+    leadingDistribution: TextLeadingDistribution.even,
+    color: AppColors.ink900,
+  );
+
+  static const TextStyle fieldText = TextStyle(
+    fontFamily: sans,
+    fontSize: 13,
+    fontWeight: FontWeight.w400,
+    height: 17.55 / 13,
+    letterSpacing: 0,
+    leadingDistribution: TextLeadingDistribution.even,
+    color: AppColors.ink500,
+  );
+
+  static const TextStyle buttonLarge = TextStyle(
+    fontFamily: sans,
+    fontSize: 14,
+    fontWeight: FontWeight.w600,
+    height: 16.8 / 14,
+    letterSpacing: 0,
+    leadingDistribution: TextLeadingDistribution.even,
+  );
+
+  /// Construye un estilo con la caja de línea de Figma: alto de línea
+  /// absoluto ([lineHeight], por defecto 1.2 × [size]) y reparto uniforme del
+  /// interlineado arriba y abajo.
+  static TextStyle style(
+    double size, {
+    FontWeight weight = FontWeight.w400,
+    double? lineHeight,
+    Color color = AppColors.ink900,
+    String family = sans,
+  }) {
+    return TextStyle(
+      fontFamily: family,
+      fontSize: size,
+      fontWeight: weight,
+      height: (lineHeight ?? size * 1.2) / size,
+      leadingDistribution: TextLeadingDistribution.even,
+      letterSpacing: 0,
+      color: color,
+    );
+  }
+
+  /// Igual que [style], pero con el interlineado proporcional por defecto de
+  /// Flutter. Lo usan las pantallas del contratista, del proveedor y de la
+  /// cuenta, medidas con ese reparto.
+  static TextStyle proportional(
+    double size, {
+    FontWeight weight = FontWeight.w400,
+    Color color = AppColors.ink900,
+    double? lineHeight,
+    String family = sans,
+  }) {
+    return TextStyle(
+      fontFamily: family,
+      fontSize: size,
+      fontWeight: weight,
+      color: color,
+      height: (lineHeight ?? size * 1.2) / size,
+      letterSpacing: 0,
+    );
+  }
+
+  // Variantes con interlineado proporcional (ver [proportional]).
+  static const TextStyle wordmarkProportional = TextStyle(
+    fontFamily: serif,
+    fontSize: 30,
+    fontWeight: FontWeight.w600,
+    color: AppColors.brand700,
+    height: 36 / 30,
+    letterSpacing: 0,
+  );
+
+  static const TextStyle pageTitleProportional = TextStyle(
+    fontFamily: serif,
+    fontSize: 28,
+    fontWeight: FontWeight.w600,
+    color: AppColors.ink900,
+    height: 33.6 / 28,
+    letterSpacing: 0,
+  );
+
+  static const TextStyle serifTitleProportional = TextStyle(
+    fontFamily: serif,
+    fontSize: 18,
+    fontWeight: FontWeight.w600,
+    color: AppColors.ink900,
+    height: 21.6 / 18,
+    letterSpacing: 0,
+  );
+
+  static const TextStyle subheadingProportional = TextStyle(
+    fontFamily: sans,
+    fontSize: 15,
+    fontWeight: FontWeight.w600,
+    color: AppColors.ink900,
+    height: 18 / 15,
+    letterSpacing: 0,
+  );
+
+  static const TextStyle labelStrongProportional = TextStyle(
+    fontFamily: sans,
+    fontSize: 12,
+    fontWeight: FontWeight.w600,
+    color: AppColors.ink900,
+    height: 14.4 / 12,
+    letterSpacing: 0,
+  );
+
+  static const TextStyle buttonTextProportional = TextStyle(
+    fontFamily: sans,
+    fontSize: 12,
+    fontWeight: FontWeight.w600,
+    color: AppColors.surface0,
+    height: 14.4 / 12,
+    letterSpacing: 0,
+  );
+
+  static const TextStyle captionProportional = TextStyle(
+    fontFamily: sans,
+    fontSize: 11,
+    fontWeight: FontWeight.w400,
+    color: AppColors.ink500,
+    height: 13.2 / 11,
+    letterSpacing: 0,
+  );
+
+  static const TextStyle microProportional = TextStyle(
+    fontFamily: sans,
+    fontSize: 10,
+    fontWeight: FontWeight.w400,
+    color: AppColors.ink900,
+    height: 12 / 10,
+    letterSpacing: 0,
+  );
 }

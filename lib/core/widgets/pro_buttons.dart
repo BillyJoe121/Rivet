@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'pro_icon.dart';
-import 'pro_tokens.dart';
+import '../theme/theme.dart';
+import 'icons/pro_icon.dart';
 
 enum ProChevronDirection { left, right, down, up }
 
@@ -12,8 +12,8 @@ class ProChevron extends StatelessWidget {
     this.direction = ProChevronDirection.right,
     this.width = 6,
     this.height = 11,
-    this.color = ProColors.brand700,
-    this.strokeWidth = ProStroke.icon,
+    this.color = AppColors.brand700,
+    this.strokeWidth = AppSpacing.strokeIcon,
   });
 
   final ProChevronDirection direction;
@@ -79,9 +79,9 @@ class ProPrimaryButton extends StatelessWidget {
     this.height = 32,
     this.horizontalPadding = 14,
     this.labelStyle,
-    this.trailing = const ProChevron(color: ProColors.surface0),
+    this.trailing = const ProChevron(color: AppColors.surface0),
     this.gap = 6,
-    this.gradient = ProColors.brandGradient,
+    this.gradient = AppColors.brandGradientDiagonal,
     this.width,
   });
 
@@ -90,11 +90,11 @@ class ProPrimaryButton extends StatelessWidget {
     super.key,
     this.onTap,
     this.width,
-    this.gradient = ProColors.brandGradient,
+    this.gradient = AppColors.brandGradientDiagonal,
   })  : height = 48,
         horizontalPadding = 16,
         labelStyle = null,
-        trailing = const ProIcon(LucideIcon.chevronRight, size: 16, color: ProColors.surface0),
+        trailing = const ProIcon(LucideIcon.chevronRight, size: 16, color: AppColors.surface0),
         gap = 0;
 
   final String label;
@@ -111,8 +111,8 @@ class ProPrimaryButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = labelStyle ??
         (height >= 48
-            ? ProText.r(14, weight: FontWeight.w600, color: ProColors.surface0, lineHeight: 16.8)
-            : ProText.buttonText);
+            ? AppTypography.proportional(14, weight: FontWeight.w600, color: AppColors.surface0, lineHeight: 16.8)
+            : AppTypography.buttonTextProportional);
     return Semantics(
       button: true,
       child: GestureDetector(
@@ -121,7 +121,7 @@ class ProPrimaryButton extends StatelessWidget {
           width: width,
           height: height,
           padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
-          decoration: BoxDecoration(gradient: gradient, borderRadius: BorderRadius.circular(ProRadii.button)),
+          decoration: BoxDecoration(gradient: gradient, borderRadius: BorderRadius.circular(AppSpacing.radiusButton)),
           child: Row(
             children: [
               Expanded(child: Text(label, style: style, textAlign: TextAlign.center, maxLines: 1)),
@@ -142,9 +142,9 @@ class ProOutlineButton extends StatelessWidget {
     this.onTap,
     this.height = 32,
     this.labelStyle,
-    this.borderColor = ProColors.brand700,
+    this.borderColor = AppColors.brand700,
     this.borderWidth = 1,
-    this.background = ProColors.surface0,
+    this.background = AppColors.surface0,
     this.leading,
     this.trailing,
     this.width,
@@ -173,7 +173,7 @@ class ProOutlineButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 14),
           decoration: BoxDecoration(
             color: background,
-            borderRadius: BorderRadius.circular(ProRadii.button),
+            borderRadius: BorderRadius.circular(AppSpacing.radiusButton),
             border: Border.all(color: borderColor, width: borderWidth),
           ),
           child: Row(
@@ -183,7 +183,7 @@ class ProOutlineButton extends StatelessWidget {
               Flexible(
                 child: Text(
                   label,
-                  style: labelStyle ?? ProText.r(12, weight: FontWeight.w600, color: ProColors.brand700, lineHeight: 14.4),
+                  style: labelStyle ?? AppTypography.proportional(12, weight: FontWeight.w600, color: AppColors.brand700, lineHeight: 14.4),
                   textAlign: TextAlign.center,
                   maxLines: 1,
                 ),

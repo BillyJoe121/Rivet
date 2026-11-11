@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../projects/widgets/client_kit/client_kit.dart';
-import 'auth_widgets.dart';
+import '../../../core/design_system/design_system.dart';
 
 /// Pestañas "Iniciar sesión" / "Crear cuenta" (alto 60, padding horizontal 32).
 class LoginTabs extends StatelessWidget {
@@ -12,8 +11,8 @@ class LoginTabs extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 60,
-      padding: const EdgeInsets.symmetric(horizontal: 32),
+      height: AppSpacing.authButtonHeight,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxxl),
       child: Row(
         children: [
           IntrinsicWidth(
@@ -23,20 +22,20 @@ class LoginTabs extends StatelessWidget {
                 Text(
                   'Iniciar sesión',
                   maxLines: 1,
-                  style: rvText(
+                  style: AppTypography.style(
                     18,
                     weight: FontWeight.w700,
                     lineHeight: 23.04,
-                    color: RvColors.brand700,
-                    family: RvFonts.serif,
+                    color: AppColors.brand700,
+                    family: AppTypography.serif,
                   ),
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: AppSpacing.space6),
                 Container(
-                  height: 2,
+                  height: AppSpacing.xxs,
                   decoration: BoxDecoration(
-                    color: RvColors.brand700,
-                    borderRadius: BorderRadius.circular(1),
+                    color: AppColors.brand700,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusHairline),
                   ),
                 ),
               ],
@@ -47,11 +46,11 @@ class LoginTabs extends StatelessWidget {
             onTap: onCreateAccount,
             child: Text(
               'Crear cuenta',
-              style: rvText(
+              style: AppTypography.style(
                 18,
                 lineHeight: 23.04,
-                color: AuthColors.placeholder,
-                family: RvFonts.serif,
+                color: AppColors.inputPlaceholder,
+                family: AppTypography.serif,
               ),
             ),
           ),
@@ -87,24 +86,27 @@ class LoginField extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: focusNode?.requestFocus,
       child: Container(
-        constraints: const BoxConstraints(minHeight: 62),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        constraints: const BoxConstraints(minHeight: AppSpacing.authFieldMinHeight),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.space10,
+        ),
         decoration: BoxDecoration(
-          color: RvColors.surface0,
-          border: Border.all(color: AuthColors.fieldStroke),
-          borderRadius: BorderRadius.circular(14),
+          color: AppColors.surface0,
+          border: Border.all(color: AppColors.fieldBorder),
+          borderRadius: AppSpacing.roundedCard,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(
-              width: 24,
-              height: 24,
+              width: AppSpacing.iconBox,
+              height: AppSpacing.iconBox,
               child: Center(
-                child: RvIcon(icon, size: 22, color: RvColors.brand700),
+                child: RvIcon(icon, size: AppSpacing.iconLg, color: AppColors.brand700),
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -113,19 +115,22 @@ class LoginField extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: rvText(
+                    style: AppTypography.style(
                       12,
                       weight: FontWeight.w500,
                       lineHeight: 14.06,
-                      color: AuthColors.mutedInk,
+                      color: AppColors.fieldLabel,
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: AppSpacing.space3),
                   input,
                 ],
               ),
             ),
-            if (trailing != null) ...[const SizedBox(width: 12), trailing!],
+            if (trailing != null) ...[
+              const SizedBox(width: AppSpacing.md),
+              trailing!,
+            ],
           ],
         ),
       ),

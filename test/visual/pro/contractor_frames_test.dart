@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/features/home/contractor_home_view.dart';
-import 'package:rivet/features/home/widgets/kit/kit.dart';
+import 'package:rivet/core/design_system/design_system.dart';
 
 import 'pro_harness.dart';
 

@@ -5,12 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rivet/features/home/widgets/kit/kit.dart';
+import 'package:rivet/core/design_system/design_system.dart';
 
 /// Renders professional and supplier screens at the Figma frame size
 /// (412x868 at 2x) with the real Lora and Roboto fonts and writes PNGs to
 /// `build/visual/pro/` for side-by-side comparison with the Figma export.
-const Size kFrameSize = Size(ProLayout.frameWidth, ProLayout.frameHeight);
+const Size kFrameSize = Size(AppSpacing.frameWidth, AppSpacing.frameHeight);
 const String kOutputDir = 'build/visual/pro';
 
 /// Fonts come from `assets/fonts` when bundled, or from the shared spec folder.
@@ -28,7 +28,7 @@ bool get fontsAvailable => _fontDirs.any((d) => File('$d/Roboto-Regular.ttf').ex
 Future<void> loadProFonts() async {
   if (fontsLoaded) return;
   final dir = _fontDirs.firstWhere((d) => File('$d/Roboto-Regular.ttf').existsSync());
-  for (final family in [ProFonts.sans, ProFonts.serif]) {
+  for (final family in [AppTypography.sans, AppTypography.serif]) {
     final loader = FontLoader(family);
     for (final weight in ['Regular', 'Medium', 'SemiBold', 'Bold']) {
       final file = File('$dir/$family-$weight.ttf');
@@ -50,7 +50,7 @@ Future<File> renderFrame(
   required String name,
   ProNavDestination? nav,
   bool navCentered = false,
-  Color background = ProColors.paper100,
+  Color background = AppColors.paper100,
 }) async {
   tester.view.physicalSize = kFrameSize * 2;
   tester.view.devicePixelRatio = 2;
@@ -74,7 +74,7 @@ Future<File> renderFrame(
       key: key,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(fontFamily: ProFonts.sans, scaffoldBackgroundColor: background),
+        theme: ThemeData(fontFamily: AppTypography.sans, scaffoldBackgroundColor: background),
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(
             padding: const EdgeInsets.only(top: 36, bottom: 24),
@@ -129,7 +129,7 @@ class _StatusBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Row(
         children: [
-          Text('9:41', style: ProText.r(14, weight: FontWeight.w600, color: ProColors.statusInk, lineHeight: 16.40625)),
+          Text('9:41', style: AppTypography.proportional(14, weight: FontWeight.w600, color: AppColors.statusInk, lineHeight: 16.40625)),
           const Spacer(),
           Container(
             width: 9,
@@ -149,9 +149,9 @@ class _ConnectionPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final ink = Paint()..color = ProColors.statusInk;
+    final ink = Paint()..color = AppColors.statusInk;
     final wifi = Paint()
-      ..color = ProColors.statusInk
+      ..color = AppColors.statusInk
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.8;
     for (final r in [3.0, 6.5, 10.0]) {
@@ -178,12 +178,12 @@ class _GestureBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: ProColors.surface0,
+      color: AppColors.surface0,
       alignment: Alignment.center,
       child: Container(
         width: 108,
         height: 4,
-        decoration: BoxDecoration(color: ProColors.gestureBar, borderRadius: BorderRadius.circular(2)),
+        decoration: BoxDecoration(color: AppColors.gestureBar, borderRadius: BorderRadius.circular(2)),
       ),
     );
   }

@@ -2,11 +2,10 @@ import '../domain/project_draft.dart';
 import '../domain/project_draft_repository.dart';
 
 /// Almacén en memoria de sesión para borradores del asistente de proyectos.
+///
+/// La raíz de la app crea una sola instancia y la comparte por contexto.
 class LocalProjectDraftRepository implements ProjectDraftRepository {
-  LocalProjectDraftRepository._();
-
-  static final LocalProjectDraftRepository instance =
-      LocalProjectDraftRepository._();
+  LocalProjectDraftRepository();
 
   ProjectDraft? _newProjectDraft;
   final Map<String, ProjectDraft> _editDrafts = {};

@@ -32,3 +32,23 @@ export 'app_quantity_stepper.dart';
 export 'app_state_views.dart';
 export 'keyboard_dismisser.dart';
 export 'rivet_header.dart';
+
+// Iconos vectoriales (Lucide y glifos propios exportados de Figma)
+export 'icons/pro_icon.dart';
+export 'icons/rv_icon_data.dart';
+export 'icons/rv_icons.dart';
+export 'icons/rv_icons_extra.dart';
+
+// Componentes de las pantallas del contratista, la cuenta y la mensajería
+export 'pro_bottom_nav.dart';
+export 'pro_buttons.dart';
+export 'pro_headers.dart';
+export 'pro_rows.dart';
+export 'pro_screen.dart';
+export 'pro_surfaces.dart';
+
+// Componentes de las pantallas del cliente y de acceso
+export 'rv_button.dart';
+export 'rv_header.dart';
+export 'rv_page.dart';
+export 'rv_surfaces.dart';

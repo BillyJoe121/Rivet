@@ -20,9 +20,6 @@ class AppStepProgress extends StatelessWidget {
   final int currentStep; // 0-indexed
   final ValueChanged<int>? onStepTap;
 
-  // Fondo de los pasos no activos; sin token propio en el tema.
-  static const Color _idleFill = Color(0xFFDFE5E4);
-
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -51,7 +48,7 @@ class AppStepProgress extends StatelessWidget {
             gradient: isCurrent ? AppColors.brandGradient : null,
             color: isCurrent
                 ? null
-                : (isCompleted ? AppColors.brandLight : _idleFill),
+                : (isCompleted ? AppColors.brandLight : AppColors.stepIdle),
           ),
           child: Text(
             '${index + 1}',

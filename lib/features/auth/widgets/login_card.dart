@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../../projects/widgets/client_kit/client_kit.dart';
+import '../../../core/design_system/design_system.dart';
 import 'auth_widgets.dart';
 import 'login_parts.dart';
 
@@ -20,7 +20,7 @@ class KeepSessionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final style = rvText(13, lineHeight: 15.23, color: AuthColors.mutedInk);
+    final style = AppTypography.style(13, lineHeight: 15.23, color: AppColors.fieldLabel);
 
     return SizedBox(
       height: 44, // WCAG 2.5.5: Touch Target Size mínimo de 44px
@@ -37,32 +37,32 @@ class KeepSessionRow extends StatelessWidget {
                   AnimatedContainer(
                     duration: const Duration(milliseconds: 180),
                     curve: Curves.easeOutCubic,
-                    width: 20,
-                    height: 20,
+                    width: AppSpacing.checkboxSize,
+                    height: AppSpacing.checkboxSize,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: keepSession
-                          ? RvColors.brand700
-                          : RvColors.surface0,
+                          ? AppColors.brand700
+                          : AppColors.surface0,
                       border: Border.all(
                         color: keepSession
-                            ? RvColors.brand700
-                            : AuthColors.fieldStroke,
-                        width: 1.5,
+                            ? AppColors.brand700
+                            : AppColors.fieldBorder,
+                        width: AppSpacing.strokeControl,
                       ),
-                      borderRadius: BorderRadius.circular(5),
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusCheckbox),
                     ),
                     child: keepSession
                         ? const RvIcon(
                             RvIcons.check,
-                            color: RvColors.surface0,
+                            color: AppColors.surface0,
                           ).animate().scale(
                             duration: const Duration(milliseconds: 240),
                             curve: Curves.elasticOut,
                           )
                         : null,
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.sm),
                   Text('Mantener sesión iniciada', style: style),
                 ],
               ),
@@ -73,17 +73,20 @@ class KeepSessionRow extends StatelessWidget {
             button: true,
             label: '¿Olvidaste tu contraseña?',
             child: InkWell(
-              borderRadius: BorderRadius.circular(8),
+              borderRadius: BorderRadius.circular(AppSpacing.radiusTight),
               onTap: onForgotPassword,
-              hoverColor: RvColors.brand700.withValues(alpha: 0.06),
-              highlightColor: RvColors.brand700.withValues(alpha: 0.08),
-              splashColor: RvColors.brand700.withValues(alpha: 0.12),
+              hoverColor: AppColors.brand700.withValues(alpha: 0.06),
+              highlightColor: AppColors.brand700.withValues(alpha: 0.08),
+              splashColor: AppColors.brand700.withValues(alpha: 0.12),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.xs,
+                  vertical: AppSpacing.sm,
+                ),
                 child: Text(
                   '¿Olvidaste tu contraseña?',
                   style: style.copyWith(
-                    color: RvColors.brand700,
+                    color: AppColors.brand700,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -136,23 +139,22 @@ class LoginCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: RvColors.surface0,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x14000000),
-            offset: Offset(0, -4),
-            blurRadius: 20,
-          ),
-        ],
+        color: AppColors.surface0,
+        borderRadius: AppSpacing.roundedSheetTop,
+        boxShadow: AppSpacing.shadowSheet,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           LoginTabs(onCreateAccount: onCreateAccount),
-          Container(height: 1, color: AuthColors.fieldStroke),
+          Container(height: AppSpacing.strokeDivider, color: AppColors.fieldBorder),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.lg,
+              AppSpacing.xl,
+              AppSpacing.xl,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -160,27 +162,27 @@ class LoginCard extends StatelessWidget {
                   firstChild: const SizedBox.shrink(),
                   secondChild: errorMessage != null
                       ? Container(
-                          padding: const EdgeInsets.all(12),
-                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(AppSpacing.md),
+                          margin: const EdgeInsets.only(bottom: AppSpacing.md),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFFDE8E8),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: const Color(0xFFF8B4B4)),
+                            color: AppColors.errorSurface,
+                            borderRadius: AppSpacing.roundedSm,
+                            border: Border.all(color: AppColors.errorBorder),
                           ),
                           child: Row(
                             children: [
                               const Icon(
                                 Icons.error_outline,
-                                color: Color(0xFF9B1C1C),
-                                size: 20,
+                                color: AppColors.errorInk,
+                                size: AppSpacing.iconMd,
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: AppSpacing.sm),
                               Expanded(
                                 child: Text(
                                   errorMessage ?? '',
-                                  style: rvText(
+                                  style: AppTypography.style(
                                     13,
-                                    color: const Color(0xFF9B1C1C),
+                                    color: AppColors.errorInk,
                                     lineHeight: 16,
                                   ),
                                 ),
@@ -190,8 +192,8 @@ class LoginCard extends StatelessWidget {
                                   onTap: onDismissError,
                                   child: const Icon(
                                     Icons.close,
-                                    size: 16,
-                                    color: Color(0xFF9B1C1C),
+                                    size: AppSpacing.iconXs,
+                                    color: AppColors.errorInk,
                                   ),
                                 ),
                             ],
@@ -223,7 +225,7 @@ class LoginCard extends StatelessWidget {
                       curve: Curves.easeOutCubic,
                     )
                     .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
                 LoginField(
                       focusNode: passwordFocusNode,
                       icon: RvIcons.lock,
@@ -240,10 +242,10 @@ class LoginCard extends StatelessWidget {
                         behavior: HitTestBehavior.opaque,
                         onTap: onToggleObscure,
                         child: Padding(
-                          padding: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(AppSpacing.xs),
                           child: RvIcon(
                             obscurePassword ? RvIcons.eye : RvIcons.eyeOff,
-                            color: AuthColors.placeholder,
+                            color: AppColors.inputPlaceholder,
                           ),
                         ),
                       ),
@@ -255,7 +257,7 @@ class LoginCard extends StatelessWidget {
                       curve: Curves.easeOutCubic,
                     )
                     .slideY(begin: 0.08, end: 0, curve: Curves.easeOutCubic),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.md),
                 KeepSessionRow(
                   keepSession: keepSession,
                   onKeepSessionChanged: onKeepSessionChanged,
@@ -265,7 +267,7 @@ class LoginCard extends StatelessWidget {
                   delay: 180.ms,
                   curve: Curves.easeOutCubic,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.lg),
                 AuthGradientButton(
                       label: 'Iniciar sesión',
                       isLoading: isLoading,

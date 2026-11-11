@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rivet/core/widgets/app_back_button.dart';
-import 'package:rivet/core/widgets/rivet_scaffold.dart';
 import 'package:rivet/features/auth/forgot_password_screen.dart';
 import 'package:rivet/features/auth/login_screen.dart';
 import 'package:rivet/features/auth/signup_screen.dart';
-import 'package:rivet/features/home/widgets/kit/kit.dart';
+import 'package:rivet/core/design_system/design_system.dart';
+
+import 'helpers/auth_test_harness.dart';
 
 /// (800×1600 evita desbordes por la fuente de prueba en las pantallas de auth.)
 /// El botón volver es el mismo en todas las pantallas: caja táctil de 48×48 y
@@ -19,7 +19,7 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      MaterialApp(
+      withAuth(MaterialApp(
         home: Builder(
           builder: (context) => TextButton(
             onPressed: () => Navigator.push(
@@ -29,7 +29,7 @@ void main() {
             child: const Text('Abrir'),
           ),
         ),
-      ),
+      )),
     );
     await tester.tap(find.text('Abrir'));
     await tester.pumpAndSettle();

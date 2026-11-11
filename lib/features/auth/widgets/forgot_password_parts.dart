@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../projects/widgets/client_kit/client_kit.dart';
-import 'auth_widgets.dart';
+import '../../../core/design_system/design_system.dart';
 
 /// Indicador de pasos en píldoras: el paso actual se alarga, los pendientes
 /// quedan como punto en el trazo de los campos.
@@ -21,15 +20,17 @@ class ForgotStepBar extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           for (var i = 1; i <= total; i++) ...[
-            if (i > 1) const SizedBox(width: 6),
+            if (i > 1) const SizedBox(width: AppSpacing.space6),
             AnimatedContainer(
               duration: const Duration(milliseconds: 320),
               curve: Curves.easeOutCubic,
-              width: i == step ? 24 : 8,
-              height: 8,
+              width: i == step
+                  ? AppSpacing.stepDotActiveWidth
+                  : AppSpacing.stepDotSize,
+              height: AppSpacing.stepDotSize,
               decoration: BoxDecoration(
-                color: i <= step ? RvColors.brand700 : AuthColors.fieldStroke,
-                borderRadius: BorderRadius.circular(4),
+                color: i <= step ? AppColors.brand700 : AppColors.fieldBorder,
+                borderRadius: BorderRadius.circular(AppSpacing.radiusXs),
               ),
             ),
           ],
@@ -50,36 +51,41 @@ class SentEmailChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: const BoxConstraints(minHeight: 62),
-      padding: const EdgeInsets.fromLTRB(14, 10, 4, 10),
+      constraints: const BoxConstraints(minHeight: AppSpacing.authFieldMinHeight),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.sectionGap,
+        AppSpacing.space10,
+        AppSpacing.xs,
+        AppSpacing.space10,
+      ),
       decoration: BoxDecoration(
-        color: RvColors.brandLight,
-        border: Border.all(color: RvColors.brand700.withValues(alpha: 0.18)),
-        borderRadius: BorderRadius.circular(14),
+        color: AppColors.brandLight,
+        border: Border.all(color: AppColors.brand700.withValues(alpha: 0.18)),
+        borderRadius: AppSpacing.roundedCard,
       ),
       child: Row(
         children: [
           Container(
-            width: 32,
-            height: 32,
+            width: AppSpacing.iconTileSize,
+            height: AppSpacing.iconTileSize,
             alignment: Alignment.center,
             decoration: const BoxDecoration(
-              gradient: RvColors.brandGradient,
+              gradient: AppColors.brandGradientDiagonal,
               shape: BoxShape.circle,
             ),
-            child: const RvIcon(RvIcons.check, color: RvColors.surface0),
+            child: const RvIcon(RvIcons.check, color: AppColors.surface0),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: AppSpacing.sectionGap),
           Expanded(
             child: Text(
               email,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: rvText(
+              style: AppTypography.style(
                 15,
                 weight: FontWeight.w600,
                 lineHeight: 18,
-                color: AuthColors.labelInk,
+                color: AppColors.inputInk,
               ),
             ),
           ),
@@ -94,13 +100,13 @@ class SentEmailChip extends StatelessWidget {
                 onEdit();
               },
               child: const SizedBox(
-                width: 44,
-                height: 44,
+                width: AppSpacing.resendButtonSize,
+                height: AppSpacing.resendButtonSize,
                 child: Center(
                   child: RvIcon(
                     RvIcons.pencil,
-                    size: 18,
-                    color: RvColors.brand700,
+                    size: AppSpacing.iconSm,
+                    color: AppColors.brand700,
                   ),
                 ),
               ),
@@ -141,27 +147,30 @@ class ResendCountdownTile extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: ready ? onResend : null,
-          borderRadius: BorderRadius.circular(14),
-          splashColor: RvColors.brand700.withValues(alpha: 0.10),
-          highlightColor: RvColors.brand700.withValues(alpha: 0.05),
+          borderRadius: AppSpacing.roundedCard,
+          splashColor: AppColors.brand700.withValues(alpha: 0.10),
+          highlightColor: AppColors.brand700.withValues(alpha: 0.05),
           child: Ink(
             decoration: BoxDecoration(
-              color: RvColors.surface0,
+              color: AppColors.surface0,
               border: Border.all(
                 color: ready
-                    ? RvColors.brand700.withValues(alpha: 0.35)
-                    : AuthColors.fieldStroke,
+                    ? AppColors.brand700.withValues(alpha: 0.35)
+                    : AppColors.fieldBorder,
               ),
-              borderRadius: BorderRadius.circular(14),
+              borderRadius: AppSpacing.roundedCard,
             ),
             child: Container(
-              constraints: const BoxConstraints(minHeight: 62),
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              constraints: const BoxConstraints(minHeight: AppSpacing.authFieldMinHeight),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sectionGap,
+                vertical: AppSpacing.space10,
+              ),
               child: Row(
                 children: [
                   SizedBox(
-                    width: 32,
-                    height: 32,
+                    width: AppSpacing.iconTileSize,
+                    height: AppSpacing.iconTileSize,
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 280),
                       transitionBuilder: (child, animation) => ScaleTransition(
@@ -177,15 +186,15 @@ class ResendCountdownTile extends StatelessWidget {
                             ),
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: AppSpacing.sectionGap),
                   Expanded(
                     child: AnimatedDefaultTextStyle(
                       duration: const Duration(milliseconds: 220),
-                      style: rvText(
+                      style: AppTypography.style(
                         15,
                         weight: ready ? FontWeight.w600 : FontWeight.w500,
                         lineHeight: 18,
-                        color: ready ? RvColors.brand700 : AuthColors.placeholder,
+                        color: ready ? AppColors.brand700 : AppColors.inputPlaceholder,
                       ),
                       child: const Text('Reenviar enlace'),
                     ),
@@ -221,19 +230,19 @@ class _CountdownRing extends StatelessWidget {
         children: [
           CircularProgressIndicator(
             value: value,
-            strokeWidth: 3,
+            strokeWidth: AppSpacing.strokeRing,
             strokeCap: StrokeCap.round,
-            backgroundColor: AuthColors.fieldStroke,
-            color: RvColors.brand700,
+            backgroundColor: AppColors.fieldBorder,
+            color: AppColors.brand700,
           ),
           Center(
             child: Text(
               '$remaining',
-              style: rvText(
+              style: AppTypography.style(
                 11,
                 weight: FontWeight.w600,
                 lineHeight: 13,
-                color: AuthColors.labelInk,
+                color: AppColors.inputInk,
               ),
             ),
           ),
@@ -250,10 +259,14 @@ class _ResendBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     return const DecoratedBox(
       decoration: BoxDecoration(
-        color: RvColors.brandLight,
+        color: AppColors.brandLight,
         shape: BoxShape.circle,
       ),
-      child: Icon(Icons.refresh_rounded, size: 20, color: RvColors.brand700),
+      child: Icon(
+        Icons.refresh_rounded,
+        size: AppSpacing.iconMd,
+        color: AppColors.brand700,
+      ),
     );
   }
 }

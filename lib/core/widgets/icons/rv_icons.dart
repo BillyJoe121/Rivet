@@ -1,6 +1,6 @@
 // Generado desde los vectores del archivo de Figma (export SVG por nodo).
 // Cada icono conserva su caja original; RvIcon lo escala al tamaño pedido.
-import 'dart:ui' show Color;
+import '../../theme/app_colors.dart';
 
 import 'rv_icon_data.dart';
 
@@ -104,22 +104,22 @@ abstract final class RvIcons {
     RvIconPath(
       'M21.6 12.2299C21.6 11.5199 21.54 10.8399 21.42 10.1799H12V14.0599H17.38C17.2684 14.6725 17.0335 15.256 16.6898 15.7751C16.346 16.2942 15.9004 16.7381 15.38 17.0799V19.5899H18.62C20.52 17.8399 21.6 15.2599 21.6 12.2299Z',
       stroke: false,
-      color: Color(0xFF4285F4),
+      color: AppColors.googleBlue,
     ),
     RvIconPath(
       'M12.0008 21.9999C14.7008 21.9999 16.9608 21.0999 18.6208 19.5899L15.3808 17.0799C14.4808 17.6799 13.3308 18.0499 12.0008 18.0499C9.39078 18.0499 7.18078 16.2899 6.39078 13.9299H3.05078V16.5199C3.88837 18.1729 5.16879 19.5607 6.74916 20.5283C8.32954 21.496 10.1477 22.0055 12.0008 21.9999Z',
       stroke: false,
-      color: Color(0xFF34A853),
+      color: AppColors.googleGreen,
     ),
     RvIconPath(
       'M6.39017 13.93C6.18203 13.3079 6.07731 12.6559 6.08017 12C6.08017 11.33 6.19017 10.68 6.39017 10.07V7.47998H3.05017C2.35061 8.88348 1.99092 10.4318 2.00017 12C2.00017 13.61 2.38017 15.14 3.05017 16.52L6.39017 13.93Z',
       stroke: false,
-      color: Color(0xFFFBBC05),
+      color: AppColors.googleYellow,
     ),
     RvIconPath(
       'M12.0008 5.95C13.4708 5.95 14.7908 6.45 15.8208 7.45L18.6908 4.58C16.8771 2.88912 14.4801 1.96471 12.0008 2C10.1477 1.99448 8.32954 2.50396 6.74916 3.47161C5.16879 4.43926 3.88837 5.82701 3.05078 7.48L6.39078 10.07C7.18078 7.71 9.39078 5.95 12.0008 5.95Z',
       stroke: false,
-      color: Color(0xFFEA4335),
+      color: AppColors.googleRed,
     ),
   ]);
 

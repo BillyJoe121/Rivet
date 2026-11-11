@@ -4,12 +4,9 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../core/theme/theme.dart';
-import '../../core/utils/validators.dart';
-import '../../core/widgets/app_back_button.dart';
-import '../../core/widgets/app_button.dart';
-import '../projects/widgets/client_kit/client_kit.dart';
-import 'auth_service.dart';
+import '../../core/design_system/design_system.dart';
+import 'domain/repositories/auth_repository.dart';
+import 'domain/usecases/usecases.dart';
 import 'login_screen.dart';
 import 'presentation/bloc/reset_password/reset_password_bloc.dart';
 import 'widgets/signup_form_card.dart';
@@ -38,7 +35,7 @@ class ResetPasswordScreen extends StatelessWidget {
     } catch (_) {
       return BlocProvider<ResetPasswordBloc>(
         create: (_) => ResetPasswordBloc(
-          AuthService.instance.updatePasswordUseCase,
+          UpdatePasswordUseCase(context.read<AuthRepository>()),
         ),
         child: const _ResetPasswordView(),
       );
@@ -169,12 +166,12 @@ class _ResetPasswordViewState extends State<_ResetPasswordView>
                 top: 0,
                 left: 0,
                 right: 0,
-                height: 340,
+                height: AppSpacing.authHeroHeight,
                 child: Image.asset(
-                  RvImages.headerPrivacy,
+                  AppImages.headerPrivacy,
                   fit: BoxFit.cover,
                   width: double.infinity,
-                  height: 340,
+                  height: AppSpacing.authHeroHeight,
                   alignment: Alignment.centerRight,
                 ),
               ),
@@ -182,25 +179,30 @@ class _ResetPasswordViewState extends State<_ResetPasswordView>
                 bottom: false,
                 child: SingleChildScrollView(
                   physics: const ClampingScrollPhysics(),
-                  padding: EdgeInsets.only(bottom: bottomInset + 24),
+                  padding: EdgeInsets.only(bottom: bottomInset + AppSpacing.xxl),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       const Align(
                         alignment: Alignment.centerLeft,
                         child: Padding(
-                          padding: EdgeInsets.fromLTRB(22, 8, 30, 0),
+                          padding: EdgeInsets.fromLTRB(
+                            AppSpacing.screenGutter,
+                            AppSpacing.sm,
+                            AppSpacing.space30,
+                            0,
+                          ),
                           child: AppBackButton(),
                         ),
                       ),
-                      const SizedBox(height: 170),
+                      const SizedBox(height: AppSpacing.resetCardOffset),
                       AnimatedBuilder(
                         animation: _shakeController,
                         builder: (context, child) {
                           final offset = math.sin(
                                 _shakeController.value * math.pi * 4,
                               ) *
-                              8.0;
+                              AppSpacing.shakeDistance;
                           return Transform.translate(
                             offset: Offset(offset, 0),
                             child: child,
@@ -210,24 +212,21 @@ class _ResetPasswordViewState extends State<_ResetPasswordView>
                           width: double.infinity,
                           decoration: const BoxDecoration(
                             color: AppColors.surface0,
-                            borderRadius: BorderRadius.vertical(
-                              top: Radius.circular(28),
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Color(0x14000000),
-                                offset: Offset(0, -4),
-                                blurRadius: 20,
-                              ),
-                            ],
+                            borderRadius: AppSpacing.roundedSheetTop,
+                            boxShadow: AppSpacing.shadowSheet,
                           ),
-                          padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.xxl,
+                            AppSpacing.xxl,
+                            AppSpacing.xxl,
+                            AppSpacing.xxxl,
+                          ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
                               Text(
                                 'Nueva contraseña',
-                                style: rvText(
+                                style: AppTypography.style(
                                   22,
                                   weight: FontWeight.w700,
                                   lineHeight: 28,
@@ -236,17 +235,17 @@ class _ResetPasswordViewState extends State<_ResetPasswordView>
                                   color: AppColors.ink900,
                                 ),
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: AppSpacing.space6),
                               Text(
                                 'Escribe tu nueva clave segura para volver a entrar a tu cuenta.',
-                                style: rvText(
+                                style: AppTypography.style(
                                   13,
                                   weight: FontWeight.w400,
                                   lineHeight: 18,
                                   color: AppColors.ink500,
                                 ),
                               ),
-                              const SizedBox(height: 24),
+                              const SizedBox(height: AppSpacing.xxl),
                               // Campo Contraseña
                               _buildPasswordField(
                                 controller: _passwordController,
@@ -261,7 +260,7 @@ class _ResetPasswordViewState extends State<_ResetPasswordView>
                                 onSubmitted: (_) =>
                                     _confirmFocusNode.requestFocus(),
                               ),
-                              const SizedBox(height: 10),
+                              const SizedBox(height: AppSpacing.space10),
                               ValueListenableBuilder<TextEditingValue>(
                                 valueListenable: _passwordController,
                                 builder: (context, val, _) {
@@ -270,7 +269,7 @@ class _ResetPasswordViewState extends State<_ResetPasswordView>
                                   );
                                 },
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: AppSpacing.lg),
                               // Campo Confirmar
                               _buildPasswordField(
                                 controller: _confirmPasswordController,
@@ -284,7 +283,7 @@ class _ResetPasswordViewState extends State<_ResetPasswordView>
                                 },
                                 onSubmitted: (_) => _handleSubmit(),
                               ),
-                              const SizedBox(height: 28),
+                              const SizedBox(height: AppSpacing.space28),
                               AppButton(
                                 text: 'Guardar contraseña',
                                 onPressed:
@@ -319,25 +318,31 @@ class _ResetPasswordViewState extends State<_ResetPasswordView>
       decoration: BoxDecoration(
         color: AppColors.surface0,
         borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
-        border: Border.all(color: AppColors.line300, width: 1),
+        border: Border.all(
+          color: AppColors.line300,
+          width: AppSpacing.strokeDivider,
+        ),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.lg,
+        vertical: AppSpacing.sm,
+      ),
       child: Row(
         children: [
           Icon(
             LucideIcons.lock,
-            size: 20,
+            size: AppSpacing.iconMd,
             color: AppColors.ink500,
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: TextField(
               controller: controller,
               focusNode: focusNode,
               obscureText: obscure,
               cursorColor: AppColors.brand700,
-              cursorWidth: 2,
-              style: rvText(
+              cursorWidth: AppSpacing.cursorWidth,
+              style: AppTypography.style(
                 15,
                 weight: FontWeight.w400,
                 color: AppColors.ink900,
@@ -346,7 +351,7 @@ class _ResetPasswordViewState extends State<_ResetPasswordView>
                 border: InputBorder.none,
                 isDense: true,
                 labelText: label,
-                labelStyle: rvText(
+                labelStyle: AppTypography.style(
                   13,
                   weight: FontWeight.w500,
                   color: AppColors.ink500,
@@ -358,11 +363,14 @@ class _ResetPasswordViewState extends State<_ResetPasswordView>
           IconButton(
             icon: Icon(
               obscure ? LucideIcons.eyeOff : LucideIcons.eye,
-              size: 20,
+              size: AppSpacing.iconMd,
               color: AppColors.ink500,
             ),
-            constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
-            splashRadius: 24,
+            constraints: const BoxConstraints(
+              minWidth: AppSpacing.minTouchTarget,
+              minHeight: AppSpacing.minTouchTarget,
+            ),
+            splashRadius: AppSpacing.minTouchTarget / 2,
             tooltip: obscure ? 'Mostrar contraseña' : 'Ocultar contraseña',
             onPressed: onToggleObscure,
           ),

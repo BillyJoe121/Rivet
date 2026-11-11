@@ -423,9 +423,10 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
     try {
       return context.read<ContractorsBloc>();
     } catch (_) {
+      final repository = context.read<ContractorRepository>();
       return ContractorsBloc(
-        ContractorsService.instance.getContractorsUseCase,
-        ContractorsService.instance.requestContractorVisitUseCase,
+        GetContractorsUseCase(repository),
+        RequestContractorVisitUseCase(repository),
       );
     }
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../home/widgets/kit/kit.dart';
+import '../../../core/design_system/design_system.dart';
 
 /// Botón secundario de Figma: borde de marca de 1 px, radio 28, texto centrado
 /// y chevron de 16 px pegado al borde derecho.
@@ -26,11 +26,11 @@ class MsgOutlineButton extends StatelessWidget {
           height: height,
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: ProColors.paper100,
-            borderRadius: BorderRadius.circular(ProRadii.button),
+            color: AppColors.paper100,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusButton),
             border: Border.all(
-              color: ProColors.brand700,
-              width: ProStroke.divider,
+              color: AppColors.brand700,
+              width: AppSpacing.strokeDivider,
             ),
           ),
           child: Row(
@@ -39,10 +39,10 @@ class MsgOutlineButton extends StatelessWidget {
                 child: Text(
                   label,
                   textAlign: TextAlign.center,
-                  style: ProText.r(
+                  style: AppTypography.proportional(
                     12,
                     weight: FontWeight.w600,
-                    color: ProColors.brand700,
+                    color: AppColors.brand700,
                     lineHeight: 14.4,
                   ),
                 ),

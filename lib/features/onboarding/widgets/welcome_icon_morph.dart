@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../../projects/widgets/client_kit/client_kit.dart';
+import '../../../core/design_system/design_system.dart';
 
 /// Icono único de la portada que cicla entre Proyectos, Contratistas y Materiales.
 /// Cada cambio es un morfado: el icono saliente se encoge y gira mientras el
@@ -62,7 +62,7 @@ class _WelcomeIconMorphState extends State<WelcomeIconMorph> {
             _icons[_index],
             key: ValueKey(_index),
             size: widget.size,
-            color: RvColors.paper100,
+            color: AppColors.paper100,
             strokeWidth: 2.2,
           ),
         ),

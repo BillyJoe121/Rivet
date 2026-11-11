@@ -50,7 +50,7 @@ class AppButton extends StatelessWidget {
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
     stops: [0, 0.46, 1],
-    colors: [Color(0xFF278D82), Color(0xFF08655D), AppColors.brandGradientEnd],
+    colors: [AppColors.buttonGradientTop, AppColors.buttonGradientMid, AppColors.brandGradientEnd],
   );
 
   bool get _isDisabled => onPressed == null && !isLoading;

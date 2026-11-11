@@ -8,7 +8,8 @@ import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import 'catalog_filters.dart';
 import 'catalog_mock.dart';
-import 'catalog_service.dart';
+import 'domain/repositories/catalog_repository.dart';
+import 'domain/usecases/get_catalog_materials_usecase.dart';
 import 'material_detail_screen.dart';
 import 'material_price_tier.dart';
 import 'presentation/bloc/catalog_bloc.dart';
@@ -52,8 +53,8 @@ class MaterialsCatalogScreen extends StatelessWidget {
       );
     } catch (_) {
       return BlocProvider<CatalogBloc>(
-        create: (_) => CatalogBloc(
-          CatalogService.instance.getCatalogMaterialsUseCase,
+        create: (context) => CatalogBloc(
+          GetCatalogMaterialsUseCase(context.read<CatalogRepository>()),
         )..add(const LoadCatalogProducts()),
         child: _MaterialsCatalogView(
           priceTier: priceTier,

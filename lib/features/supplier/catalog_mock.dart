@@ -1,5 +1,5 @@
 import '../../core/models/models.dart';
-import '../home/widgets/kit/kit.dart';
+import '../../core/design_system/design_system.dart';
 
 /// Materiales simulados de la Bodega Rivet; el precio de contratista es menor.
 abstract final class CatalogMock {
@@ -13,7 +13,7 @@ abstract final class CatalogMock {
       clientPriceCop: 87000,
       proPriceCop: 82000,
       finish: 'Mate',
-      imageAsset: ProAssets.rivetPaint,
+      imageAsset: AppImages.proRivetPaint,
     ),
     MaterialProduct(
       id: 'PV-002',
@@ -24,7 +24,7 @@ abstract final class CatalogMock {
       clientPriceCop: 98000,
       proPriceCop: 91000,
       finish: 'Satinado',
-      imageAsset: ProAssets.rivetPaint,
+      imageAsset: AppImages.proRivetPaint,
     ),
     MaterialProduct(
       id: 'EP-002',
@@ -35,7 +35,7 @@ abstract final class CatalogMock {
       clientPriceCop: 120000,
       proPriceCop: 112000,
       finish: 'Liso',
-      imageAsset: ProAssets.coronaStucco,
+      imageAsset: AppImages.proCoronaStucco,
     ),
     MaterialProduct(
       id: 'EP-003',
@@ -77,7 +77,7 @@ abstract final class CatalogMock {
       unit: 'rollo',
       clientPriceCop: 9500,
       proPriceCop: 8500,
-      imageAsset: ProAssets.maskingTape,
+      imageAsset: AppImages.proMaskingTape,
     ),
     MaterialProduct(
       id: 'AC-007',

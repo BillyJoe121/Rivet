@@ -492,20 +492,3 @@ class ContractorsBloc extends Bloc<ContractorsEvent, ContractorsState> {
     }
   }
 }
-
-class ContractorsService {
-  ContractorsService._();
-  static final ContractorsService instance = ContractorsService._();
-
-  ContractorRepository _repository = LocalContractorRepository();
-
-  void setRepositoryForTesting(ContractorRepository repository) {
-    _repository = repository;
-  }
-
-  GetContractorsUseCase get getContractorsUseCase =>
-      GetContractorsUseCase(_repository);
-
-  RequestContractorVisitUseCase get requestContractorVisitUseCase =>
-      RequestContractorVisitUseCase(_repository);
-}

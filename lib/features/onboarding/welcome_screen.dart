@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../core/utils/app_page_route.dart';
 import '../auth/login_screen.dart';
 import '../auth/signup_screen.dart';
-import '../projects/widgets/client_kit/client_kit.dart';
+import '../../core/design_system/design_system.dart';
 import 'widgets/welcome_icon_morph.dart';
 import 'widgets/welcome_infinite_zoom.dart';
 import 'widgets/welcome_start_button.dart';
@@ -64,14 +63,14 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle.light,
       child: Scaffold(
-        backgroundColor: RvColors.brandGradientEnd,
+        backgroundColor: AppColors.brandGradientEnd,
         body: Stack(
           fit: StackFit.expand,
           children: [
             WelcomeInfiniteZoom(
               focus: const Alignment(0.3, -0.4),
               child: Image.asset(
-                RvImages.sofaGreenWall,
+                AppImages.sofaGreenWall,
                 fit: BoxFit.cover,
                 alignment: const Alignment(0.15, -0.3),
               ),
@@ -84,11 +83,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Color(0x47000000),
-                    Color(0x00000000),
-                    Color(0x00004E49),
-                    Color(0xD9004E49),
-                    RvColors.brandGradientEnd,
+                    AppColors.heroScrimTop,
+                    Colors.transparent,
+                    AppColors.brandTransparent,
+                    AppColors.brandScrim,
+                    AppColors.brandGradientEnd,
                   ],
                   stops: [0, 0.18, 0.34, 0.6, 1],
                 ),
@@ -104,12 +103,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   children: [
                     Text(
                       'Rivet',
-                      style: rvText(
+                      style: AppTypography.style(
                         64,
                         weight: FontWeight.w700,
                         lineHeight: 72,
-                        color: RvColors.paper100,
-                        family: RvFonts.serif,
+                        color: AppColors.paper100,
+                        family: AppTypography.serif,
                       ),
                     ),
                     const SizedBox(width: 14),
@@ -183,11 +182,11 @@ class _SignUpLink extends StatelessWidget {
             child: Center(
               child: Text(
                 'Aún no tengo una cuenta',
-                style: rvText(
+                style: AppTypography.style(
                   16,
                   weight: FontWeight.w600,
                   lineHeight: 20,
-                  color: RvColors.paper100,
+                  color: AppColors.paper100,
                 ),
               ),
             ),

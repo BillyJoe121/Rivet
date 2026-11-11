@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'rv_tokens.dart';
+import '../theme/theme.dart';
 
 /// Lienzo de pantalla de Figma: imagen de cabecera de 412×232 al fondo,
 /// zona de barra de estado, cabecera, cuerpo desplazable, acciones al pie
@@ -11,10 +11,10 @@ class RvPage extends StatelessWidget {
     required this.body,
     this.header,
     this.headerImage,
-    this.headerImageHeight = RvLayout.headerImage,
+    this.headerImageHeight = AppSpacing.heroHeight,
     this.footer,
     this.footerPadding = const EdgeInsets.fromLTRB(22, 0, 22, 6),
-    this.background = RvColors.paper100,
+    this.background = AppColors.paper100,
     this.scrollable = true,
   });
 
@@ -58,7 +58,7 @@ class RvPage extends StatelessWidget {
                     : body,
               ),
               if (footer != null) Padding(padding: footerPadding, child: footer),
-              Container(height: padding.bottom, color: RvColors.surface0),
+              Container(height: padding.bottom, color: AppColors.surface0),
             ],
           ),
         ],

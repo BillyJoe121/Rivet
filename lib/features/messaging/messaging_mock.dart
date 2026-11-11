@@ -1,4 +1,4 @@
-import '../home/widgets/kit/kit.dart';
+import '../../core/design_system/design_system.dart';
 
 /// Conversación de la bandeja de mensajes.
 class MsgConversation {
@@ -32,19 +32,19 @@ class MsgNotice {
 const List<MsgConversation> messageConversations = [
   MsgConversation(
     name: 'Carlos Ramírez',
-    avatar: ProAssets.avatarCarlos,
+    avatar: AppImages.proAvatarCarlos,
     time: 'Hace 10 min',
     text: 'Te envié la propuesta ajustada.',
   ),
   MsgConversation(
     name: 'Pinturas del Valle',
-    avatar: ProAssets.avatarCarlos,
+    avatar: AppImages.proAvatarCarlos,
     time: 'Hace 1 h',
     text: 'Tu pedido #279 fue confirmado.',
   ),
   MsgConversation(
     name: 'Ana Torres',
-    avatar: ProAssets.avatarPainter,
+    avatar: AppImages.proAvatarPainter,
     time: 'Ayer',
     text: '¿Confirmas visita para mañana?',
   ),

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../core/models/models.dart';
-import '../../core/utils/app_page_route.dart';
 import '../under_construction/under_construction_screen.dart';
-import 'widgets/kit/kit.dart';
+import '../../core/design_system/design_system.dart';
 import 'widgets/pro_home_cards.dart';
 import 'widgets/pro_home_mock.dart';
 
@@ -20,7 +19,7 @@ class ContractorHomeView extends StatelessWidget {
         () => AppNavigator.push(context, UnderConstructionScreen(section: section));
 
     return ProScreen(
-      backgroundAsset: ProAssets.headerBotanical,
+      backgroundAsset: AppImages.headerBotanical,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [

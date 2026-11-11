@@ -18,12 +18,14 @@ create table if not exists public.profiles (
 alter table public.profiles enable row level security;
 
 -- 3. Políticas de seguridad (RLS)
+-- Cada usuario lee solo su propio perfil completo (correo y teléfono incluidos).
 drop policy if exists "Authenticated users can view profiles" on public.profiles;
-create policy "Authenticated users can view profiles"
+drop policy if exists "Users can view their own profile" on public.profiles;
+create policy "Users can view their own profile"
   on public.profiles
   for select
   to authenticated
-  using (true);
+  using ((select auth.uid()) = id);
 
 drop policy if exists "Users can insert their own profile" on public.profiles;
 create policy "Users can insert their own profile"
@@ -69,4 +71,12 @@ create trigger on_auth_user_created
 
 -- Conceder permisos de lectura y escritura al rol autenticado
 grant select, insert, update on public.profiles to authenticated;
-grant select on public.profiles to anon;
+revoke select on public.profiles from anon;
+
+-- 5. Datos públicos de un perfil (sin correo ni teléfono) para mostrar a otros usuarios
+create or replace view public.public_profiles as
+  select id, full_name, role, avatar_url
+  from public.profiles;
+
+revoke all on public.public_profiles from anon;
+grant select on public.public_profiles to authenticated;

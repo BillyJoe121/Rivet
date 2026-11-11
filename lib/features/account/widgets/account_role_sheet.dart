@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/models/models.dart';
-import '../../home/widgets/kit/kit.dart';
+import '../../../core/design_system/design_system.dart';
 
 /// Hoja inferior para cambiar el rol activo y recorrer la app desde las tres
 /// perspectivas. Se abre al tocar el avatar del perfil.
@@ -12,8 +12,8 @@ Future<void> showAccountRoleSheet(
 }) {
   return showModalBottomSheet<void>(
     context: context,
-    backgroundColor: ProColors.paper100,
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(ProRadii.lg))),
+    backgroundColor: AppColors.paper100,
+    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(AppSpacing.radiusLg))),
     builder: (sheetContext) => SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(22, 20, 22, 16),
@@ -22,12 +22,12 @@ Future<void> showAccountRoleSheet(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           spacing: 8,
           children: [
-            Text('Cambiar rol activo', style: ProText.serifTitle),
-            Text('Permite probar y navegar la app como Cliente o Contratista.', style: ProText.caption),
+            Text('Cambiar rol activo', style: AppTypography.serifTitleProportional),
+            Text('Permite probar y navegar la app como Cliente o Contratista.', style: AppTypography.captionProportional),
             const SizedBox(height: 4),
             for (final role in const [UserRole.client, UserRole.contractor])
               ProCard(
-                borderColor: role == currentRole ? ProColors.brand700 : ProColors.line300,
+                borderColor: role == currentRole ? AppColors.brand700 : AppColors.line300,
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   onSwitchRole(role);

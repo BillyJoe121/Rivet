@@ -6,11 +6,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/models/models.dart';
-import '../../core/utils/app_page_route.dart';
-import '../../core/utils/validators.dart';
 import '../home/app_shell.dart';
-import '../projects/widgets/client_kit/client_kit.dart';
-import 'auth_service.dart';
+import '../../core/design_system/design_system.dart';
+import 'domain/repositories/auth_repository.dart';
+import 'domain/usecases/usecases.dart';
+import 'presentation/bloc/auth/auth_bloc.dart';
 import 'presentation/bloc/signup/signup_bloc.dart';
 import 'widgets/signup_form_card.dart';
 import 'widgets/signup_parts.dart';
@@ -45,7 +45,10 @@ class SignupScreen extends StatelessWidget {
     } catch (_) {
       return BlocProvider<SignUpBloc>(
         create: (_) =>
-            SignUpBloc(AuthService.instance.signUpUseCase, initialRole: role),
+            SignUpBloc(
+              SignUpUseCase(context.read<AuthRepository>()),
+              initialRole: role,
+            ),
         child: _SignupView(initialRole: role),
       );
     }
@@ -207,6 +210,7 @@ class _SignupViewState extends State<_SignupView>
     return BlocConsumer<SignUpBloc, SignUpState>(
       listener: (context, state) {
         if (state.isSuccess && state.user != null) {
+          context.read<AuthBloc>().add(AuthUserChanged(state.user));
           AppNavigator.pushAndRemoveUntil(
             context,
             AppShell(initialRole: state.user!.role),
@@ -219,37 +223,37 @@ class _SignupViewState extends State<_SignupView>
         final activeError = _errorMessage ?? state.errorMessage;
 
         return Scaffold(
-          backgroundColor: RvColors.paper100,
+          backgroundColor: AppColors.paper100,
           body: LayoutBuilder(
             builder: (context, constraints) => SingleChildScrollView(
               physics: const ClampingScrollPhysics(),
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: ColoredBox(
-                  color: RvColors.paper100,
+                  color: AppColors.paper100,
                   child: Stack(
                     children: [
                       Positioned(
                         top: 0,
                         left: 0,
                         right: 0,
-                        height: 309,
+                        height: AppSpacing.signupHeroHeight,
                         child: Image.asset(
-                          RvImages.headerRoller,
+                          AppImages.headerRoller,
                           fit: BoxFit.cover,
                         ),
                       ),
                       const Positioned(
-                        top: 230,
+                        top: AppSpacing.signupHeroFadeTop,
                         left: 0,
                         right: 0,
-                        height: 42,
+                        height: AppSpacing.signupHeroFadeHeight,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [Color(0x00FAF8F3), RvColors.paper100],
+                              colors: [AppColors.paperTransparent, AppColors.paper100],
                             ),
                           ),
                         ),
@@ -271,7 +275,7 @@ class _SignupViewState extends State<_SignupView>
                                   curve: Curves.easeOutCubic,
                                 ),
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: AppSpacing.space18),
                           AnimatedBuilder(
                                 animation: _shakeController,
                                 builder: (context, child) {
@@ -279,7 +283,7 @@ class _SignupViewState extends State<_SignupView>
                                       math.sin(
                                         _shakeController.value * math.pi * 4,
                                       ) *
-                                      8.0;
+                                      AppSpacing.shakeDistance;
                                   return Transform.translate(
                                     offset: Offset(offset, 0),
                                     child: child,
@@ -321,7 +325,7 @@ class _SignupViewState extends State<_SignupView>
                                 end: 0,
                                 curve: Curves.easeOutCubic,
                               ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: AppSpacing.xxl),
                         ],
                       ),
                     ],

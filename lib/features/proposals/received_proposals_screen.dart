@@ -8,7 +8,9 @@ import '../../core/widgets/widgets.dart';
 import '../agreements/agreements_screens.dart';
 import 'presentation/bloc/proposals_bloc.dart';
 import 'proposal_detail_screen.dart';
-import 'proposals_service.dart';
+import 'domain/repositories/proposal_repository.dart';
+import 'domain/usecases/accept_proposal_usecase.dart';
+import 'domain/usecases/get_received_proposals_usecase.dart';
 import 'widgets/proposal_card.dart';
 
 /// Propuestas recibidas por el cliente con Clean Architecture y BLoC (P-028).
@@ -39,10 +41,13 @@ class ReceivedProposalsScreen extends StatelessWidget {
       return _ReceivedProposalsView(projectId: projectId);
     } catch (_) {
       return BlocProvider<ProposalsBloc>(
-        create: (_) => ProposalsBloc(
-          ProposalsService.instance.getReceivedProposalsUseCase,
-          ProposalsService.instance.acceptProposalUseCase,
-        )..add(LoadReceivedProposals(projectId: projectId)),
+        create: (context) {
+          final repository = context.read<ProposalRepository>();
+          return ProposalsBloc(
+            GetReceivedProposalsUseCase(repository),
+            AcceptProposalUseCase(repository),
+          )..add(LoadReceivedProposals(projectId: projectId));
+        },
         child: _ReceivedProposalsView(projectId: projectId),
       );
     }

@@ -5,10 +5,6 @@ import 'package:lucide_icons_flutter/lucide_icons_600.dart';
 import '../theme/theme.dart';
 import 'app_modal.dart';
 
-// Colores del día no disponible; no existen como tokens.
-const Color _disabledFill = Color(0xFFE3E6E6);
-const Color _disabledText = Color(0xFF7B8588);
-
 const List<String> _monthNames = [
   'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', //
   'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre',
@@ -196,8 +192,8 @@ class _AppDatePickerDialogState extends State<AppDatePickerDialog> {
       fill = AppColors.surface0;
       textColor = AppColors.ink900;
     } else {
-      fill = _disabledFill;
-      textColor = _disabledText;
+      fill = AppColors.disabledFill;
+      textColor = AppColors.disabledInk;
     }
     return _DayCell(
       day: day.day,

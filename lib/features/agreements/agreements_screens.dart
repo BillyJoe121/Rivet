@@ -34,18 +34,22 @@ class _AgreementSummaryScreenState extends State<AgreementSummaryScreen> {
   @override
   void initState() {
     super.initState();
-    _bloc = widget.agreementsBloc ??
-        AgreementsBloc(
-          AgreementsService.instance.prepareAgreementUseCase,
-          AgreementsService.instance.processSimulatedPaymentUseCase,
-          AgreementsService.instance.confirmWorkCompletionUseCase,
-        );
+    _bloc = widget.agreementsBloc ?? _createBloc();
     _bloc.add(
       PrepareAgreementRequested(
         projectId: widget.proposal.projectId,
         projectTitle: widget.projectTitle,
         proposal: widget.proposal,
       ),
+    );
+  }
+
+  AgreementsBloc _createBloc() {
+    final repository = context.read<AgreementRepository>();
+    return AgreementsBloc(
+      PrepareAgreementUseCase(repository),
+      ProcessSimulatedPaymentUseCase(repository),
+      ConfirmWorkCompletionUseCase(repository),
     );
   }
 

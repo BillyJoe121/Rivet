@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import '../../projects/widgets/client_kit/client_kit.dart';
+import '../../../core/design_system/design_system.dart';
 import 'auth_widgets.dart';
 import 'forgot_password_parts.dart';
 import 'login_parts.dart';
@@ -26,21 +26,20 @@ class ForgotPasswordSheet extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: const BoxDecoration(
-        color: RvColors.surface0,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x14000000),
-            offset: Offset(0, -4),
-            blurRadius: 20,
-          ),
-        ],
+        color: AppColors.surface0,
+        borderRadius: AppSpacing.roundedSheetTop,
+        boxShadow: AppSpacing.shadowSheet,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(24, 22, 24, 18),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xxl,
+              AppSpacing.screenGutter,
+              AppSpacing.xxl,
+              AppSpacing.space18,
+            ),
             child: Row(
               children: [
                 Expanded(
@@ -54,24 +53,29 @@ class ForgotPasswordSheet extends StatelessWidget {
                       title,
                       key: ValueKey(title),
                       maxLines: 1,
-                      style: rvText(
+                      style: AppTypography.style(
                         22,
                         weight: FontWeight.w700,
                         lineHeight: 28,
-                        color: RvColors.brand700,
-                        family: RvFonts.serif,
+                        color: AppColors.brand700,
+                        family: AppTypography.serif,
                       ),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.md),
                 ForgotStepBar(step: sent ? 2 : 1),
               ],
             ),
           ),
-          Container(height: 1, color: AuthColors.fieldStroke),
+          Container(height: AppSpacing.strokeDivider, color: AppColors.fieldBorder),
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.xxl,
+            ),
             child: AnimatedSize(
               duration: const Duration(milliseconds: 320),
               curve: Curves.easeOutCubic,
@@ -133,7 +137,7 @@ class ForgotPasswordForm extends StatelessWidget {
             onSubmitted: (_) => onSubmit(),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.xl),
         AuthGradientButton(
           label: 'Enviar enlace',
           isLoading: isLoading,
@@ -214,13 +218,13 @@ class _ForgotPasswordSentState extends State<ForgotPasswordSent> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SentEmailChip(email: widget.email, onEdit: widget.onEditEmail),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.md),
         ResendCountdownTile(
           remaining: _remaining,
           total: widget.cooldownSeconds,
           onResend: widget.onResend == null ? null : _handleResend,
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.xl),
         AuthGradientButton(
           label: 'Volver a iniciar sesión',
           onPressed: widget.onBackToLogin,

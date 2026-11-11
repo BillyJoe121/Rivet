@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'kit/kit.dart';
+import '../../../core/design_system/design_system.dart';
 import 'pro_home_mock.dart';
 
 /// Tarjeta oscura "Nuevos proyectos cerca de ti" con un proyecto destacado.
@@ -13,12 +13,12 @@ class ProFeaturedProjectCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ProCard(
-      color: ProColors.brand800,
+      color: AppColors.brand800,
       padding: const EdgeInsets.all(13),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Nuevos proyectos cerca de ti', style: ProText.subheading.copyWith(color: ProColors.surface0)),
+          Text('Nuevos proyectos cerca de ti', style: AppTypography.subheadingProportional.copyWith(color: AppColors.surface0)),
           const SizedBox(height: 9),
           ProProjectCard(project: project, imageSize: 78, onTap: onTap),
         ],
@@ -41,8 +41,8 @@ class ProProjectCard extends StatelessWidget {
     final done = project.stagesDone;
     final total = project.stagesTotal;
     return ProCard(
-      radius: ProRadii.card,
-      borderWidth: ProStroke.hairline,
+      radius: AppSpacing.radiusCard,
+      borderWidth: AppSpacing.strokeHairline,
       padding: const EdgeInsets.all(7),
       onTap: onTap,
       child: Row(
@@ -56,14 +56,14 @@ class ProProjectCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Expanded(child: Text(project.title, style: ProText.labelStrong)),
+                    Expanded(child: Text(project.title, style: AppTypography.labelStrongProportional)),
                     if (project.badge != null) ...[
                       const SizedBox(width: 4),
                       ProChip(
                         project.badge!,
-                        background: ProColors.warningLight,
+                        background: AppColors.warningLight,
                         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                        textStyle: ProText.r(11, color: ProColors.sun300, lineHeight: 13.2),
+                        textStyle: AppTypography.proportional(11, color: AppColors.sun300, lineHeight: 13.2),
                       ),
                     ],
                   ],
@@ -71,7 +71,7 @@ class ProProjectCard extends StatelessWidget {
                 const SizedBox(height: 3),
                 Text(
                   '${project.category}\n♧ ${project.location}',
-                  style: ProText.r(11, color: ProColors.ink500, lineHeight: 12.65),
+                  style: AppTypography.proportional(11, color: AppColors.ink500, lineHeight: 12.65),
                 ),
                 if (done != null && total != null) ...[
                   const SizedBox(height: 3),
@@ -79,7 +79,7 @@ class ProProjectCard extends StatelessWidget {
                     children: [
                       Expanded(child: ProProgressBar(value: project.progress ?? done / total)),
                       const SizedBox(width: 8),
-                      Text('$done de $total etapas', style: ProText.r(9, color: ProColors.ink500, lineHeight: 10.8)),
+                      Text('$done de $total etapas', style: AppTypography.proportional(9, color: AppColors.ink500, lineHeight: 10.8)),
                     ],
                   ),
                 ],
@@ -88,7 +88,7 @@ class ProProjectCard extends StatelessWidget {
           ),
           if (onTap != null) ...[
             const SizedBox(width: 4),
-            const ProIcon(LucideIcon.chevronRight, size: 18, color: ProColors.ink500),
+            const ProIcon(LucideIcon.chevronRight, size: 18, color: AppColors.ink500),
           ],
         ],
       ),
@@ -116,7 +116,7 @@ class ProActivityCard extends StatelessWidget {
                 icon: item.icon,
                 title: item.title,
                 subtitle: item.detail,
-                titleStyle: ProText.r(12, weight: FontWeight.w600, lineHeight: 15.6),
+                titleStyle: AppTypography.proportional(12, weight: FontWeight.w600, lineHeight: 15.6),
                 onTap: onTap == null ? null : () => onTap!(item),
               ),
             ),

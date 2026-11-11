@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'pro_icon.dart';
-import 'pro_tokens.dart';
+import '../theme/theme.dart';
+import 'icons/pro_icon.dart';
 
 /// Tarjeta blanca de Figma: borde interior de 0.6 px y radio 16.
 class ProCard extends StatelessWidget {
@@ -9,10 +9,10 @@ class ProCard extends StatelessWidget {
     super.key,
     required this.child,
     this.padding = const EdgeInsets.all(10),
-    this.radius = ProRadii.lg,
-    this.color = ProColors.surface0,
-    this.borderColor = ProColors.line300,
-    this.borderWidth = ProStroke.card,
+    this.radius = AppSpacing.radiusLg,
+    this.color = AppColors.surface0,
+    this.borderColor = AppColors.line300,
+    this.borderWidth = AppSpacing.strokeCard,
     this.width,
     this.height,
     this.onTap,
@@ -57,11 +57,11 @@ class ProNote extends StatelessWidget {
     required this.text,
     this.icon = LucideIcon.info,
     this.iconSize = 23,
-    this.color = ProColors.brandLight,
+    this.color = AppColors.brandLight,
     this.textStyle,
     this.padding = const EdgeInsets.all(12),
     this.gap = 10,
-    this.radius = ProRadii.md,
+    this.radius = AppSpacing.radiusMd,
   });
 
   final String text;
@@ -85,7 +85,7 @@ class ProNote extends StatelessWidget {
             ProIcon(icon!, size: iconSize),
             SizedBox(width: gap),
           ],
-          Expanded(child: Text(text, style: textStyle ?? ProText.r(12, color: ProColors.ink500, lineHeight: 14.4))),
+          Expanded(child: Text(text, style: textStyle ?? AppTypography.proportional(12, color: AppColors.ink500, lineHeight: 14.4))),
         ],
       ),
     );
@@ -97,8 +97,8 @@ class ProChip extends StatelessWidget {
   const ProChip(
     this.label, {
     super.key,
-    this.background = ProColors.warningLight,
-    this.foreground = ProColors.warning800,
+    this.background = AppColors.warningLight,
+    this.foreground = AppColors.warning800,
     this.padding = const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     this.textStyle,
   });
@@ -113,8 +113,8 @@ class ProChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: padding,
-      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(ProRadii.xl)),
-      child: Text(label, style: textStyle ?? ProText.micro.copyWith(color: foreground)),
+      decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(AppSpacing.radiusXl)),
+      child: Text(label, style: textStyle ?? AppTypography.microProportional.copyWith(color: foreground)),
     );
   }
 }
@@ -140,12 +140,12 @@ class ProSectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Expanded(child: Text(title, style: titleStyle ?? ProText.subheading)),
+        Expanded(child: Text(title, style: titleStyle ?? AppTypography.subheadingProportional)),
         if (count != null) ProCountPill(count!),
         if (linkLabel != null)
           GestureDetector(
             onTap: onLinkTap,
-            child: Text(linkLabel!, style: ProText.r(12, color: ProColors.brand700, lineHeight: 14.4)),
+            child: Text(linkLabel!, style: AppTypography.proportional(12, color: AppColors.brand700, lineHeight: 14.4)),
           ),
       ],
     );
@@ -164,9 +164,9 @@ class ProCountPill extends StatelessWidget {
       constraints: const BoxConstraints(minWidth: 26),
       height: 22,
       alignment: Alignment.center,
-      decoration: BoxDecoration(color: ProColors.brandLight, borderRadius: BorderRadius.circular(ProRadii.xl)),
+      decoration: BoxDecoration(color: AppColors.brandLight, borderRadius: BorderRadius.circular(AppSpacing.radiusXl)),
       child: Text('$value',
-          style: ProText.r(11, weight: FontWeight.w600, color: ProColors.brand700, lineHeight: 12.890625)),
+          style: AppTypography.proportional(11, weight: FontWeight.w600, color: AppColors.brand700, lineHeight: 12.890625)),
     );
   }
 }
@@ -177,8 +177,8 @@ class ProProgressBar extends StatelessWidget {
     super.key,
     required this.value,
     this.height = 7,
-    this.track = ProColors.progressTrack,
-    this.fill = ProColors.success700,
+    this.track = AppColors.leaf300,
+    this.fill = AppColors.success700,
     this.radius = 5,
   });
 
@@ -208,7 +208,7 @@ class ProInitialsAvatar extends StatelessWidget {
     this.initials, {
     super.key,
     this.size = 36,
-    this.color = ProColors.brand700,
+    this.color = AppColors.brand700,
     this.textStyle,
   });
 
@@ -224,7 +224,7 @@ class ProInitialsAvatar extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-      child: Text(initials, style: textStyle ?? ProText.r(12, color: ProColors.surface0, lineHeight: 14.4)),
+      child: Text(initials, style: textStyle ?? AppTypography.proportional(12, color: AppColors.surface0, lineHeight: 14.4)),
     );
   }
 }
@@ -236,7 +236,7 @@ class ProImage extends StatelessWidget {
     super.key,
     required this.width,
     required this.height,
-    this.radius = ProRadii.sm,
+    this.radius = AppSpacing.radiusSm,
     this.fit = BoxFit.cover,
     this.background,
   });
@@ -264,7 +264,7 @@ class ProImage extends StatelessWidget {
 
 /// Separador horizontal.
 class ProDivider extends StatelessWidget {
-  const ProDivider({super.key, this.thickness = ProStroke.hairline, this.color = ProColors.line300});
+  const ProDivider({super.key, this.thickness = AppSpacing.strokeHairline, this.color = AppColors.line300});
 
   final double thickness;
   final Color color;

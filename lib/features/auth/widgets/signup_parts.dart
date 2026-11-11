@@ -4,9 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/models/models.dart';
-import '../../../core/widgets/app_back_button.dart';
-import '../../projects/widgets/client_kit/client_kit.dart';
-import 'auth_widgets.dart';
+import '../../../core/design_system/design_system.dart';
 
 /// Cabecera del registro: [AppBackButton] y título Lora 700 32/40.
 class SignupHeader extends StatelessWidget {
@@ -17,22 +15,27 @@ class SignupHeader extends StatelessWidget {
     return Padding(
       // Caja de 48 con el círculo donde estaba el de 32: sobresale 8 px a la
       // izquierda y arriba, y el título conserva su posición.
-      padding: const EdgeInsets.fromLTRB(22, 8, 30, 0),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.screenGutter,
+        AppSpacing.sm,
+        AppSpacing.space30,
+        0,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const AppBackButton(),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.space10),
           Padding(
-            padding: const EdgeInsets.only(left: 8),
+            padding: const EdgeInsets.only(left: AppSpacing.sm),
             child: Text(
               'Crear tu cuenta',
-              style: rvText(
+              style: AppTypography.style(
                 32,
                 weight: FontWeight.w700,
                 lineHeight: 40,
-                color: RvColors.brand700,
-                family: RvFonts.serif,
+                color: AppColors.brand700,
+                family: AppTypography.serif,
               ),
             ),
           ),
@@ -49,56 +52,55 @@ class SignupSteps extends StatelessWidget {
   final int current;
 
   static const _labels = ['Datos', 'Rol', 'Confirmar'];
-  static const _stepWidth = 110.67;
 
   @override
   Widget build(BuildContext context) {
     Widget line(double left, bool done) => Positioned(
       left: left,
-      top: 38,
+      top: AppSpacing.signupStepLineTop,
       child: Container(
-        width: 82,
-        height: 1,
+        width: AppSpacing.signupStepLineWidth,
+        height: AppSpacing.strokeDivider,
         decoration: BoxDecoration(
-          color: done ? RvColors.brand700 : AuthColors.fieldStroke,
-          borderRadius: BorderRadius.circular(1),
+          color: done ? AppColors.brand700 : AppColors.fieldBorder,
+          borderRadius: BorderRadius.circular(AppSpacing.radiusHairline),
         ),
       ),
     );
     Widget step(int i) {
       final active = i <= current;
       return Positioned(
-        left: 40 + i * _stepWidth,
-        top: 24,
-        width: _stepWidth,
+        left: AppSpacing.signupStepStart + i * AppSpacing.signupStepWidth,
+        top: AppSpacing.signupStepTop,
+        width: AppSpacing.signupStepWidth,
         child: Column(
           children: [
             Container(
-              width: 28,
-              height: 28,
+              width: AppSpacing.stepCircleSize,
+              height: AppSpacing.stepCircleSize,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: active ? RvColors.brand700 : AuthColors.fieldStroke,
+                color: active ? AppColors.brand700 : AppColors.fieldBorder,
                 shape: BoxShape.circle,
               ),
               child: Text(
                 '${i + 1}',
-                style: rvText(
+                style: AppTypography.style(
                   12,
                   weight: FontWeight.w700,
                   lineHeight: 14.06,
-                  color: active ? RvColors.surface0 : AuthColors.placeholder,
+                  color: active ? AppColors.surface0 : AppColors.inputPlaceholder,
                 ),
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: AppSpacing.space6),
             Text(
               _labels[i],
-              style: rvText(
+              style: AppTypography.style(
                 11,
                 weight: active ? FontWeight.w600 : FontWeight.w400,
                 lineHeight: 12.89,
-                color: active ? RvColors.brand700 : AuthColors.placeholder,
+                color: active ? AppColors.brand700 : AppColors.inputPlaceholder,
               ),
             ),
           ],
@@ -107,13 +109,13 @@ class SignupSteps extends StatelessWidget {
     }
 
     return SizedBox(
-      height: 71,
+      height: AppSpacing.signupStepperHeight,
       child: Stack(
         children: [
           step(0),
-          line(94, current >= 1),
+          line(AppSpacing.signupStepLineFirstStart, current >= 1),
           step(1),
-          line(236, current >= 2),
+          line(AppSpacing.signupStepLineSecondStart, current >= 2),
           step(2),
         ],
       ),
@@ -147,24 +149,27 @@ class SignupField extends StatelessWidget {
       behavior: HitTestBehavior.opaque,
       onTap: focusNode?.requestFocus,
       child: Container(
-        constraints: const BoxConstraints(minHeight: 62),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        constraints: const BoxConstraints(minHeight: AppSpacing.authFieldMinHeight),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.lg,
+          vertical: AppSpacing.space10,
+        ),
         decoration: BoxDecoration(
-          color: RvColors.surface0,
-          border: Border.all(color: AuthColors.fieldStroke),
-          borderRadius: BorderRadius.circular(14),
+          color: AppColors.surface0,
+          border: Border.all(color: AppColors.fieldBorder),
+          borderRadius: AppSpacing.roundedCard,
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(
-              width: 24,
-              height: 24,
+              width: AppSpacing.iconBox,
+              height: AppSpacing.iconBox,
               child: Center(
-                child: RvIcon(icon, size: 22, color: RvColors.brand700),
+                child: RvIcon(icon, size: AppSpacing.iconLg, color: AppColors.brand700),
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: AppSpacing.sectionGap),
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -173,19 +178,22 @@ class SignupField extends StatelessWidget {
                 children: [
                   Text(
                     label,
-                    style: rvText(
+                    style: AppTypography.style(
                       12,
                       weight: FontWeight.w500,
                       lineHeight: 14.06,
-                      color: AuthColors.mutedInk,
+                      color: AppColors.fieldLabel,
                     ),
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: AppSpacing.space3),
                   input,
                 ],
               ),
             ),
-            if (trailing != null) ...[const SizedBox(width: 12), trailing!],
+            if (trailing != null) ...[
+              const SizedBox(width: AppSpacing.md),
+              trailing!,
+            ],
           ],
         ),
       ),
@@ -204,9 +212,6 @@ class AccountTypeSelector extends StatelessWidget {
   final UserRole selected;
   final ValueChanged<UserRole> onChanged;
 
-  /// Alto de cada tarjeta de rol.
-  static const _cardHeight = 70.0;
-
   static const _options = [
     (role: UserRole.client, label: 'Cliente', icon: LucideIcons.home),
     (
@@ -219,24 +224,24 @@ class AccountTypeSelector extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             '¿Qué tipo de cuenta quieres crear?',
-            style: rvText(
+            style: AppTypography.style(
               16,
               weight: FontWeight.w600,
               lineHeight: 20,
-              color: RvColors.brand700,
+              color: AppColors.brand700,
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpacing.sectionGap),
           Row(
             children: [
               for (var i = 0; i < _options.length; i++) ...[
-                if (i > 0) const SizedBox(width: 12),
+                if (i > 0) const SizedBox(width: AppSpacing.md),
                 Expanded(child: _option(_options[i])),
               ],
             ],
@@ -264,77 +269,73 @@ class AccountTypeSelector extends StatelessWidget {
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutCubic,
-            height: _cardHeight,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            height: AppSpacing.authRoleCardHeight,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             decoration: BoxDecoration(
-              color: RvColors.surface0,
+              color: AppColors.surface0,
               border: Border.all(
-                color: on ? RvColors.brand700 : const Color(0xFFE5E7EB),
-                width: on ? 1.8 : 1.0,
+                color: on ? AppColors.brand700 : AppColors.gray200,
+                width: on ? AppSpacing.strokeSelected : AppSpacing.strokeDivider,
               ),
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: on ? const Color(0x18004E49) : const Color(0x06000000),
-                  offset: const Offset(0, 4),
-                  blurRadius: on ? 14 : 6,
-                ),
-              ],
+              borderRadius: AppSpacing.roundedCard,
+              boxShadow: on
+                  ? AppSpacing.shadowOptionSelected
+                  : AppSpacing.shadowOptionIdle,
             ),
             child: Row(
               children: [
                 // Contenedor de icono suavizado
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: 36,
-                  height: 36,
+                  width: AppSpacing.optionIconTileSize,
+                  height: AppSpacing.optionIconTileSize,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: on
-                        ? const Color(0xFFE6F4F0)
-                        : const Color(0xFFF3F4F6),
-                    borderRadius: BorderRadius.circular(10),
+                        ? AppColors.selectedTint
+                        : AppColors.gray100,
+                    borderRadius: AppSpacing.roundedSm,
                   ),
                   child: Icon(
                     o.icon,
-                    size: 20,
-                    color: on ? RvColors.brand700 : const Color(0xFF6B7280),
+                    size: AppSpacing.iconMd,
+                    color: on ? AppColors.brand700 : AppColors.gray500,
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: AppSpacing.space10),
                 Expanded(
                   child: Text(
                     o.label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: rvText(
+                    style: AppTypography.style(
                       15,
                       weight: FontWeight.w700,
                       lineHeight: 18,
-                      color: on ? RvColors.brand700 : RvColors.ink900,
+                      color: on ? AppColors.brand700 : AppColors.ink900,
                     ),
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.sm),
                 // Marca de selección al final de la fila, centrada en vertical
                 AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: 18,
-                  height: 18,
+                  width: AppSpacing.radioSize,
+                  height: AppSpacing.radioSize,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: on ? RvColors.brand700 : Colors.transparent,
+                    color: on ? AppColors.brand700 : Colors.transparent,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: on ? RvColors.brand700 : const Color(0xFFD1D5DB),
-                      width: 1.5,
+                      color: on ? AppColors.brand700 : AppColors.gray300,
+                      width: AppSpacing.strokeControl,
                     ),
                   ),
                   child: on
                       ? const Icon(
                           Icons.check,
-                          size: 11,
-                          color: RvColors.surface0,
+                          size: AppSpacing.iconXxs,
+                          color: AppColors.surface0,
                         ).animate().scale(
                           duration: const Duration(milliseconds: 220),
                           curve: Curves.elasticOut,

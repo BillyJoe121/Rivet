@@ -11,7 +11,9 @@ import '../contractors/contractors_screens.dart';
 import '../messaging/messaging_screens.dart';
 import '../supplier/material_price_tier.dart';
 import 'presentation/bloc/proposals_bloc.dart';
-import 'proposals_service.dart';
+import 'domain/repositories/proposal_repository.dart';
+import 'domain/usecases/accept_proposal_usecase.dart';
+import 'domain/usecases/get_received_proposals_usecase.dart';
 
 /// Ficha técnica y detalle de una cotización para aceptación formal del cliente (P-031).
 class ProposalDetailScreen extends StatelessWidget {
@@ -38,10 +40,13 @@ class ProposalDetailScreen extends StatelessWidget {
       return _ProposalDetailView(proposal: proposal);
     } catch (_) {
       return BlocProvider<ProposalsBloc>(
-        create: (_) => ProposalsBloc(
-          ProposalsService.instance.getReceivedProposalsUseCase,
-          ProposalsService.instance.acceptProposalUseCase,
-        ),
+        create: (context) {
+          final repository = context.read<ProposalRepository>();
+          return ProposalsBloc(
+            GetReceivedProposalsUseCase(repository),
+            AcceptProposalUseCase(repository),
+          );
+        },
         child: _ProposalDetailView(proposal: proposal),
       );
     }

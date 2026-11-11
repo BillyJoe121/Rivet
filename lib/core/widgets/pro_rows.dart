@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-import 'pro_icon.dart';
-import 'pro_tokens.dart';
+import '../theme/theme.dart';
+import 'icons/pro_icon.dart';
 
 /// Fila de opción: ícono de 23 px, título en negrita y subtítulo gris en un
 /// mismo bloque de texto, acción a la derecha y separador inferior de 0.5 px.
@@ -44,7 +44,7 @@ class ProOptionRow extends StatelessWidget {
         padding: padding,
         decoration: showDivider
             ? const BoxDecoration(
-                border: Border(bottom: BorderSide(color: ProColors.line300, width: ProStroke.hairline)),
+                border: Border(bottom: BorderSide(color: AppColors.line300, width: AppSpacing.strokeHairline)),
               )
             : null,
         child: Row(
@@ -56,12 +56,12 @@ class ProOptionRow extends StatelessWidget {
                   children: [
                     TextSpan(
                       text: title,
-                      style: titleStyle ?? ProText.r(12, weight: FontWeight.w600, lineHeight: lineHeight),
+                      style: titleStyle ?? AppTypography.proportional(12, weight: FontWeight.w600, lineHeight: lineHeight),
                     ),
                     if (subtitle != null)
                       TextSpan(
                         text: '\n$subtitle',
-                        style: subtitleStyle ?? ProText.r(11, color: ProColors.ink500, lineHeight: lineHeight),
+                        style: subtitleStyle ?? AppTypography.proportional(11, color: AppColors.ink500, lineHeight: lineHeight),
                       ),
                   ],
                 ),
@@ -93,14 +93,14 @@ class ProQuickAccess extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: ProColors.surface0,
+      color: AppColors.surface0,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(ProRadii.card),
-        side: const BorderSide(color: ProColors.line300, width: ProStroke.hairline),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
+        side: const BorderSide(color: AppColors.line300, width: AppSpacing.strokeHairline),
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(ProRadii.card),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
         child: SizedBox(
           height: height,
           child: Padding(
@@ -113,7 +113,7 @@ class ProQuickAccess extends StatelessWidget {
                 Text(
                   label,
                   textAlign: TextAlign.center,
-                  style: ProText.r(12, color: ProColors.ink700, lineHeight: 14.4),
+                  style: AppTypography.proportional(12, color: AppColors.ink700, lineHeight: 14.4),
                 ),
               ],
             ),

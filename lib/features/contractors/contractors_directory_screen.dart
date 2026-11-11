@@ -29,10 +29,13 @@ class ContractorsDirectoryScreen extends StatelessWidget {
       return const _ContractorsDirectoryView();
     } catch (_) {
       return BlocProvider<ContractorsBloc>(
-        create: (_) => ContractorsBloc(
-          ContractorsService.instance.getContractorsUseCase,
-          ContractorsService.instance.requestContractorVisitUseCase,
-        )..add(const LoadContractors()),
+        create: (context) {
+          final repository = context.read<ContractorRepository>();
+          return ContractorsBloc(
+            GetContractorsUseCase(repository),
+            RequestContractorVisitUseCase(repository),
+          )..add(const LoadContractors());
+        },
         child: const _ContractorsDirectoryView(),
       );
     }

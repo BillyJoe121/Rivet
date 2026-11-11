@@ -419,23 +419,3 @@ class AgreementsBloc extends Bloc<AgreementsEvent, AgreementsState> {
     }
   }
 }
-
-class AgreementsService {
-  AgreementsService._();
-  static final AgreementsService instance = AgreementsService._();
-
-  AgreementRepository _repository = LocalAgreementRepository();
-
-  void setRepositoryForTesting(AgreementRepository repository) {
-    _repository = repository;
-  }
-
-  PrepareAgreementUseCase get prepareAgreementUseCase =>
-      PrepareAgreementUseCase(_repository);
-
-  ProcessSimulatedPaymentUseCase get processSimulatedPaymentUseCase =>
-      ProcessSimulatedPaymentUseCase(_repository);
-
-  ConfirmWorkCompletionUseCase get confirmWorkCompletionUseCase =>
-      ConfirmWorkCompletionUseCase(_repository);
-}

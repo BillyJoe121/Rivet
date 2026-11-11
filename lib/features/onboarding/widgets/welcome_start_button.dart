@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../projects/widgets/client_kit/client_kit.dart';
+import '../../../core/design_system/design_system.dart';
 
 /// Botón principal de la bienvenida: versión clara del botón de acceso
 /// (píldora paper100, etiqueta centrada y disco de flecha en verde de marca).
@@ -34,14 +34,14 @@ class _WelcomeStartButtonState extends State<WelcomeStartButton> {
         duration: const Duration(milliseconds: 120),
         curve: Curves.easeOutCubic,
         child: Material(
-          color: RvColors.paper100,
+          color: AppColors.paper100,
           borderRadius: BorderRadius.circular(32),
           elevation: _isPressed ? 0 : 2,
-          shadowColor: const Color(0x33001F1C),
+          shadowColor: AppColors.buttonShadowDeep,
           child: InkWell(
             borderRadius: BorderRadius.circular(32),
-            splashColor: RvColors.brand700.withValues(alpha: 0.12),
-            highlightColor: RvColors.brand700.withValues(alpha: 0.06),
+            splashColor: AppColors.brand700.withValues(alpha: 0.12),
+            highlightColor: AppColors.brand700.withValues(alpha: 0.06),
             onHighlightChanged: (pressed) {
               if (mounted) setState(() => _isPressed = pressed);
             },
@@ -60,11 +60,11 @@ class _WelcomeStartButtonState extends State<WelcomeStartButton> {
                       child: Text(
                         widget.label,
                         textAlign: TextAlign.center,
-                        style: rvText(
+                        style: AppTypography.style(
                           17,
                           weight: FontWeight.w700,
                           lineHeight: 20,
-                          color: RvColors.brand700,
+                          color: AppColors.brand700,
                         ),
                       ),
                     ),
@@ -81,7 +81,7 @@ class _WelcomeStartButtonState extends State<WelcomeStartButton> {
                         child: const Icon(
                           LucideIcons.chevronRight,
                           size: 22,
-                          color: RvColors.brand700,
+                          color: AppColors.brand700,
                         ),
                       ),
                     ),

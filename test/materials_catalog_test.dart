@@ -9,6 +9,8 @@ import 'package:rivet/features/supplier/material_price_tier.dart';
 import 'package:rivet/features/supplier/materials_catalog_screen.dart';
 import 'package:rivet/features/supplier/widgets/catalog_material_card.dart';
 
+import 'helpers/repositories_test_harness.dart';
+
 const _note = 'Verifica tu cuenta para acceder a precios de contratista.';
 
 void main() {
@@ -17,7 +19,9 @@ void main() {
     tester.view.physicalSize = const Size(800, 4000);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
-    await tester.pumpWidget(MaterialApp(home: MaterialsCatalogScreen(priceTier: tier)));
+    await tester.pumpWidget(
+      withRepositories(MaterialApp(home: MaterialsCatalogScreen(priceTier: tier))),
+    );
     await tester.pumpAndSettle();
   }
 

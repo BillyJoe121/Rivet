@@ -17,7 +17,7 @@ class SupabaseProposalDataSource {
     final client = _client;
     if (!_useLocalFastPath && client != null) {
       try {
-        var query = client.from('proposals').select('*, contractor:profiles(*)');
+        var query = client.from('proposals').select('*, contractor:public_profiles(*)');
         if (projectId != null) {
           query = query.eq('project_id', projectId);
         }
@@ -45,7 +45,7 @@ class SupabaseProposalDataSource {
       try {
         final data = await client
             .from('proposals')
-            .select('*, contractor:profiles(*)')
+            .select('*, contractor:public_profiles(*)')
             .eq('id', proposalId)
             .maybeSingle()
             .timeout(const Duration(milliseconds: 900));

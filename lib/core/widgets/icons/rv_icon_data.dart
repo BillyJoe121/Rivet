@@ -1,5 +1,7 @@
 import 'package:flutter/widgets.dart';
 
+import '../../theme/app_colors.dart';
+
 /// Un trazo o relleno de un icono vectorial, en coordenadas de su caja original.
 ///
 /// `d` usa la sintaxis de path SVG con comandos absolutos M/L/H/V/C/Q/Z
@@ -48,7 +50,7 @@ class RvIcon extends StatelessWidget {
     this.data, {
     super.key,
     this.size,
-    this.color = const Color(0xFF004E49),
+    this.color = AppColors.brand700,
     this.strokeWidth,
   });
 

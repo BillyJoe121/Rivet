@@ -4,7 +4,8 @@
 Rivet es una plataforma móvil en Flutter (Dart) que conecta a propietarios de obras/remodelaciones con contratistas profesionales calificados, respaldados con materiales suministrados directamente por la Bodega Oficial Rivet.
 
 ## Arquitectura y Principios
-- **Lógica de negocio**: Centralizada en código cliente Flutter (Dart) mediante servicios y repositorios limpios.
+- **Lógica de negocio**: Centralizada en código cliente Flutter (Dart) mediante casos de uso y repositorios limpios.
+- **Inyección de dependencias**: `main.dart` arma una sola vez cada repositorio (`createProjectRepository`, `createProposalRepository`, `createCatalogRepository`, `createAuthRepository` y los repositorios locales de contratistas, acuerdos, mensajes y borradores) y los comparte con `MultiRepositoryProvider`. Las pantallas arman sus casos de uso con `context.read<XRepository>()` al crear el Bloc; no hay servicios globales. En pruebas, `test/helpers/repositories_test_harness.dart` (`withRepositories`, `withAppBlocs`) provee repositorios en memoria.
 - **Backend & Base de datos**: Supabase (PostgreSQL, Auth, Storage, Row Level Security).
 - **Seguridad**: Prevención estricta de inyecciones SQL mediante consultas parametrizadas del SDK oficial de Supabase y políticas RLS obligatorias.
 - **Design System**: Estilos medidos en Figma bajo `lib/core/design_system/`. Ningún estilo visual hardcodeado en las vistas.
@@ -36,7 +37,9 @@ Rivet es una plataforma móvil en Flutter (Dart) que conecta a propietarios de o
   - Registro con rol asignado (`client` o `contractor`) en la tabla `profiles`.
   - Inicio de sesión con correo y contraseña conectando a Supabase Auth.
   - Recuperación de contraseña mediante correo transaccional en `ForgotPasswordScreen`.
-  - Arquitectura limpia desacoplada: `RivetUser`, `AuthRepository`, `SupabaseAuthDataSource` y `AuthService`.
+  - Arquitectura limpia desacoplada: `RivetUser`, `AuthRepository`, `SupabaseAuthDataSource` y casos de uso inyectados desde la raíz (`RepositoryProvider` en `main.dart`), con `AuthBloc` como fuente de la sesión.
+  - Sesión restaurada al abrir: `AuthGate` muestra carga mientras verifica y abre el inicio según el rol o la bienvenida si no hay sesión.
+  - RLS de `profiles`: cada usuario lee solo su propio perfil; los datos públicos (nombre, rol y foto, sin correo ni teléfono) se leen desde la vista `public_profiles`.
 - [x] **Reglas de validación estrictas**:
   - **Correo electrónico**: Expresión regular RFC 5322 estándar en `Validators.email`.
   - **Contraseña segura**: Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial en `Validators.password`.

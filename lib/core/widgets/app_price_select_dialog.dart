@@ -3,10 +3,6 @@ import 'package:flutter/material.dart';
 import '../theme/theme.dart';
 import 'app_modal.dart';
 
-/// Fondo de la opción elegida en el modal de precio (#EAF7EF). No existe como
-/// token: es un verde más claro que `successLight`.
-const Color _selectedFill = Color(0xFFEAF7EF);
-
 /// Opción de precio que se muestra como fila etiqueta / valor.
 class AppPriceOption {
   const AppPriceOption({required this.label, required this.value});
@@ -111,7 +107,7 @@ class AppPriceOptionRow extends StatelessWidget {
       selected: selected,
       button: onTap != null,
       child: Material(
-        color: selected ? _selectedFill : AppColors.surface0,
+        color: selected ? AppColors.selectedFill : AppColors.surface0,
         shape: RoundedRectangleBorder(
           borderRadius: AppSpacing.roundedMd,
           side: BorderSide(
