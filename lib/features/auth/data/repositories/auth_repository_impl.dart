@@ -90,14 +90,17 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<RivetUser?> getCurrentUser() async {
-    final user = _dataSource.currentAuthUser;
+    final user = await _dataSource.restoreSessionUser();
     if (user == null) return null;
     return await _dataSource.getProfile(user.id);
   }
 
   @override
   Stream<RivetUser?> get authStateChanges {
-    return _dataSource.onAuthStateChange.asyncMap((state) async {
+    // Una sesión vencida llega antes de renovarse: se espera el token nuevo.
+    return _dataSource.onAuthStateChange
+        .where((state) => !(state.session?.isExpired ?? false))
+        .asyncMap((state) async {
       final user = state.session?.user;
       if (user == null) return null;
       return await _dataSource.getProfile(user.id);

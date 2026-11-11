@@ -30,6 +30,8 @@ class FakeSessionAuthRepository implements AuthRepository {
     _controller.add(user);
   }
 
+  void emitError(Object error) => _controller.addError(error);
+
   @override
   Future<RivetUser> signIn({required String email, required String password}) =>
       throw UnimplementedError();
@@ -103,6 +105,27 @@ void main() {
       emitsInOrder([
         isA<AuthState>().having((s) => s.status, 'status', AuthStatus.loading),
         isA<AuthState>().having((s) => s.status, 'status', AuthStatus.unauthenticated),
+      ]),
+    );
+  });
+
+  test('un error al leer el perfil vuelve a verificar la sesión', () async {
+    repo.currentUser = const RivetUser(
+      id: 'stored-2',
+      email: 'ana@rivet.com',
+      fullName: 'Ana Contratista',
+      role: UserRole.contractor,
+    );
+
+    repo.emitError(Exception('JWT expired'));
+
+    await expectLater(
+      bloc.stream,
+      emitsInOrder([
+        isA<AuthState>().having((s) => s.status, 'status', AuthStatus.loading),
+        isA<AuthState>()
+            .having((s) => s.status, 'status', AuthStatus.authenticated)
+            .having((s) => s.user?.id, 'id', 'stored-2'),
       ]),
     );
   });

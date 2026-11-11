@@ -127,6 +127,25 @@ class SupabaseAuthDataSource {
   /// Retorna el usuario autenticado actualmente.
   User? get currentAuthUser => _client.auth.currentUser;
 
+  /// Usuario de la sesión guardada, con el token renovado si ya venció.
+  ///
+  /// Si la sesión ya no se puede renovar, la cierra en este equipo y
+  /// retorna null. Los fallos de red se propagan para no perder la sesión.
+  Future<User?> restoreSessionUser() async {
+    final session = _client.auth.currentSession;
+    if (session == null) return null;
+    if (!session.isExpired) return session.user;
+    try {
+      final refreshed = await _client.auth.refreshSession();
+      return refreshed.session?.user;
+    } on AuthRetryableFetchException {
+      rethrow;
+    } on AuthException {
+      await _client.auth.signOut(scope: SignOutScope.local);
+      return null;
+    }
+  }
+
   /// Stream reactivo de cambios de autenticación.
   Stream<AuthState> get onAuthStateChange => _client.auth.onAuthStateChange;
 }

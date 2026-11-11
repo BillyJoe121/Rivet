@@ -19,9 +19,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     on<AuthUserChanged>(_onUserChanged);
     on<AuthSignOutRequested>(_onSignOutRequested);
 
-    _authSubscription = _getCurrentUserUseCase.authStateChanges.listen((user) {
-      add(AuthUserChanged(user));
-    });
+    // Si leer el perfil falla en un cambio de sesión, se vuelve a verificar
+    // la sesión completa, que renueva el token o la cierra.
+    _authSubscription = _getCurrentUserUseCase.authStateChanges.listen(
+      (user) => add(AuthUserChanged(user)),
+      onError: (Object _) => add(const AuthCheckRequested()),
+    );
   }
 
   final GetCurrentUserUseCase _getCurrentUserUseCase;
