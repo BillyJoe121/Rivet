@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/theme/theme.dart';
+import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import '../supplier/material_price_tier.dart';
 import 'messaging_module.dart';
@@ -14,13 +15,42 @@ class ProjectChatScreen extends StatefulWidget {
     required this.conversationId,
     this.contractorName = 'Contratista',
     this.projectTitle = 'Proyecto en curso',
-    this.messagingBloc,
   });
 
   final String conversationId;
   final String contractorName;
   final String projectTitle;
-  final MessagingBloc? messagingBloc;
+
+  static Widget withBloc({
+    required String conversationId,
+    String contractorName = 'Contratista',
+    String projectTitle = 'Proyecto en curso',
+  }) {
+    return BlocProvider<MessagingBloc>(
+      create: (context) =>
+          MessagingBloc.fromRepository(context.read<MessagingRepository>())
+            ..add(const LoadMessagingData()),
+      child: ProjectChatScreen(
+        conversationId: conversationId,
+        contractorName: contractorName,
+        projectTitle: projectTitle,
+      ),
+    );
+  }
+
+  static Route<void> route({
+    required String conversationId,
+    String contractorName = 'Contratista',
+    String projectTitle = 'Proyecto en curso',
+  }) {
+    return RivetPageRoute<void>(
+      builder: (_) => withBloc(
+        conversationId: conversationId,
+        contractorName: contractorName,
+        projectTitle: projectTitle,
+      ),
+    );
+  }
 
   @override
   State<ProjectChatScreen> createState() => _ProjectChatScreenState();
@@ -35,29 +65,9 @@ class _ProjectChatScreenState extends State<ProjectChatScreen> {
     super.dispose();
   }
 
-  MessagingBloc _resolveBloc(BuildContext context) {
-    if (widget.messagingBloc != null) return widget.messagingBloc!;
-    try {
-      return context.read<MessagingBloc>();
-    } catch (_) {
-      final repository = context.read<MessagingRepository>();
-      return MessagingBloc(
-        GetConversationsUseCase(repository),
-        SendChatMessageUseCase(repository),
-        SendCounterOfferUseCase(repository),
-        RespondCounterOfferUseCase(repository),
-        GetClientNotificationsUseCase(repository),
-        MarkNotificationReadUseCase(repository),
-      )..add(const LoadMessagingData());
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final bloc = _resolveBloc(context);
-    return BlocProvider<MessagingBloc>.value(
-      value: bloc,
-      child: BlocConsumer<MessagingBloc, MessagingState>(
+    return BlocConsumer<MessagingBloc, MessagingState>(
         listener: (context, state) {
           if (state.status == MessagingStatus.failure &&
               state.errorMessage != null) {
@@ -163,8 +173,7 @@ class _ProjectChatScreenState extends State<ProjectChatScreen> {
             ),
           );
         },
-      ),
-    );
+      );
   }
 
   void _openCounterOfferSheet(BuildContext context, String conversationId) {

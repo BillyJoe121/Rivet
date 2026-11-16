@@ -37,22 +37,6 @@ class SupabaseAuthDataSource {
       throw const AuthException('No fue posible completar el registro.');
     }
 
-    // 2. Asegurar inserción/actualización en la tabla `profiles` mediante query parametrizada
-    final profileData = {
-      'id': user.id,
-      'email': user.email ?? email.trim(),
-      'full_name': fullName.trim(),
-      'role': roleString,
-      'phone': phone.trim(),
-      'updated_at': DateTime.now().toUtc().toIso8601String(),
-    };
-
-    try {
-      await _client.from('profiles').upsert(profileData);
-    } catch (_) {
-      // Si el trigger de Postgres ya lo insertó, leemos el perfil
-    }
-
     return RivetUser(
       id: user.id,
       email: user.email ?? email.trim(),

@@ -195,7 +195,7 @@ class _AppShellState extends State<AppShell> {
             : UnderConstructionScreen(section: _sectionName(page)),
       _Page.contractors =>
         _isClient
-            ? const ContractorsDirectoryScreen()
+            ? ContractorsDirectoryScreen.withBloc()
             : UnderConstructionScreen(section: _sectionName(page)),
       _Page.catalog => MaterialsCatalogScreen.withBloc(),
       _Page.proposals =>
@@ -204,7 +204,7 @@ class _AppShellState extends State<AppShell> {
             : UnderConstructionScreen(section: _sectionName(page)),
       _Page.messages =>
         _isClient
-            ? const ConversationsListScreen()
+            ? ConversationsListScreen.withBloc()
             : UnderConstructionScreen(section: _sectionName(page)),
       _Page.profile => ProfileScreen(
         currentRole: _currentRole,

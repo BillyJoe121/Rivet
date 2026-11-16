@@ -12,42 +12,23 @@ export 'project_chat_screen.dart';
 
 /// Bandeja de conversaciones del cliente (P-030 lista).
 class ConversationsListScreen extends StatelessWidget {
-  const ConversationsListScreen({
-    super.key,
-    this.messagingBloc,
-  });
+  const ConversationsListScreen({super.key});
 
-  final MessagingBloc? messagingBloc;
+  static Widget withBloc() {
+    return BlocProvider<MessagingBloc>(
+      create: (context) =>
+          MessagingBloc.fromRepository(context.read<MessagingRepository>())
+            ..add(const LoadMessagingData()),
+      child: const ConversationsListScreen(),
+    );
+  }
+
+  static Route<void> route() {
+    return RivetPageRoute<void>(builder: (_) => withBloc());
+  }
 
   @override
-  Widget build(BuildContext context) {
-    if (messagingBloc != null) {
-      return BlocProvider<MessagingBloc>.value(
-        value: messagingBloc!,
-        child: const _ConversationsListView(),
-      );
-    }
-
-    try {
-      context.read<MessagingBloc>();
-      return const _ConversationsListView();
-    } catch (_) {
-      return BlocProvider<MessagingBloc>(
-        create: (context) {
-          final repository = context.read<MessagingRepository>();
-          return MessagingBloc(
-            GetConversationsUseCase(repository),
-            SendChatMessageUseCase(repository),
-            SendCounterOfferUseCase(repository),
-            RespondCounterOfferUseCase(repository),
-            GetClientNotificationsUseCase(repository),
-            MarkNotificationReadUseCase(repository),
-          )..add(const LoadMessagingData());
-        },
-        child: const _ConversationsListView(),
-      );
-    }
-  }
+  Widget build(BuildContext context) => const _ConversationsListView();
 }
 
 class _ConversationsListView extends StatelessWidget {

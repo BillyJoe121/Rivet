@@ -212,9 +212,8 @@ class ProjectDetailScreen extends StatelessWidget {
                   title: 'Conversaciones y contraofertas',
                   subtitle: 'Abrir chat con contratistas interesados',
                   showDivider: false,
-                  onTap: () => AppNavigator.push(
-                    context,
-                    ProjectChatScreen(
+                  onTap: () => Navigator.of(context).push(
+                    ProjectChatScreen.route(
                       conversationId: 'conv-001',
                       projectTitle: currentProject.title,
                     ),

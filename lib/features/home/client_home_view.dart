@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/data/mock_data.dart';
 import '../../core/theme/theme.dart';
-import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import '../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../auth/domain/entities/rivet_user.dart';
@@ -44,8 +43,9 @@ class _ClientHomeViewState extends State<ClientHomeView> {
               'Fondos/Sala minimalista con plantas y luz suave.png',
           actions: [
             AppNotificationButton(
-              onPressed: () =>
-                  AppNavigator.push(context, const ClientNotificationsScreen()),
+              onPressed: () => Navigator.of(context).push(
+                ClientNotificationsScreen.route(),
+              ),
             ),
           ],
           body: ListView(

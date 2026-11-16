@@ -3,7 +3,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
-import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import '../proposals/proposal_detail_screen.dart';
 import '../supplier/material_price_tier.dart';
@@ -58,9 +57,8 @@ class _ProposalsCompareScreenState extends State<ProposalsCompareScreen> {
                   AppButton(
                     text: 'Elegir y revisar acuerdo',
                     showChevron: true,
-                    onPressed: () => AppNavigator.push(
-                      context,
-                      AgreementSummaryScreen(
+                    onPressed: () => Navigator.of(context).push(
+                      AgreementSummaryScreen.route(
                         proposal: selectedProposal,
                         projectTitle: widget.projectTitle,
                       ),
@@ -70,9 +68,8 @@ class _ProposalsCompareScreenState extends State<ProposalsCompareScreen> {
                   AppButton(
                     text: 'Ver oferta completa',
                     variant: AppButtonVariant.outline,
-                    onPressed: () => AppNavigator.push(
-                      context,
-                      ProposalDetailScreen(proposal: selectedProposal),
+                    onPressed: () => Navigator.of(context).push(
+                      ProposalDetailScreen.route(selectedProposal),
                     ),
                   ),
                 ],

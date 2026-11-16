@@ -11,35 +11,24 @@ import 'contractors_screens.dart';
 
 /// Directorio de contratistas con buscador fijo y hoja inferior de filtros (P-019).
 class ContractorsDirectoryScreen extends StatelessWidget {
-  const ContractorsDirectoryScreen({super.key, this.contractorsBloc});
+  const ContractorsDirectoryScreen({super.key});
 
-  final ContractorsBloc? contractorsBloc;
+  /// Pantalla con su propio [ContractorsBloc] cargando el directorio.
+  static Widget withBloc() {
+    return BlocProvider<ContractorsBloc>(
+      create: (context) =>
+          ContractorsBloc.fromRepository(context.read<ContractorRepository>())
+            ..add(const LoadContractors()),
+      child: const ContractorsDirectoryScreen(),
+    );
+  }
+
+  static Route<void> route() {
+    return RivetPageRoute<void>(builder: (_) => withBloc());
+  }
 
   @override
-  Widget build(BuildContext context) {
-    if (contractorsBloc != null) {
-      return BlocProvider<ContractorsBloc>.value(
-        value: contractorsBloc!,
-        child: const _ContractorsDirectoryView(),
-      );
-    }
-
-    try {
-      context.read<ContractorsBloc>();
-      return const _ContractorsDirectoryView();
-    } catch (_) {
-      return BlocProvider<ContractorsBloc>(
-        create: (context) {
-          final repository = context.read<ContractorRepository>();
-          return ContractorsBloc(
-            GetContractorsUseCase(repository),
-            RequestContractorVisitUseCase(repository),
-          )..add(const LoadContractors());
-        },
-        child: const _ContractorsDirectoryView(),
-      );
-    }
-  }
+  Widget build(BuildContext context) => const _ContractorsDirectoryView();
 }
 
 class _ContractorsDirectoryView extends StatefulWidget {

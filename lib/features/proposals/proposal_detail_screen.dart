@@ -73,9 +73,8 @@ class _ProposalDetailView extends StatelessWidget {
             (p) => p.id == proposal.id,
             orElse: () => proposal,
           );
-          AppNavigator.push(
-            context,
-            AgreementSummaryScreen(proposal: currentProposal),
+          Navigator.of(context).push(
+            AgreementSummaryScreen.route(proposal: currentProposal),
           );
         }
       },
@@ -110,9 +109,8 @@ class _ProposalDetailView extends StatelessWidget {
                   AppButton(
                     text: 'Ir al acuerdo y pago simulado',
                     showChevron: true,
-                    onPressed: () => AppNavigator.push(
-                      context,
-                      AgreementSummaryScreen(proposal: currentProposal),
+                    onPressed: () => Navigator.of(context).push(
+                      AgreementSummaryScreen.route(proposal: currentProposal),
                     ),
                   ),
                 const SizedBox(height: AppSpacing.sm),
@@ -120,9 +118,8 @@ class _ProposalDetailView extends StatelessWidget {
                   text: 'Escribir o contraofertar',
                   variant: AppButtonVariant.outline,
                   icon: LucideIcons.messageSquare,
-                  onPressed: () => AppNavigator.push(
-                    context,
-                    ProjectChatScreen(
+                  onPressed: () => Navigator.of(context).push(
+                    ProjectChatScreen.route(
                       conversationId: 'conv-001',
                       contractorName: currentProposal.contractor.name,
                     ),

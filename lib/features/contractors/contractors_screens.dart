@@ -49,9 +49,8 @@ class ContractorProfileScreen extends StatelessWidget {
               AppButton(
                 text: 'Solicitar visita técnica',
                 showChevron: true,
-                onPressed: () => AppNavigator.push(
-                  context,
-                  VisitRequestScreen(
+                onPressed: () => Navigator.of(context).push(
+                  VisitRequestScreen.route(
                     contractor: contractor,
                     projectId: projectId ?? 'proj-101',
                   ),
@@ -62,9 +61,8 @@ class ContractorProfileScreen extends StatelessWidget {
                 text: 'Escribir mensaje',
                 variant: AppButtonVariant.outline,
                 icon: LucideIcons.messageSquare,
-                onPressed: () => AppNavigator.push(
-                  context,
-                  ProjectChatScreen(
+                onPressed: () => Navigator.of(context).push(
+                  ProjectChatScreen.route(
                     conversationId: 'conv-001',
                     contractorName: contractor.name,
                     projectTitle: 'Acabados y pintura residencial',
@@ -255,12 +253,33 @@ class VisitRequestScreen extends StatefulWidget {
     super.key,
     required this.contractor,
     this.projectId = 'proj-101',
-    this.contractorsBloc,
   });
 
   final Contractor contractor;
   final String projectId;
-  final ContractorsBloc? contractorsBloc;
+
+  static Widget withBloc({
+    required Contractor contractor,
+    String projectId = 'proj-101',
+  }) {
+    return BlocProvider<ContractorsBloc>(
+      create: (context) =>
+          ContractorsBloc.fromRepository(context.read<ContractorRepository>()),
+      child: VisitRequestScreen(
+        contractor: contractor,
+        projectId: projectId,
+      ),
+    );
+  }
+
+  static Route<void> route({
+    required Contractor contractor,
+    String projectId = 'proj-101',
+  }) {
+    return RivetPageRoute<void>(
+      builder: (_) => withBloc(contractor: contractor, projectId: projectId),
+    );
+  }
 
   @override
   State<VisitRequestScreen> createState() => _VisitRequestScreenState();
@@ -296,10 +315,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final bloc = widget.contractorsBloc ?? _resolveBloc(context);
-    return BlocProvider<ContractorsBloc>.value(
-      value: bloc,
-      child: BlocConsumer<ContractorsBloc, ContractorsState>(
+    return BlocConsumer<ContractorsBloc, ContractorsState>(
         listener: (context, state) {
           if (state.status == ContractorsStatus.failure &&
               state.errorMessage != null) {
@@ -415,20 +431,7 @@ class _VisitRequestScreenState extends State<VisitRequestScreen> {
             ),
           );
         },
-      ),
-    );
-  }
-
-  ContractorsBloc _resolveBloc(BuildContext context) {
-    try {
-      return context.read<ContractorsBloc>();
-    } catch (_) {
-      final repository = context.read<ContractorRepository>();
-      return ContractorsBloc(
-        GetContractorsUseCase(repository),
-        RequestContractorVisitUseCase(repository),
       );
-    }
   }
 }
 

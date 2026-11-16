@@ -12,54 +12,54 @@ import 'agreements_module.dart';
 export 'proposals_compare_screen.dart';
 
 /// Resumen formal de acuerdo de obra antes del pago de prueba (P-031).
-class AgreementSummaryScreen extends StatefulWidget {
+class AgreementSummaryScreen extends StatelessWidget {
   const AgreementSummaryScreen({
     super.key,
     required this.proposal,
     this.projectTitle = 'Pintura y acabados residenciales',
-    this.agreementsBloc,
   });
 
   final Proposal proposal;
   final String projectTitle;
-  final AgreementsBloc? agreementsBloc;
 
-  @override
-  State<AgreementSummaryScreen> createState() => _AgreementSummaryScreenState();
-}
-
-class _AgreementSummaryScreenState extends State<AgreementSummaryScreen> {
-  late final AgreementsBloc _bloc;
-
-  @override
-  void initState() {
-    super.initState();
-    _bloc = widget.agreementsBloc ?? _createBloc();
-    _bloc.add(
-      PrepareAgreementRequested(
-        projectId: widget.proposal.projectId,
-        projectTitle: widget.projectTitle,
-        proposal: widget.proposal,
+  static Widget withBloc({
+    required Proposal proposal,
+    String projectTitle = 'Pintura y acabados residenciales',
+  }) {
+    return BlocProvider<AgreementsBloc>(
+      create: (context) =>
+          AgreementsBloc.fromRepository(context.read<AgreementRepository>())
+            ..add(
+              PrepareAgreementRequested(
+                projectId: proposal.projectId,
+                projectTitle: projectTitle,
+                proposal: proposal,
+              ),
+            ),
+      child: AgreementSummaryScreen(
+        proposal: proposal,
+        projectTitle: projectTitle,
       ),
     );
   }
 
-  AgreementsBloc _createBloc() {
-    final repository = context.read<AgreementRepository>();
-    return AgreementsBloc(
-      PrepareAgreementUseCase(repository),
-      ProcessSimulatedPaymentUseCase(repository),
-      ConfirmWorkCompletionUseCase(repository),
+  static Route<void> route({
+    required Proposal proposal,
+    String projectTitle = 'Pintura y acabados residenciales',
+  }) {
+    return RivetPageRoute<void>(
+      builder: (_) => withBloc(
+        proposal: proposal,
+        projectTitle: projectTitle,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<AgreementsBloc>.value(
-      value: _bloc,
-      child: BlocBuilder<AgreementsBloc, AgreementsState>(
-        builder: (context, state) {
-          final agreement = state.agreement;
+    return BlocBuilder<AgreementsBloc, AgreementsState>(
+      builder: (context, state) {
+        final agreement = state.agreement;
           return RivetScaffold(
             title: 'Acuerdo del\ntrabajo',
             showBackButton: true,
@@ -74,7 +74,7 @@ class _AgreementSummaryScreenState extends State<AgreementSummaryScreen> {
                           ? () => AppNavigator.push(
                               context,
                               BlocProvider<AgreementsBloc>.value(
-                                value: _bloc,
+                                value: context.read<AgreementsBloc>(),
                                 child: const SimulatedPaymentScreen(),
                               ),
                             )
@@ -195,8 +195,7 @@ class _AgreementSummaryScreenState extends State<AgreementSummaryScreen> {
             ),
           );
         },
-      ),
-    );
+      );
   }
 }
 
@@ -208,8 +207,7 @@ class SimulatedPaymentScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocConsumer<AgreementsBloc, AgreementsState>(
       listener: (context, state) {
-        if (state.status == AgreementsStatus.paymentSuccess ||
-            state.status == AgreementsStatus.paymentFailed) {
+        if (state.hasPaymentResult) {
           final bloc = context.read<AgreementsBloc>();
           AppNavigator.pushReplacement(
             context,
@@ -321,9 +319,8 @@ class PaymentResultScreen extends StatelessWidget {
     return BlocBuilder<AgreementsBloc, AgreementsState>(
       builder: (context, state) {
         final agreement = state.agreement;
-        final failed = state.status == AgreementsStatus.paymentFailed;
-        final completed = state.status == AgreementsStatus.workCompleted ||
-            (agreement?.workCompletedConfirmed ?? false);
+        final failed = state.status == AgreementsStatus.failure;
+        final completed = agreement?.workCompletedConfirmed ?? false;
 
         return RivetScaffold(
           title: failed

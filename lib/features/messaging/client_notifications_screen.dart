@@ -11,42 +11,23 @@ import 'messaging_screens.dart';
 
 /// Centro de notificaciones del cliente (P-043).
 class ClientNotificationsScreen extends StatelessWidget {
-  const ClientNotificationsScreen({
-    super.key,
-    this.messagingBloc,
-  });
+  const ClientNotificationsScreen({super.key});
 
-  final MessagingBloc? messagingBloc;
+  static Widget withBloc() {
+    return BlocProvider<MessagingBloc>(
+      create: (context) =>
+          MessagingBloc.fromRepository(context.read<MessagingRepository>())
+            ..add(const LoadMessagingData()),
+      child: const ClientNotificationsScreen(),
+    );
+  }
+
+  static Route<void> route() {
+    return RivetPageRoute<void>(builder: (_) => withBloc());
+  }
 
   @override
-  Widget build(BuildContext context) {
-    if (messagingBloc != null) {
-      return BlocProvider<MessagingBloc>.value(
-        value: messagingBloc!,
-        child: const _ClientNotificationsView(),
-      );
-    }
-
-    try {
-      context.read<MessagingBloc>();
-      return const _ClientNotificationsView();
-    } catch (_) {
-      return BlocProvider<MessagingBloc>(
-        create: (context) {
-          final repository = context.read<MessagingRepository>();
-          return MessagingBloc(
-            GetConversationsUseCase(repository),
-            SendChatMessageUseCase(repository),
-            SendCounterOfferUseCase(repository),
-            RespondCounterOfferUseCase(repository),
-            GetClientNotificationsUseCase(repository),
-            MarkNotificationReadUseCase(repository),
-          )..add(const LoadMessagingData());
-        },
-        child: const _ClientNotificationsView(),
-      );
-    }
-  }
+  Widget build(BuildContext context) => const _ClientNotificationsView();
 }
 
 class _ClientNotificationsView extends StatelessWidget {
