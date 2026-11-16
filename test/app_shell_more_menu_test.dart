@@ -120,23 +120,22 @@ void main() {
     expect(find.text('Actividad reciente'), findsOneWidget);
   });
 
-  testWidgets('La campana del inicio (contractor) abre construcción', (tester) async {
+  testWidgets('La campana del inicio (contractor) abre ClientNotificationsScreen', (tester) async {
     await pumpShell(tester, UserRole.contractor);
     await tester.tap(find.bySemanticsLabel('Notificaciones'));
-    await advance(tester);
-    expect(find.text('Notificaciones'), findsOneWidget);
-    expect(find.text('Pantalla en construcción'), findsOneWidget);
+    await tester.pumpAndSettle();
+    expect(find.text('Actividad reciente'), findsOneWidget);
   });
 
-  testWidgets('Una entrada de actividad reciente abre la pantalla en construcción', (tester) async {
+  testWidgets('Una entrada de actividad reciente abre la sección correspondiente', (tester) async {
     await pumpShell(tester, UserRole.contractor);
 
     final row = find.byType(ProOptionRow).at(1);
     await tester.ensureVisible(row);
     await tester.tap(row);
-    await advance(tester);
+    await tester.pumpAndSettle();
 
-    expect(find.text('Pantalla en construcción'), findsOneWidget);
+    expect(find.text('Mis propuestas\ny trabajos'), findsOneWidget);
   });
 
   for (final role in [UserRole.client, UserRole.contractor]) {
