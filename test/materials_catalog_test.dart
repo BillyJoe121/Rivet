@@ -20,7 +20,9 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
-      withRepositories(MaterialApp(home: MaterialsCatalogScreen(priceTier: tier))),
+      withRepositories(
+        MaterialApp(home: MaterialsCatalogScreen.withBloc(priceTier: tier)),
+      ),
     );
     await tester.pumpAndSettle();
   }

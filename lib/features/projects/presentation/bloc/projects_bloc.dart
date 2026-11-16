@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/errors/project_failure.dart';
+import '../../domain/repositories/project_repository.dart';
 import '../../domain/usecases/create_project_usecase.dart';
 import '../../domain/usecases/get_my_projects_usecase.dart';
 import '../../domain/usecases/get_project_detail_usecase.dart';
@@ -11,6 +13,9 @@ export 'projects_event.dart';
 export 'projects_state.dart';
 
 /// BLoC que gobierna la creación, consulta y filtrado de proyectos.
+///
+/// Las cargas pasan por `loading`; los guardados usan [ProjectsState.isSubmitting]
+/// para que la información ya mostrada siga en pantalla.
 class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState> {
   ProjectsBloc(
     this._getMyProjectsUseCase,
@@ -26,31 +31,48 @@ class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState> {
     on<ProjectErrorDismissed>(_onErrorDismissed);
   }
 
+  /// Arma el Bloc con los casos de uso sobre [repository].
+  factory ProjectsBloc.fromRepository(ProjectRepository repository) {
+    return ProjectsBloc(
+      GetMyProjectsUseCase(repository),
+      CreateProjectUseCase(repository),
+      GetProjectDetailUseCase(repository),
+      UpdateProjectUseCase(repository),
+    );
+  }
+
+  static const _genericError =
+      'Algo salió mal con tus proyectos. Inténtalo de nuevo.';
+
   final GetMyProjectsUseCase _getMyProjectsUseCase;
   final CreateProjectUseCase _createProjectUseCase;
   final GetProjectDetailUseCase _getProjectDetailUseCase;
   final UpdateProjectUseCase _updateProjectUseCase;
 
+  String _messageOf(Object error) =>
+      error is ProjectFailure ? error.message : _genericError;
+
   Future<void> _onUpdateProject(
     UpdateProjectSubmitted event,
     Emitter<ProjectsState> emit,
   ) async {
-    emit(state.copyWith(status: ProjectsStatus.loading, clearError: true));
+    emit(state.copyWith(isSubmitting: true, clearError: true));
     try {
       final saved = await _updateProjectUseCase(event.project);
       final known = state.projects.any((p) => p.id == saved.id);
       emit(state.copyWith(
         status: ProjectsStatus.success,
+        isSubmitting: false,
         projects: known
             ? [for (final p in state.projects) p.id == saved.id ? saved : p]
             : [saved, ...state.projects],
         selectedProject: saved,
       ));
     } catch (e) {
-      final clean = e.toString().replaceFirst('Exception: ', '');
       emit(state.copyWith(
         status: ProjectsStatus.failure,
-        errorMessage: clean,
+        isSubmitting: false,
+        errorMessage: _messageOf(e),
       ));
     }
   }
@@ -62,15 +84,11 @@ class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState> {
     emit(state.copyWith(status: ProjectsStatus.loading, clearError: true));
     try {
       final list = await _getMyProjectsUseCase(status: event.status);
-      emit(state.copyWith(
-        status: ProjectsStatus.success,
-        projects: list,
-      ));
+      emit(state.copyWith(status: ProjectsStatus.success, projects: list));
     } catch (e) {
-      final clean = e.toString().replaceFirst('Exception: ', '');
       emit(state.copyWith(
         status: ProjectsStatus.failure,
-        errorMessage: clean,
+        errorMessage: _messageOf(e),
       ));
     }
   }
@@ -86,7 +104,7 @@ class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState> {
     CreateProjectSubmitted event,
     Emitter<ProjectsState> emit,
   ) async {
-    emit(state.copyWith(status: ProjectsStatus.loading, clearError: true));
+    emit(state.copyWith(isSubmitting: true, clearError: true));
     try {
       final created = await _createProjectUseCase(
         title: event.title,
@@ -97,18 +115,17 @@ class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState> {
         budgetEstimateCop: event.budgetEstimateCop,
         imageAsset: event.imageAsset,
       );
-
-      final updated = [created, ...state.projects];
       emit(state.copyWith(
         status: ProjectsStatus.success,
-        projects: updated,
+        isSubmitting: false,
+        projects: [created, ...state.projects],
         selectedProject: created,
       ));
     } catch (e) {
-      final clean = e.toString().replaceFirst('Exception: ', '');
       emit(state.copyWith(
         status: ProjectsStatus.failure,
-        errorMessage: clean,
+        isSubmitting: false,
+        errorMessage: _messageOf(e),
       ));
     }
   }
@@ -125,10 +142,9 @@ class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState> {
         selectedProject: detail,
       ));
     } catch (e) {
-      final clean = e.toString().replaceFirst('Exception: ', '');
       emit(state.copyWith(
         status: ProjectsStatus.failure,
-        errorMessage: clean,
+        errorMessage: _messageOf(e),
       ));
     }
   }
@@ -140,4 +156,3 @@ class ProjectsBloc extends Bloc<ProjectsEvent, ProjectsState> {
     emit(state.copyWith(clearError: true));
   }
 }
-

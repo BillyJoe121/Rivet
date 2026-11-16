@@ -3,11 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/core/models/models.dart';
 import 'package:rivet/features/projects/create_project_screen.dart';
 import 'package:rivet/features/projects/domain/repositories/project_repository.dart';
-import 'package:rivet/features/projects/domain/usecases/create_project_usecase.dart';
-import 'package:rivet/features/projects/domain/usecases/get_my_projects_usecase.dart';
-import 'package:rivet/features/projects/domain/usecases/get_project_detail_usecase.dart';
-import 'package:rivet/features/projects/domain/usecases/update_project_usecase.dart';
-import 'package:rivet/features/projects/presentation/bloc/projects_bloc.dart';
 import 'package:rivet/features/projects/project_detail_screen.dart';
 
 import '../../helpers/repositories_test_harness.dart';
@@ -60,16 +55,10 @@ void main() {
       addTearDown(tester.view.resetPhysicalSize);
 
       final repo = MockProjectRepository();
-      final bloc = ProjectsBloc(
-        GetMyProjectsUseCase(repo),
-        CreateProjectUseCase(repo),
-        GetProjectDetailUseCase(repo),
-        UpdateProjectUseCase(repo),
-      );
 
       await tester.pumpWidget(
         withRepositories(
-          MaterialApp(home: CreateProjectScreen(projectsBloc: bloc)),
+          const MaterialApp(home: CreateProjectScreen()),
           projects: repo,
         ),
       );
@@ -121,7 +110,9 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(home: ProjectDetailScreen(project: project)),
+      withRepositories(
+        MaterialApp(home: ProjectDetailScreen.withBloc(project)),
+      ),
     );
     await tester.pumpAndSettle();
 

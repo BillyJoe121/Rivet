@@ -10,6 +10,7 @@ class ProjectsState {
     this.selectedTab = 0,
     this.selectedProject,
     this.errorMessage,
+    this.isSubmitting = false,
   });
 
   final ProjectsStatus status;
@@ -17,6 +18,13 @@ class ProjectsState {
   final int selectedTab;
   final Project? selectedProject;
   final String? errorMessage;
+
+  /// Hay un guardado (crear o actualizar) en curso; la lista sigue visible.
+  final bool isSubmitting;
+
+  /// Todavía no hay datos que mostrar: aún no se pidió o se están cargando.
+  bool get isWaiting =>
+      status == ProjectsStatus.initial || status == ProjectsStatus.loading;
 
   bool get isLoading => status == ProjectsStatus.loading;
   bool get isSuccess => status == ProjectsStatus.success;
@@ -51,6 +59,7 @@ class ProjectsState {
     int? selectedTab,
     Project? selectedProject,
     String? errorMessage,
+    bool? isSubmitting,
     bool clearError = false,
   }) {
     return ProjectsState(
@@ -59,6 +68,7 @@ class ProjectsState {
       selectedTab: selectedTab ?? this.selectedTab,
       selectedProject: selectedProject ?? this.selectedProject,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      isSubmitting: isSubmitting ?? this.isSubmitting,
     );
   }
 }

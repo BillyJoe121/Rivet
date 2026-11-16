@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../../core/theme/theme.dart';
-import '../../../../../core/utils/app_page_route.dart';
 import '../../../../../core/widgets/widgets.dart';
 import '../../../../supplier/material_price_tier.dart';
 import '../../../../supplier/materials_catalog_screen.dart';
@@ -77,9 +76,8 @@ class WizardStepMaterials extends StatelessWidget {
             variant: AppButtonVariant.outline,
             size: AppButtonSize.sm,
             icon: LucideIcons.packageSearch,
-            onPressed: () => AppNavigator.push(
-              context,
-              MaterialsCatalogScreen(
+            onPressed: () => Navigator.of(context).push(
+              MaterialsCatalogScreen.route(
                 preselectedProjectId: draft.existingProjectId ?? 'draft',
               ),
             ),

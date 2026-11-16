@@ -1,83 +1,70 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../../../core/data/mock_data.dart';
 import '../../../../core/models/models.dart';
+import '../../domain/errors/project_failure.dart';
+import 'project_row_mapper.dart';
 
-/// Fuente de datos de proyectos conectada a Supabase con memoria transaccional de respaldo.
+/// Fuente de datos de proyectos en Supabase.
+///
+/// Cualquier fallo de red, de sesión o de la base se convierte en
+/// [ProjectFailure] con un mensaje listo para mostrar.
 class SupabaseProjectDataSource {
   SupabaseProjectDataSource(this._client);
 
   final SupabaseClient? _client;
 
-  // Almacén en memoria para permitir persistencia local en pruebas y sesión actual
-  final List<Project> _localProjects = List.from(MockData.projects);
-  bool _useLocalFastPath = false;
+  static const _select =
+      '*, project_spaces(*), client:public_profiles(full_name)';
 
-  /// Obtiene los proyectos del cliente.
-  Future<List<Project>> getMyProjects({ProjectStatus? status}) async {
-    final client = _client;
-    final currentUserId = client?.auth.currentUser?.id;
+  static const noConnectionMessage =
+      'No pudimos conectarnos con Rivet. Revisa tu conexión e inténtalo de nuevo.';
+  static const expiredSessionMessage =
+      'Tu sesión venció. Inicia sesión de nuevo.';
+  static const loadListMessage =
+      'No pudimos cargar tus proyectos. Inténtalo de nuevo.';
+  static const loadDetailMessage =
+      'No pudimos cargar el proyecto. Inténtalo de nuevo.';
+  static const notFoundMessage = 'No encontramos este proyecto.';
+  static const createMessage =
+      'No pudimos guardar tu proyecto. Inténtalo de nuevo.';
+  static const updateMessage =
+      'No pudimos guardar los cambios. Inténtalo de nuevo.';
 
-    if (!_useLocalFastPath && client != null && currentUserId != null) {
-      try {
-        var query = client
-            .from('projects')
-            .select('*, project_spaces(*)')
-            .eq('client_id', currentUserId);
+  /// Obtiene los proyectos del cliente con sesión activa.
+  Future<List<Project>> getMyProjects({ProjectStatus? status}) {
+    return _guard(loadListMessage, () async {
+      final client = _requireClient();
+      final user = _requireUser(client);
 
-        if (status != null) {
-          query = query.eq('status', status.name);
-        }
-
-        final data = await query
-            .order('created_at', ascending: false)
-            .timeout(const Duration(milliseconds: 900));
-        final list = (data as List)
-            .map((item) => _mapFromSupabase(item as Map<String, dynamic>))
-            .toList();
-
-        if (list.isNotEmpty) return list;
-        _useLocalFastPath = true;
-      } catch (_) {
-        // Fallback a almacenamiento local si la tabla aún no existe o está offline
-        _useLocalFastPath = true;
+      var query = client.from('projects').select(_select).eq('client_id', user.id);
+      if (status != null) {
+        query = query.eq('status', projectStatusToDb(status));
       }
-    }
 
-    if (status != null) {
-      return _localProjects.where((p) => p.status == status).toList();
-    }
-    return List.unmodifiable(_localProjects);
+      final rows = await query.order('created_at', ascending: false);
+      return [
+        for (final row in rows) projectFromRow(row),
+      ];
+    });
   }
 
   /// Consulta el detalle de un proyecto por ID.
-  Future<Project> getProjectDetail(String projectId) async {
-    final client = _client;
-    if (!_useLocalFastPath && client != null) {
-      try {
-        final data = await client
-            .from('projects')
-            .select('*, project_spaces(*)')
-            .eq('id', projectId)
-            .maybeSingle()
-            .timeout(const Duration(milliseconds: 900));
+  Future<Project> getProjectDetail(String projectId) {
+    return _guard(loadDetailMessage, () async {
+      final client = _requireClient();
+      _requireUser(client);
 
-        if (data != null) {
-          return _mapFromSupabase(data);
-        }
-      } catch (_) {
-        _useLocalFastPath = true;
-      }
-    }
-
-    final local = _localProjects.firstWhere(
-      (p) => p.id == projectId,
-      orElse: () => _localProjects.first,
-    );
-    return local;
+      final row = await client
+          .from('projects')
+          .select(_select)
+          .eq('id', projectId)
+          .maybeSingle();
+      if (row == null) throw const ProjectFailure(notFoundMessage);
+      return projectFromRow(row);
+    });
   }
 
-  /// Crea un nuevo proyecto.
+  /// Crea un proyecto publicado con sus superficies.
   Future<Project> createProject({
     required String title,
     required String description,
@@ -86,91 +73,98 @@ class SupabaseProjectDataSource {
     required List<SurfaceItem> surfaces,
     required int budgetEstimateCop,
     String? imageAsset,
-  }) async {
+  }) {
+    return _guard(createMessage, () async {
+      final client = _requireClient();
+      final user = _requireUser(client);
+
+      final row = await client
+          .from('projects')
+          .insert({
+            'client_id': user.id,
+            'title': title,
+            'description': description,
+            'city': city,
+            'neighborhood': neighborhood,
+            'status': projectStatusToDb(ProjectStatus.published),
+            'budget_estimate_cop': budgetEstimateCop,
+          })
+          .select(_select)
+          .single();
+
+      final projectId = row['id'].toString();
+      final spaces = await _insertSurfaces(client, projectId, surfaces);
+
+      final created = projectFromRow({...row, 'project_spaces': spaces});
+      return created.copyWith(imageAsset: imageAsset);
+    });
+  }
+
+  /// Guarda los datos del proyecto y reemplaza sus superficies.
+  ///
+  /// La lista de materiales y las fotos todavía no tienen tabla propia: se
+  /// conservan en el objeto devuelto, pero no se guardan en la base.
+  Future<Project> updateProject(Project project) {
+    return _guard(updateMessage, () async {
+      final client = _requireClient();
+      _requireUser(client);
+
+      await client
+          .from('projects')
+          .update({
+            'title': project.title,
+            'description': project.description,
+            'city': project.city,
+            'neighborhood': project.neighborhood,
+            'status': projectStatusToDb(project.status),
+            'budget_estimate_cop': project.budgetEstimateCop,
+            'ai_review_authorized': project.aiReviewAuthorized,
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', project.id)
+          .select('id')
+          .single();
+
+      await client.from('project_spaces').delete().eq('project_id', project.id);
+      final spaces = await _insertSurfaces(client, project.id, project.surfaces);
+
+      final saved = projectFromRow({'project_spaces': spaces, 'id': project.id});
+      return project.copyWith(surfaces: saved.surfaces);
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> _insertSurfaces(
+    SupabaseClient client,
+    String projectId,
+    List<SurfaceItem> surfaces,
+  ) async {
+    if (surfaces.isEmpty) return const [];
+    final rows = [
+      for (var i = 0; i < surfaces.length; i++)
+        surfaceToRow(surfaces[i], projectId: projectId, position: i),
+    ];
+    return client.from('project_spaces').insert(rows).select();
+  }
+
+  SupabaseClient _requireClient() {
     final client = _client;
-    final currentUserId = client?.auth.currentUser?.id ?? 'client-local';
-
-    final newProject = Project(
-      id: 'proj-${DateTime.now().millisecondsSinceEpoch}',
-      title: title,
-      clientName: client?.auth.currentUser?.userMetadata?['full_name'] as String? ?? 'Cliente Rivet',
-      city: city,
-      neighborhood: neighborhood,
-      surfaces: surfaces,
-      status: ProjectStatus.published,
-      createdAt: DateTime.now(),
-      budgetEstimateCop: budgetEstimateCop,
-      description: description,
-      imageAsset: imageAsset ?? 'Fondos/Checklist, plantas y cajas sostenibles.png',
-    );
-
-    if (client != null && client.auth.currentUser != null) {
-      try {
-        await client.from('projects').insert({
-          'id': newProject.id,
-          'client_id': currentUserId,
-          'title': title,
-          'description': description,
-          'city': city,
-          'neighborhood': neighborhood,
-          'status': 'published',
-          'budget_estimate_cop': budgetEstimateCop,
-          'created_at': DateTime.now().toUtc().toIso8601String(),
-        });
-      } catch (_) {}
-    }
-
-    _localProjects.insert(0, newProject);
-    return newProject;
+    if (client == null) throw const ProjectFailure(noConnectionMessage);
+    return client;
   }
 
-  /// Guarda los cambios de un proyecto en la memoria de la sesión.
-  Future<Project> updateProject(Project project) async {
-    final index = _localProjects.indexWhere((p) => p.id == project.id);
-    if (index >= 0) {
-      _localProjects[index] = project;
-    } else {
-      _localProjects.insert(0, project);
-    }
-    return project;
+  User _requireUser(SupabaseClient client) {
+    final user = client.auth.currentUser;
+    if (user == null) throw const ProjectFailure(expiredSessionMessage);
+    return user;
   }
 
-  Project _mapFromSupabase(Map<String, dynamic> json) {
-    final statusStr = json['status'] as String? ?? 'published';
-    final status = ProjectStatus.values.firstWhere(
-      (s) => s.name == statusStr,
-      orElse: () => ProjectStatus.published,
-    );
-
-    final spacesData = json['project_spaces'] as List? ?? [];
-    final surfaces = spacesData.map((s) {
-      final sMap = s as Map<String, dynamic>;
-      return SurfaceItem(
-        id: sMap['id']?.toString() ?? 'space-1',
-        name: sMap['name'] as String? ?? 'Pared',
-        widthMeters: (sMap['width_meters'] as num?)?.toDouble() ?? 3.0,
-        heightMeters: (sMap['height_meters'] as num?)?.toDouble() ?? 2.5,
-        finishType: sMap['finish_type'] as String? ?? 'Vinilo Tipo 1',
-      );
-    }).toList();
-
-    return Project(
-      id: json['id'] as String,
-      title: json['title'] as String? ?? 'Proyecto',
-      clientName: json['client_name'] as String? ?? 'Cliente',
-      city: json['city'] as String? ?? 'Cali',
-      neighborhood: json['neighborhood'] as String? ?? '',
-      surfaces: surfaces.isEmpty
-          ? [const SurfaceItem(id: 's-1', name: 'Área general', widthMeters: 4.0, heightMeters: 2.5)]
-          : surfaces,
-      status: status,
-      createdAt: json['created_at'] != null
-          ? DateTime.tryParse(json['created_at'] as String) ?? DateTime.now()
-          : DateTime.now(),
-      budgetEstimateCop: (json['budget_estimate_cop'] as num?)?.toInt() ?? 0,
-      description: json['description'] as String? ?? '',
-      imageAsset: 'Fondos/Checklist, plantas y cajas sostenibles.png',
-    );
+  Future<T> _guard<T>(String message, Future<T> Function() run) async {
+    try {
+      return await run();
+    } on ProjectFailure {
+      rethrow;
+    } catch (_) {
+      throw ProjectFailure(message);
+    }
   }
 }
-

@@ -12,45 +12,31 @@ import '../messaging/messaging_screens.dart';
 import '../supplier/material_price_tier.dart';
 import 'presentation/bloc/proposals_bloc.dart';
 import 'domain/repositories/proposal_repository.dart';
-import 'domain/usecases/accept_proposal_usecase.dart';
-import 'domain/usecases/get_received_proposals_usecase.dart';
 
 /// Ficha técnica y detalle de una cotización para aceptación formal del cliente (P-031).
 class ProposalDetailScreen extends StatelessWidget {
   const ProposalDetailScreen({
     super.key,
     required this.proposal,
-    this.proposalsBloc,
   });
 
   final Proposal proposal;
-  final ProposalsBloc? proposalsBloc;
+
+  /// Pantalla con su propio [ProposalsBloc].
+  static Widget withBloc(Proposal proposal) {
+    return BlocProvider<ProposalsBloc>(
+      create: (context) =>
+          ProposalsBloc.fromRepository(context.read<ProposalRepository>()),
+      child: ProposalDetailScreen(proposal: proposal),
+    );
+  }
+
+  static Route<void> route(Proposal proposal) {
+    return RivetPageRoute<void>(builder: (_) => withBloc(proposal));
+  }
 
   @override
-  Widget build(BuildContext context) {
-    if (proposalsBloc != null) {
-      return BlocProvider<ProposalsBloc>.value(
-        value: proposalsBloc!,
-        child: _ProposalDetailView(proposal: proposal),
-      );
-    }
-
-    try {
-      context.read<ProposalsBloc>();
-      return _ProposalDetailView(proposal: proposal);
-    } catch (_) {
-      return BlocProvider<ProposalsBloc>(
-        create: (context) {
-          final repository = context.read<ProposalRepository>();
-          return ProposalsBloc(
-            GetReceivedProposalsUseCase(repository),
-            AcceptProposalUseCase(repository),
-          );
-        },
-        child: _ProposalDetailView(proposal: proposal),
-      );
-    }
-  }
+  Widget build(BuildContext context) => _ProposalDetailView(proposal: proposal);
 }
 
 class _ProposalDetailView extends StatelessWidget {
@@ -99,7 +85,7 @@ class _ProposalDetailView extends StatelessWidget {
           orElse: () => proposal,
         );
 
-        final isAccepted = currentProposal.status == 'Aceptada' ||
+        final isAccepted = currentProposal.status == ProposalStatus.accepted ||
             state.acceptedProposalId == proposal.id;
 
         return RivetScaffold(
@@ -173,8 +159,8 @@ class _ProposalDetailView extends StatelessWidget {
                         const SizedBox(width: AppSpacing.sm),
                         AppBadge(
                           text: isAccepted
-                              ? 'Aceptada'
-                              : currentProposal.status,
+                              ? ProposalStatus.accepted.label
+                              : currentProposal.status.label,
                           variant: isAccepted
                               ? AppBadgeVariant.success
                               : AppBadgeVariant.brand,

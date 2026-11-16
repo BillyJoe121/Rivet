@@ -1,25 +1,20 @@
 import 'package:flutter/material.dart';
 
 import '../../core/models/models.dart';
-import 'presentation/bloc/projects_bloc.dart';
 import 'wizard/presentation/project_wizard_screen.dart';
 
-/// Envoltorio compatible que delega en el asistente de 8 pasos (P-008..P-015).
+/// Envoltorio compatible que abre el asistente de proyecto con su Bloc.
 class CreateProjectScreen extends StatelessWidget {
-  const CreateProjectScreen({
-    super.key,
-    this.projectsBloc,
-    this.initialProject,
-  });
+  const CreateProjectScreen({super.key, this.initialProject});
 
-  final ProjectsBloc? projectsBloc;
   final Project? initialProject;
+
+  /// Ruta del asistente; se resuelve con el proyecto guardado o `null`.
+  static Route<Project> route({Project? initialProject}) =>
+      ProjectWizardScreen.route(initialProject: initialProject);
 
   @override
   Widget build(BuildContext context) {
-    return ProjectWizardScreen(
-      projectsBloc: projectsBloc,
-      initialProject: initialProject,
-    );
+    return ProjectWizardScreen.withBloc(initialProject: initialProject);
   }
 }

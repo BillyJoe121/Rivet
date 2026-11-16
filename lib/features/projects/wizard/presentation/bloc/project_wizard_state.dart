@@ -1,7 +1,9 @@
 import '../../../../../core/models/models.dart';
 import '../../domain/project_draft.dart';
 
-enum ProjectWizardStatus { initial, editing, publishing, published, failure }
+/// `loading` cubre la publicación en curso; `success` es el asistente listo
+/// para editar o ya publicado (ver [ProjectWizardState.isPublished]).
+enum ProjectWizardStatus { initial, loading, success, failure }
 
 class ProjectWizardState {
   const ProjectWizardState({
@@ -27,8 +29,8 @@ class ProjectWizardState {
     'Publicar',
   ];
 
-  bool get isPublishing => status == ProjectWizardStatus.publishing;
-  bool get isPublished => status == ProjectWizardStatus.published;
+  bool get isPublishing => status == ProjectWizardStatus.loading;
+  bool get isPublished => publishedProject != null;
   bool get isFailure => status == ProjectWizardStatus.failure;
 
   ProjectWizardState copyWith({

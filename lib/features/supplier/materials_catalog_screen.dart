@@ -9,7 +9,6 @@ import '../../core/widgets/widgets.dart';
 import 'catalog_filters.dart';
 import 'catalog_mock.dart';
 import 'domain/repositories/catalog_repository.dart';
-import 'domain/usecases/get_catalog_materials_usecase.dart';
 import 'material_detail_screen.dart';
 import 'material_price_tier.dart';
 import 'presentation/bloc/catalog_bloc.dart';
@@ -22,47 +21,48 @@ class MaterialsCatalogScreen extends StatelessWidget {
     super.key,
     this.priceTier = MaterialPriceTier.client,
     this.products = CatalogMock.products,
-    this.catalogBloc,
     this.preselectedProjectId,
   });
 
   final MaterialPriceTier priceTier;
   final List<MaterialProduct> products;
-  final CatalogBloc? catalogBloc;
   final String? preselectedProjectId;
+
+  /// Pantalla con su propio [CatalogBloc] cargando el catálogo.
+  static Widget withBloc({
+    MaterialPriceTier priceTier = MaterialPriceTier.client,
+    String? preselectedProjectId,
+  }) {
+    return BlocProvider<CatalogBloc>(
+      create: (context) =>
+          CatalogBloc.fromRepository(context.read<CatalogRepository>())
+            ..add(const LoadCatalogProducts()),
+      child: MaterialsCatalogScreen(
+        priceTier: priceTier,
+        preselectedProjectId: preselectedProjectId,
+      ),
+    );
+  }
+
+  static Route<void> route({
+    MaterialPriceTier priceTier = MaterialPriceTier.client,
+    String? preselectedProjectId,
+  }) {
+    return RivetPageRoute<void>(
+      builder: (_) => withBloc(
+        priceTier: priceTier,
+        preselectedProjectId: preselectedProjectId,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (catalogBloc != null) {
-      return BlocProvider<CatalogBloc>.value(
-        value: catalogBloc!,
-        child: _MaterialsCatalogView(
-          priceTier: priceTier,
-          initialProducts: products,
-          preselectedProjectId: preselectedProjectId,
-        ),
-      );
-    }
-
-    try {
-      context.read<CatalogBloc>();
-      return _MaterialsCatalogView(
-        priceTier: priceTier,
-        initialProducts: products,
-        preselectedProjectId: preselectedProjectId,
-      );
-    } catch (_) {
-      return BlocProvider<CatalogBloc>(
-        create: (context) => CatalogBloc(
-          GetCatalogMaterialsUseCase(context.read<CatalogRepository>()),
-        )..add(const LoadCatalogProducts()),
-        child: _MaterialsCatalogView(
-          priceTier: priceTier,
-          initialProducts: products,
-          preselectedProjectId: preselectedProjectId,
-        ),
-      );
-    }
+    return _MaterialsCatalogView(
+      priceTier: priceTier,
+      initialProducts: products,
+      preselectedProjectId: preselectedProjectId,
+    );
   }
 }
 

@@ -7,9 +7,11 @@ import 'package:rivet/features/proposals/presentation/bloc/proposals_bloc.dart';
 
 class FakeProposalRepository implements ProposalRepository {
   List<Proposal> proposals = [];
+  Object? errorToThrow;
 
   @override
   Future<List<Proposal>> getReceivedProposals({String? projectId}) async {
+    if (errorToThrow != null) throw errorToThrow!;
     if (projectId != null) {
       return proposals.where((p) => p.projectId == projectId).toList();
     }
@@ -33,7 +35,7 @@ class FakeProposalRepository implements ProposalRepository {
         laborCostCop: p.laborCostCop,
         materialsCostCop: p.materialsCostCop,
         estimatedDays: p.estimatedDays,
-        status: 'Aceptada',
+        status: ProposalStatus.accepted,
         observations: p.observations,
       );
     }
@@ -61,7 +63,7 @@ void main() {
     laborCostCop: 500000,
     materialsCostCop: 300000,
     estimatedDays: 3,
-    status: 'Recibida',
+    status: ProposalStatus.sent,
   );
 
   setUp(() {
@@ -103,10 +105,25 @@ void main() {
     await expectLater(
       bloc.stream,
       emitsInOrder([
-        isA<ProposalsState>().having((s) => s.status, 'status', ProposalsStatus.loading),
+        isA<ProposalsState>().having((s) => s.isSubmitting, 'isSubmitting', true),
         isA<ProposalsState>()
             .having((s) => s.status, 'status', ProposalsStatus.success)
             .having((s) => s.acceptedProposalId, 'id', 'prop-1'),
+      ]),
+    );
+  });
+
+  test('LoadReceivedProposals emite [loading, failure] cuando falla', () async {
+    repo.errorToThrow = Exception('sin red');
+    bloc.add(const LoadReceivedProposals());
+
+    await expectLater(
+      bloc.stream,
+      emitsInOrder([
+        isA<ProposalsState>().having((s) => s.status, 'status', ProposalsStatus.loading),
+        isA<ProposalsState>()
+            .having((s) => s.status, 'status', ProposalsStatus.failure)
+            .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
       ]),
     );
   });

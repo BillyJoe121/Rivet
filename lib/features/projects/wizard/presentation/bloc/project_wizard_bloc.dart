@@ -63,7 +63,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
     draftRepository.saveDraft(draft);
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.editing,
+        status: ProjectWizardStatus.success,
         draft: draft,
         initialProject: existing,
         clearError: true,
@@ -94,7 +94,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
     draftRepository.saveDraft(updated);
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.editing,
+        status: ProjectWizardStatus.success,
         draft: updated,
         clearError: true,
       ),
@@ -134,7 +134,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
     draftRepository.saveDraft(updated);
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.editing,
+        status: ProjectWizardStatus.success,
         draft: updated,
         clearError: true,
       ),
@@ -163,7 +163,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
     draftRepository.saveDraft(updated);
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.editing,
+        status: ProjectWizardStatus.success,
         draft: updated,
         clearError: true,
       ),
@@ -181,7 +181,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
     draftRepository.saveDraft(updated);
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.editing,
+        status: ProjectWizardStatus.success,
         draft: updated,
         clearError: true,
       ),
@@ -206,7 +206,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
     draftRepository.saveDraft(updated);
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.editing,
+        status: ProjectWizardStatus.success,
         draft: updated,
         clearError: true,
       ),
@@ -236,7 +236,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
     draftRepository.saveDraft(updated);
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.editing,
+        status: ProjectWizardStatus.success,
         draft: updated,
         clearError: true,
       ),
@@ -251,7 +251,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
     draftRepository.saveDraft(updated);
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.editing,
+        status: ProjectWizardStatus.success,
         draft: updated,
         clearError: true,
       ),
@@ -284,7 +284,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
     draftRepository.saveDraft(updated);
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.editing,
+        status: ProjectWizardStatus.success,
         draft: updated,
         clearError: true,
       ),
@@ -334,7 +334,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
     draftRepository.saveDraft(updated);
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.editing,
+        status: ProjectWizardStatus.success,
         draft: updated,
         clearError: true,
       ),
@@ -361,7 +361,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
       draftRepository.saveDraft(updated);
       emit(
         state.copyWith(
-          status: ProjectWizardStatus.editing,
+          status: ProjectWizardStatus.success,
           draft: updated,
           clearError: true,
         ),
@@ -379,7 +379,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
       draftRepository.saveDraft(updated);
       emit(
         state.copyWith(
-          status: ProjectWizardStatus.editing,
+          status: ProjectWizardStatus.success,
           draft: updated,
           clearError: true,
         ),
@@ -393,7 +393,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
   ) async {
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.publishing,
+        status: ProjectWizardStatus.loading,
         clearError: true,
       ),
     );
@@ -404,7 +404,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
       );
       emit(
         state.copyWith(
-          status: ProjectWizardStatus.published,
+          status: ProjectWizardStatus.success,
           publishedProject: saved,
           clearError: true,
         ),
@@ -426,7 +426,7 @@ class ProjectWizardBloc extends Bloc<ProjectWizardEvent, ProjectWizardState> {
   ) {
     emit(
       state.copyWith(
-        status: ProjectWizardStatus.editing,
+        status: ProjectWizardStatus.success,
         clearError: true,
       ),
     );

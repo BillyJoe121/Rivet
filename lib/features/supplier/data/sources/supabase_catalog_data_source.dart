@@ -1,75 +1,90 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../../core/models/models.dart';
-import '../../catalog_mock.dart';
+import '../../domain/errors/catalog_failure.dart';
 
-/// Fuente de datos de la Bodega Rivet.
+/// Fuente de datos de la Bodega Rivet en Supabase (tabla `materials`).
+///
+/// Cualquier fallo de red o de la base se convierte en [CatalogFailure] con
+/// un mensaje listo para mostrar.
 class SupabaseCatalogDataSource {
   SupabaseCatalogDataSource(this._client);
 
   final SupabaseClient? _client;
 
-  final List<MaterialProduct> _localProducts = List.from(CatalogMock.products);
-  bool _useLocalFastPath = false;
+  static const noConnectionMessage =
+      'No pudimos conectarnos con Rivet. Revisa tu conexión e inténtalo de nuevo.';
+  static const loadListMessage =
+      'No pudimos cargar la Bodega. Inténtalo de nuevo.';
+  static const loadDetailMessage =
+      'No pudimos cargar este material. Inténtalo de nuevo.';
+  static const notFoundMessage = 'No encontramos este material.';
 
   /// Obtiene los productos aplicando filtros de búsqueda y categoría.
   Future<List<MaterialProduct>> getProducts({
     String? category,
     String? searchQuery,
-  }) async {
-    final client = _client;
-    if (!_useLocalFastPath && client != null) {
-      try {
-        var query = client.from('materials').select();
-        if (category != null && category != 'Todos') {
-          query = query.eq('category', category);
-        }
-        if (searchQuery != null && searchQuery.trim().isNotEmpty) {
-          query = query.ilike('name', '%${searchQuery.trim()}%');
-        }
-        final data = await query.timeout(const Duration(milliseconds: 900));
-        final list = (data as List).map((m) => _mapFromSupabase(m as Map<String, dynamic>)).toList();
-        if (list.isNotEmpty) return list;
-        _useLocalFastPath = true;
-      } catch (_) {
-        _useLocalFastPath = true;
+  }) {
+    return _guard(loadListMessage, () async {
+      var query = _requireClient().from('materials').select();
+      if (category != null && category != 'Todos') {
+        query = query.eq('category', category);
       }
-    }
+      final search = searchQuery?.trim() ?? '';
+      if (search.isNotEmpty) query = query.ilike('name', '%$search%');
 
-    Iterable<MaterialProduct> result = _localProducts;
-    if (category != null && category != 'Todos') {
-      result = result.where((p) => p.category.toLowerCase() == category.toLowerCase());
-    }
-    if (searchQuery != null && searchQuery.trim().isNotEmpty) {
-      final q = searchQuery.toLowerCase();
-      result = result.where((p) =>
-          p.name.toLowerCase().contains(q) ||
-          p.brand.toLowerCase().contains(q) ||
-          p.category.toLowerCase().contains(q));
-    }
-    return result.toList();
+      final rows = await query.order('name');
+      return [for (final row in rows) materialFromRow(row)];
+    });
   }
 
   /// Obtiene un producto por ID.
-  Future<MaterialProduct> getProductDetail(String productId) async {
-    return _localProducts.firstWhere(
-      (p) => p.id == productId,
-      orElse: () => _localProducts.first,
-    );
+  Future<MaterialProduct> getProductDetail(String productId) {
+    return _guard(loadDetailMessage, () async {
+      final row = await _requireClient()
+          .from('materials')
+          .select()
+          .eq('id', productId)
+          .maybeSingle();
+      if (row == null) throw const CatalogFailure(notFoundMessage);
+      return materialFromRow(row);
+    });
   }
 
-  MaterialProduct _mapFromSupabase(Map<String, dynamic> json) {
-    return MaterialProduct(
-      id: json['id'] as String,
-      name: json['name'] as String? ?? 'Insumo',
-      brand: json['brand'] as String? ?? 'Rivet',
-      category: json['category'] as String? ?? 'General',
-      unit: json['unit'] as String? ?? 'unidad',
-      clientPriceCop: (json['client_price_cop'] as num?)?.toInt() ?? 0,
-      proPriceCop: (json['pro_price_cop'] as num?)?.toInt() ?? 0,
-      finish: json['finish'] as String?,
-      inStock: json['in_stock'] as bool? ?? true,
-    );
+  SupabaseClient _requireClient() {
+    final client = _client;
+    if (client == null) throw const CatalogFailure(noConnectionMessage);
+    return client;
+  }
+
+  Future<T> _guard<T>(String message, Future<T> Function() run) async {
+    try {
+      return await run();
+    } on CatalogFailure {
+      rethrow;
+    } catch (_) {
+      throw CatalogFailure(message);
+    }
   }
 }
 
+/// Convierte una fila de `materials` al modelo.
+MaterialProduct materialFromRow(Map<String, dynamic> row) {
+  return MaterialProduct(
+    id: row['id'].toString(),
+    name: row['name'] as String? ?? '',
+    brand: row['brand'] as String? ?? '',
+    category: row['category'] as String? ?? 'General',
+    unit: row['unit'] as String? ?? 'unidad',
+    clientPriceCop: _toInt(row['client_price_cop']),
+    proPriceCop: _toInt(row['pro_price_cop']),
+    finish: row['finish'] as String?,
+    inStock: row['in_stock'] as bool? ?? true,
+  );
+}
+
+int _toInt(Object? value) => switch (value) {
+  final num n => n.round(),
+  final String s => num.tryParse(s)?.round() ?? 0,
+  _ => 0,
+};

@@ -126,7 +126,7 @@ abstract final class MockData {
       laborCostCop: 780000,
       materialsCostCop: 420000,
       estimatedDays: 3,
-      status: 'Recibida',
+      status: ProposalStatus.sent,
       observations: 'Incluye protección completa de piso con cartón corrugado y plástico, resane con masilla elastomérica.',
     ),
     Proposal(
@@ -136,7 +136,7 @@ abstract final class MockData {
       laborCostCop: 850000,
       materialsCostCop: 395000,
       estimatedDays: 4,
-      status: 'Recibida',
+      status: ProposalStatus.sent,
       observations: 'Aplicación con rodillo de microfibra anti-goteo, 2 manos de Viniltex lavable de alta durabilidad.',
     ),
     Proposal(
@@ -146,7 +146,7 @@ abstract final class MockData {
       laborCostCop: 540000,
       materialsCostCop: 310000,
       estimatedDays: 3,
-      status: 'En negociación',
+      status: ProposalStatus.sent,
       observations: 'Incluye sellador acrílico previo, tres capas de estuco plástico liso, lijado libre de polvo y dos manos de acabado.',
     ),
     Proposal(
@@ -156,7 +156,7 @@ abstract final class MockData {
       laborCostCop: 590000,
       materialsCostCop: 330000,
       estimatedDays: 2,
-      status: 'Recibida',
+      status: ProposalStatus.sent,
       observations: 'Nivelación de revoque nuevo con estuco profesional, acabado terso listo para pintura y entrega con aseo.',
     ),
   ];

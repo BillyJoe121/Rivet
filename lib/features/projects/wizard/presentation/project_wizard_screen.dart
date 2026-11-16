@@ -5,8 +5,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../../core/models/models.dart';
 import '../../../../core/theme/theme.dart';
+import '../../../../core/utils/app_page_route.dart';
 import '../../../../core/widgets/widgets.dart';
-import '../../presentation/bloc/projects_bloc.dart';
 import '../../domain/repositories/project_repository.dart';
 import '../../domain/usecases/usecases.dart';
 import '../domain/estimate_materials_usecase.dart';
@@ -17,74 +17,62 @@ import 'widgets/wizard_steps_early.dart';
 import 'widgets/wizard_steps_late.dart';
 
 /// Asistente de 5 pasos para crear o editar un proyecto (Datos, Medidas, Fotos, Materiales, Publicar).
+///
+/// Espera un [ProjectWizardBloc] en el contexto; [route] y [withBloc] lo
+/// arman con los repositorios inyectados. Al publicar cierra la pantalla y
+/// devuelve el [Project] guardado.
 class ProjectWizardScreen extends StatefulWidget {
-  const ProjectWizardScreen({
-    super.key,
-    this.initialProject,
-    this.projectsBloc,
-    this.wizardBloc,
-    this.draftRepository,
-  });
+  const ProjectWizardScreen({super.key});
 
-  final Project? initialProject;
-  final ProjectsBloc? projectsBloc;
-  final ProjectWizardBloc? wizardBloc;
-  final ProjectDraftRepository? draftRepository;
+  /// Pantalla con su [ProjectWizardBloc] listo, para crear o editar.
+  static Widget withBloc({Project? initialProject}) {
+    return BlocProvider<ProjectWizardBloc>(
+      create: (context) {
+        final draftRepository = context.read<ProjectDraftRepository>();
+        final projectRepository = context.read<ProjectRepository>();
+        return ProjectWizardBloc(
+          draftRepository: draftRepository,
+          estimateMaterialsUseCase: const EstimateMaterialsUseCase(),
+          publishProjectWizardUseCase: PublishProjectWizardUseCase(
+            createProjectUseCase: CreateProjectUseCase(projectRepository),
+            updateProjectUseCase: UpdateProjectUseCase(projectRepository),
+            draftRepository: draftRepository,
+          ),
+        )..add(WizardInitialized(initialProject: initialProject));
+      },
+      child: const ProjectWizardScreen(),
+    );
+  }
+
+  /// Ruta del asistente; se resuelve con el proyecto guardado o `null`.
+  static Route<Project> route({Project? initialProject}) {
+    return RivetPageRoute<Project>(
+      builder: (_) => withBloc(initialProject: initialProject),
+    );
+  }
 
   @override
   State<ProjectWizardScreen> createState() => _ProjectWizardScreenState();
 }
 
 class _ProjectWizardScreenState extends State<ProjectWizardScreen> {
-  ProjectWizardBloc? _ownedWizardBloc;
   Timer? _errorTimer;
-
-  ProjectsBloc? _resolveProjectsBloc(BuildContext context) {
-    if (widget.projectsBloc != null) return widget.projectsBloc;
-    try {
-      return context.read<ProjectsBloc>();
-    } catch (_) {
-      return null;
-    }
-  }
-
-  ProjectWizardBloc _resolveWizardBloc() {
-    if (widget.wizardBloc != null) return widget.wizardBloc!;
-    if (_ownedWizardBloc != null) return _ownedWizardBloc!;
-
-    final draftRepo =
-        widget.draftRepository ?? context.read<ProjectDraftRepository>();
-    final projectRepository = context.read<ProjectRepository>();
-    final bloc = ProjectWizardBloc(
-      draftRepository: draftRepo,
-      estimateMaterialsUseCase: const EstimateMaterialsUseCase(),
-      publishProjectWizardUseCase: PublishProjectWizardUseCase(
-        createProjectUseCase: CreateProjectUseCase(projectRepository),
-        updateProjectUseCase: UpdateProjectUseCase(projectRepository),
-        draftRepository: draftRepo,
-      ),
-    )..add(WizardInitialized(initialProject: widget.initialProject));
-
-    _ownedWizardBloc = bloc;
-    return bloc;
-  }
 
   @override
   void dispose() {
     _errorTimer?.cancel();
-    _ownedWizardBloc?.close();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final wizardBloc = _resolveWizardBloc();
-
-    return BlocProvider<ProjectWizardBloc>.value(
-      value: wizardBloc,
-      child: BlocConsumer<ProjectWizardBloc, ProjectWizardState>(
-        listener: (context, state) {
-          if (state.errorMessage != null) {
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<ProjectWizardBloc, ProjectWizardState>(
+          listenWhen: (previous, current) =>
+              current.errorMessage != null &&
+              previous.errorMessage != current.errorMessage,
+          listener: (context, state) {
             _errorTimer?.cancel();
             _errorTimer = Timer(const Duration(seconds: 5), () {
               if (mounted) {
@@ -93,17 +81,18 @@ class _ProjectWizardScreenState extends State<ProjectWizardScreen> {
                 );
               }
             });
-          }
-
-          if (state.isPublished && state.publishedProject != null) {
-            final saved = state.publishedProject!;
-            final projectsBloc = _resolveProjectsBloc(context);
-            projectsBloc?.add(UpdateProjectSubmitted(saved));
-            if (mounted) {
-              Navigator.of(context).pop(saved);
-            }
-          }
-        },
+          },
+        ),
+        BlocListener<ProjectWizardBloc, ProjectWizardState>(
+          listenWhen: (previous, current) =>
+              current.publishedProject != null &&
+              previous.publishedProject != current.publishedProject,
+          listener: (context, state) {
+            Navigator.of(context).pop(state.publishedProject);
+          },
+        ),
+      ],
+      child: BlocBuilder<ProjectWizardBloc, ProjectWizardState>(
         builder: (context, state) {
           final draft = state.draft;
           final currentStep = draft.currentStep.clamp(

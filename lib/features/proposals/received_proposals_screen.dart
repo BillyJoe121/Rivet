@@ -9,8 +9,6 @@ import '../agreements/agreements_screens.dart';
 import 'presentation/bloc/proposals_bloc.dart';
 import 'proposal_detail_screen.dart';
 import 'domain/repositories/proposal_repository.dart';
-import 'domain/usecases/accept_proposal_usecase.dart';
-import 'domain/usecases/get_received_proposals_usecase.dart';
 import 'widgets/proposal_card.dart';
 
 /// Propuestas recibidas por el cliente con Clean Architecture y BLoC (P-028).
@@ -18,40 +16,29 @@ class ReceivedProposalsScreen extends StatelessWidget {
   const ReceivedProposalsScreen({
     super.key,
     this.projectId,
-    this.proposalsBloc,
   });
 
   final String? projectId;
-  final ProposalsBloc? proposalsBloc;
+
+  /// Pantalla con su propio [ProposalsBloc] cargando las propuestas.
+  static Widget withBloc({String? projectId}) {
+    return BlocProvider<ProposalsBloc>(
+      create: (context) =>
+          ProposalsBloc.fromRepository(context.read<ProposalRepository>())
+            ..add(LoadReceivedProposals(projectId: projectId)),
+      child: ReceivedProposalsScreen(projectId: projectId),
+    );
+  }
+
+  static Route<void> route({String? projectId}) {
+    return RivetPageRoute<void>(
+      builder: (_) => withBloc(projectId: projectId),
+    );
+  }
 
   @override
-  Widget build(BuildContext context) {
-    if (proposalsBloc != null) {
-      return BlocProvider<ProposalsBloc>.value(
-        value: proposalsBloc!,
-        child: _ReceivedProposalsView(projectId: projectId),
-      );
-    }
-
-    try {
-      final existing = context.read<ProposalsBloc>();
-      if (existing.state.proposals.isEmpty && !existing.state.isLoading) {
-        existing.add(LoadReceivedProposals(projectId: projectId));
-      }
-      return _ReceivedProposalsView(projectId: projectId);
-    } catch (_) {
-      return BlocProvider<ProposalsBloc>(
-        create: (context) {
-          final repository = context.read<ProposalRepository>();
-          return ProposalsBloc(
-            GetReceivedProposalsUseCase(repository),
-            AcceptProposalUseCase(repository),
-          )..add(LoadReceivedProposals(projectId: projectId));
-        },
-        child: _ReceivedProposalsView(projectId: projectId),
-      );
-    }
-  }
+  Widget build(BuildContext context) =>
+      _ReceivedProposalsView(projectId: projectId);
 }
 
 class _ReceivedProposalsView extends StatelessWidget {
@@ -134,9 +121,8 @@ class _ReceivedProposalsView extends StatelessWidget {
                       for (var i = 0; i < proposals.length; i++) ...[
                         ProposalCard(
                           proposal: proposals[i],
-                          onTap: () => AppNavigator.push(
-                            context,
-                            ProposalDetailScreen(proposal: proposals[i]),
+                          onTap: () => Navigator.of(context).push(
+                            ProposalDetailScreen.route(proposals[i]),
                           ),
                         ),
                         if (i < proposals.length - 1)

@@ -10,7 +10,6 @@ import '../supplier/material_price_tier.dart';
 import '../supplier/materials_catalog_screen.dart';
 import 'presentation/bloc/projects_bloc.dart';
 import 'domain/repositories/project_repository.dart';
-import 'domain/usecases/usecases.dart';
 
 /// Lista editable de materiales de un proyecto para el cliente (P-014).
 class ProjectMaterialsScreen extends StatelessWidget {
@@ -18,48 +17,34 @@ class ProjectMaterialsScreen extends StatelessWidget {
     super.key,
     required this.projectId,
     this.initialProject,
-    this.projectsBloc,
   });
 
   final String projectId;
   final Project? initialProject;
-  final ProjectsBloc? projectsBloc;
+
+  /// Pantalla con su propio [ProjectsBloc] cargando el detalle del proyecto.
+  static Widget withBloc(Project project) {
+    return BlocProvider<ProjectsBloc>(
+      create: (context) =>
+          ProjectsBloc.fromRepository(context.read<ProjectRepository>())
+            ..add(LoadProjectDetail(project.id)),
+      child: ProjectMaterialsScreen(
+        projectId: project.id,
+        initialProject: project,
+      ),
+    );
+  }
+
+  static Route<void> route(Project project) {
+    return RivetPageRoute<void>(builder: (_) => withBloc(project));
+  }
 
   @override
   Widget build(BuildContext context) {
-    if (projectsBloc != null) {
-      return BlocProvider<ProjectsBloc>.value(
-        value: projectsBloc!,
-        child: _ProjectMaterialsView(
-          projectId: projectId,
-          initialProject: initialProject,
-        ),
-      );
-    }
-
-    try {
-      context.read<ProjectsBloc>();
-      return _ProjectMaterialsView(
-        projectId: projectId,
-        initialProject: initialProject,
-      );
-    } catch (_) {
-      return BlocProvider<ProjectsBloc>(
-        create: (context) {
-          final repository = context.read<ProjectRepository>();
-          return ProjectsBloc(
-            GetMyProjectsUseCase(repository),
-            CreateProjectUseCase(repository),
-            GetProjectDetailUseCase(repository),
-            UpdateProjectUseCase(repository),
-          )..add(const LoadProjects());
-        },
-        child: _ProjectMaterialsView(
-          projectId: projectId,
-          initialProject: initialProject,
-        ),
-      );
-    }
+    return _ProjectMaterialsView(
+      projectId: projectId,
+      initialProject: initialProject,
+    );
   }
 }
 
@@ -119,9 +104,8 @@ class _ProjectMaterialsView extends StatelessWidget {
               text: 'Agregar desde la Bodega Rivet',
               icon: LucideIcons.plus,
               showChevron: true,
-              onPressed: () => AppNavigator.push(
-                context,
-                MaterialsCatalogScreen(preselectedProjectId: projectId),
+              onPressed: () => Navigator.of(context).push(
+                MaterialsCatalogScreen.route(preselectedProjectId: projectId),
               ),
             ),
             children: [
@@ -168,9 +152,10 @@ class _ProjectMaterialsView extends StatelessWidget {
                         'Explora la Bodega Rivet para sumar pinturas, estucos y herramientas a este proyecto.',
                     icon: LucideIcons.paintBucket,
                     actionLabel: 'Ir a la Bodega',
-                    onAction: () => AppNavigator.push(
-                      context,
-                      MaterialsCatalogScreen(preselectedProjectId: projectId),
+                    onAction: () => Navigator.of(context).push(
+                      MaterialsCatalogScreen.route(
+                        preselectedProjectId: projectId,
+                      ),
                     ),
                   )
                 else

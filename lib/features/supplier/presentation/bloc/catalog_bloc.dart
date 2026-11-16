@@ -1,5 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../domain/errors/catalog_failure.dart';
+import '../../domain/repositories/catalog_repository.dart';
 import '../../domain/usecases/get_catalog_materials_usecase.dart';
 import 'catalog_event.dart';
 import 'catalog_state.dart';
@@ -15,6 +17,10 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
     on<CatalogSearchQueryChanged>(_onSearchQueryChanged);
     on<CatalogErrorDismissed>(_onErrorDismissed);
   }
+
+  /// Arma el Bloc con el caso de uso sobre [repository].
+  factory CatalogBloc.fromRepository(CatalogRepository repository) =>
+      CatalogBloc(GetCatalogMaterialsUseCase(repository));
 
   final GetCatalogMaterialsUseCase _getCatalogMaterialsUseCase;
 
@@ -35,10 +41,11 @@ class CatalogBloc extends Bloc<CatalogEvent, CatalogState> {
         searchQuery: event.searchQuery ?? state.searchQuery,
       ));
     } catch (e) {
-      final clean = e.toString().replaceFirst('Exception: ', '');
       emit(state.copyWith(
         status: CatalogStatus.failure,
-        errorMessage: clean,
+        errorMessage: e is CatalogFailure
+            ? e.message
+            : 'No pudimos cargar la Bodega. Inténtalo de nuevo.',
       ));
     }
   }

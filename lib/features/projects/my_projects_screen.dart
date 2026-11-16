@@ -10,67 +10,42 @@ import 'create_project_screen.dart';
 import 'presentation/bloc/projects_bloc.dart';
 import 'project_detail_screen.dart';
 import 'domain/repositories/project_repository.dart';
-import 'domain/usecases/usecases.dart';
 
 /// Pantalla de listado y filtrado de proyectos con Clean Architecture y BLoC (P-016).
+///
+/// Espera un [ProjectsBloc] en el contexto; [withBloc] y [route] lo arman y
+/// piden la lista al abrir.
 class MyProjectsScreen extends StatelessWidget {
   const MyProjectsScreen({
     super.key,
     this.forContractor = false,
     this.showBidsOnly = false,
-    this.projectsBloc,
   });
 
   final bool forContractor;
   final bool showBidsOnly;
-  final ProjectsBloc? projectsBloc;
 
-  @override
-  Widget build(BuildContext context) {
-    if (projectsBloc != null) {
-      return BlocProvider<ProjectsBloc>.value(
-        value: projectsBloc!,
-        child: _MyProjectsView(
-          forContractor: forContractor,
-          showBidsOnly: showBidsOnly,
-        ),
-      );
-    }
-
-    try {
-      context.read<ProjectsBloc>();
-      return _MyProjectsView(
+  /// Pantalla con su [ProjectsBloc] cargando los proyectos.
+  static Widget withBloc({bool forContractor = false, bool showBidsOnly = false}) {
+    return BlocProvider<ProjectsBloc>(
+      create: (context) =>
+          ProjectsBloc.fromRepository(context.read<ProjectRepository>())
+            ..add(const LoadProjects()),
+      child: MyProjectsScreen(
         forContractor: forContractor,
         showBidsOnly: showBidsOnly,
-      );
-    } catch (_) {
-      return BlocProvider<ProjectsBloc>(
-        create: (context) {
-          final repository = context.read<ProjectRepository>();
-          return ProjectsBloc(
-            GetMyProjectsUseCase(repository),
-            CreateProjectUseCase(repository),
-            GetProjectDetailUseCase(repository),
-            UpdateProjectUseCase(repository),
-          )..add(const LoadProjects());
-        },
-        child: _MyProjectsView(
-          forContractor: forContractor,
-          showBidsOnly: showBidsOnly,
-        ),
-      );
-    }
+      ),
+    );
   }
-}
 
-class _MyProjectsView extends StatelessWidget {
-  const _MyProjectsView({
-    required this.forContractor,
-    required this.showBidsOnly,
-  });
-
-  final bool forContractor;
-  final bool showBidsOnly;
+  static Route<void> route({bool forContractor = false, bool showBidsOnly = false}) {
+    return RivetPageRoute<void>(
+      builder: (_) => withBloc(
+        forContractor: forContractor,
+        showBidsOnly: showBidsOnly,
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -110,7 +85,7 @@ class _MyProjectsView extends StatelessWidget {
               onPressed: () => _openCreateProject(context),
             ),
             children: [
-              if (state.isLoading && state.projects.isEmpty)
+              if (state.isWaiting && state.projects.isEmpty)
                 const AppLoadingState(label: 'Cargando tus proyectos')
               else if (state.isFailure && state.projects.isEmpty)
                 AppErrorState(
@@ -140,10 +115,7 @@ class _MyProjectsView extends StatelessWidget {
                 for (var i = 0; i < projects.length; i++) ...[
                   AppCard(
                     backgroundColor: AppColors.paper100,
-                    onTap: () => AppNavigator.push(
-                      context,
-                      ProjectDetailScreen(project: projects[i]),
-                    ),
+                    onTap: () => _openDetail(context, projects[i]),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -232,7 +204,15 @@ class _MyProjectsView extends StatelessWidget {
     );
   }
 
-  void _openCreateProject(BuildContext context) {
-    AppNavigator.push(context, const CreateProjectScreen());
+  Future<void> _openDetail(BuildContext context, Project project) async {
+    final bloc = context.read<ProjectsBloc>();
+    await Navigator.of(context).push(ProjectDetailScreen.route(project));
+    bloc.add(const LoadProjects());
+  }
+
+  Future<void> _openCreateProject(BuildContext context) async {
+    final bloc = context.read<ProjectsBloc>();
+    final saved = await Navigator.of(context).push(CreateProjectScreen.route());
+    if (saved != null) bloc.add(const LoadProjects());
   }
 }

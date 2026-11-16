@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/core/models/models.dart';
+import 'package:rivet/features/projects/domain/errors/project_failure.dart';
 import 'package:rivet/features/projects/domain/repositories/project_repository.dart';
 import 'package:rivet/features/projects/domain/usecases/create_project_usecase.dart';
 import 'package:rivet/features/projects/domain/usecases/get_my_projects_usecase.dart';
@@ -101,7 +102,7 @@ void main() {
     await expectLater(
       bloc.stream,
       emitsInOrder([
-        isA<ProjectsState>().having((s) => s.status, 'status', ProjectsStatus.loading),
+        isA<ProjectsState>().having((s) => s.isSubmitting, 'isSubmitting', true),
         isA<ProjectsState>()
             .having((s) => s.status, 'status', ProjectsStatus.success)
             .having((s) => s.projects.length, 'count', 1)
@@ -116,7 +117,7 @@ void main() {
     await expectLater(
       bloc.stream,
       emitsInOrder([
-        isA<ProjectsState>().having((s) => s.status, 'status', ProjectsStatus.loading),
+        isA<ProjectsState>().having((s) => s.isSubmitting, 'isSubmitting', true),
         isA<ProjectsState>()
             .having((s) => s.status, 'status', ProjectsStatus.failure)
             .having((s) => s.errorMessage, 'error', 'Ingresa un título para el proyecto.'),
@@ -125,7 +126,7 @@ void main() {
   });
 
   test('LoadProjects emite failure y luego se recupera al reintentar', () async {
-    repo.errorToThrow = Exception('Sin conexión');
+    repo.errorToThrow = const ProjectFailure('Sin conexión');
     bloc.add(const LoadProjects());
     await expectLater(
       bloc.stream,
@@ -189,7 +190,7 @@ void main() {
     await expectLater(
       bloc.stream,
       emitsInOrder([
-        isA<ProjectsState>().having((s) => s.status, 'status', ProjectsStatus.loading),
+        isA<ProjectsState>().having((s) => s.isSubmitting, 'isSubmitting', true),
         isA<ProjectsState>()
             .having((s) => s.status, 'status', ProjectsStatus.success)
             .having((s) => s.projects.length, 'count', 2)

@@ -191,9 +191,8 @@ class _ClientNotificationsView extends StatelessWidget {
     }
 
     if (item.projectId != null) {
-      AppNavigator.push(
-        context,
-        ReceivedProposalsScreen(projectId: item.projectId!),
+      Navigator.of(context).push(
+        ReceivedProposalsScreen.route(projectId: item.projectId!),
       );
     }
   }

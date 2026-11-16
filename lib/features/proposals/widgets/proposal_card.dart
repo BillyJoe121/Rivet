@@ -16,7 +16,7 @@ class ProposalCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final contractor = proposal.contractor;
-    final isAccepted = proposal.status == 'Aceptada';
+    final isAccepted = proposal.status == ProposalStatus.accepted;
 
     return AppCard(
       onTap: onTap,
@@ -62,7 +62,7 @@ class ProposalCard extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.sm),
               AppBadge(
-                text: isAccepted ? 'Aceptada' : proposal.status,
+                text: proposal.status.label,
                 variant: isAccepted
                     ? AppBadgeVariant.success
                     : AppBadgeVariant.brand,

@@ -191,16 +191,16 @@ class _AppShellState extends State<AppShell> {
             : ClientHomeView(onOpenProjects: () => _open(_Page.projects)),
       _Page.projects =>
         _isClient
-            ? const MyProjectsScreen()
+            ? MyProjectsScreen.withBloc()
             : UnderConstructionScreen(section: _sectionName(page)),
       _Page.contractors =>
         _isClient
             ? const ContractorsDirectoryScreen()
             : UnderConstructionScreen(section: _sectionName(page)),
-      _Page.catalog => const MaterialsCatalogScreen(),
+      _Page.catalog => MaterialsCatalogScreen.withBloc(),
       _Page.proposals =>
         _isClient
-            ? const AllProposalsScreen()
+            ? AllProposalsScreen.withBloc()
             : UnderConstructionScreen(section: _sectionName(page)),
       _Page.messages =>
         _isClient

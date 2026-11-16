@@ -19,6 +19,10 @@ class CatalogState {
   final String? errorMessage;
 
   bool get isLoading => status == CatalogStatus.loading;
+
+  /// Todavía no hay datos que mostrar: aún no se pidió o se están cargando.
+  bool get isWaiting =>
+      status == CatalogStatus.initial || status == CatalogStatus.loading;
   bool get isSuccess => status == CatalogStatus.success;
   bool get isFailure => status == CatalogStatus.failure;
 

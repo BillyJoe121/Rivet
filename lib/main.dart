@@ -17,19 +17,12 @@ import 'features/contractors/contractors_module.dart';
 import 'features/messaging/messaging_module.dart';
 import 'features/projects/data/project_repository_factory.dart';
 import 'features/projects/domain/repositories/project_repository.dart';
-import 'features/projects/domain/usecases/usecases.dart';
-import 'features/projects/presentation/bloc/projects_bloc.dart';
 import 'features/projects/wizard/data/local_project_draft_repository.dart';
 import 'features/projects/wizard/domain/project_draft_repository.dart';
 import 'features/proposals/data/proposal_repository_factory.dart';
 import 'features/proposals/domain/repositories/proposal_repository.dart';
-import 'features/proposals/domain/usecases/accept_proposal_usecase.dart';
-import 'features/proposals/domain/usecases/get_received_proposals_usecase.dart';
-import 'features/proposals/presentation/bloc/proposals_bloc.dart';
 import 'features/supplier/data/catalog_repository_factory.dart';
 import 'features/supplier/domain/repositories/catalog_repository.dart';
-import 'features/supplier/domain/usecases/get_catalog_materials_usecase.dart';
-import 'features/supplier/presentation/bloc/catalog_bloc.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -167,35 +160,12 @@ class _RivetAppState extends State<RivetApp> {
           value: _projectDraftRepository,
         ),
       ],
-      child: MultiBlocProvider(
-      providers: [
-        BlocProvider<AuthBloc>(
-          create: (_) => AuthBloc(
-            GetCurrentUserUseCase(authRepository),
-            SignOutUseCase(authRepository),
-          )..add(const AuthCheckRequested()),
-        ),
-        BlocProvider<ProjectsBloc>(
-          create: (_) => ProjectsBloc(
-            GetMyProjectsUseCase(_projectRepository),
-            CreateProjectUseCase(_projectRepository),
-            GetProjectDetailUseCase(_projectRepository),
-            UpdateProjectUseCase(_projectRepository),
-          )..add(const LoadProjects()),
-        ),
-        BlocProvider<ProposalsBloc>(
-          create: (_) => ProposalsBloc(
-            GetReceivedProposalsUseCase(_proposalRepository),
-            AcceptProposalUseCase(_proposalRepository),
-          )..add(const LoadReceivedProposals()),
-        ),
-        BlocProvider<CatalogBloc>(
-          create: (_) => CatalogBloc(
-            GetCatalogMaterialsUseCase(_catalogRepository),
-          )..add(const LoadCatalogProducts()),
-        ),
-      ],
-      child: MaterialApp(
+      child: BlocProvider<AuthBloc>(
+        create: (_) => AuthBloc(
+          GetCurrentUserUseCase(authRepository),
+          SignOutUseCase(authRepository),
+        )..add(const AuthCheckRequested()),
+        child: MaterialApp(
         navigatorKey: rootNavigatorKey,
         title: 'Rivet · Cotizaciones para tu obra',
         debugShowCheckedModeBanner: false,
@@ -204,7 +174,7 @@ class _RivetAppState extends State<RivetApp> {
         builder: (context, child) =>
             KeyboardDismisser(child: child ?? const SizedBox.shrink()),
         home: const AuthGate(),
-      ),
+        ),
       ),
     );
   }

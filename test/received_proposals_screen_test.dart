@@ -8,9 +8,9 @@ import 'helpers/repositories_test_harness.dart';
 void main() {
   testWidgets('ReceivedProposalsScreen lista las propuestas por contratista', (tester) async {
     await tester.pumpWidget(
-      withRepositories(const MaterialApp(home: ReceivedProposalsScreen())),
+      withRepositories(MaterialApp(home: ReceivedProposalsScreen.withBloc())),
     );
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.text('Propuestas\nrecibidas'), findsOneWidget);
     for (final proposal in MockData.proposals) {

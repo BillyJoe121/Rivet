@@ -10,10 +10,14 @@ import '../messaging/messaging_screens.dart';
 import '../proposals/received_proposals_screen.dart';
 import '../supplier/material_price_tier.dart';
 import 'create_project_screen.dart';
+import 'domain/repositories/project_repository.dart';
 import 'presentation/bloc/projects_bloc.dart';
 import 'project_materials_screen.dart';
 
 /// Ficha completa y expediente del proyecto para el cliente (P-013).
+///
+/// Espera un [ProjectsBloc] en el contexto ([withBloc] o [route]); muestra
+/// [project] y, al volver de editar, la versión recargada del servidor.
 class ProjectDetailScreen extends StatelessWidget {
   const ProjectDetailScreen({
     super.key,
@@ -22,23 +26,43 @@ class ProjectDetailScreen extends StatelessWidget {
 
   final Project project;
 
-  Project _resolveLiveProject(BuildContext context) {
-    try {
-      final state = context.watch<ProjectsBloc>().state;
-      for (final item in state.projects) {
-        if (item.id == project.id) return item;
-      }
-      if (state.selectedProject?.id == project.id) {
-        return state.selectedProject!;
-      }
-    } catch (_) {}
-    return project;
+  /// Pantalla con su propio [ProjectsBloc].
+  static Widget withBloc(Project project) {
+    return BlocProvider<ProjectsBloc>(
+      create: (context) =>
+          ProjectsBloc.fromRepository(context.read<ProjectRepository>()),
+      child: ProjectDetailScreen(project: project),
+    );
+  }
+
+  static Route<void> route(Project project) {
+    return RivetPageRoute<void>(builder: (_) => withBloc(project));
   }
 
   @override
   Widget build(BuildContext context) {
-    final currentProject = _resolveLiveProject(context);
+    return BlocBuilder<ProjectsBloc, ProjectsState>(
+      builder: (context, state) {
+        final selected = state.selectedProject;
+        final currentProject =
+            selected != null && selected.id == project.id ? selected : project;
+        return _buildContent(context, currentProject, state.errorMessage);
+      },
+    );
+  }
 
+  /// Abre [route] y, al volver, recarga el proyecto para reflejar cambios.
+  Future<void> _openAndReload(BuildContext context, Route<Object?> route) async {
+    final bloc = context.read<ProjectsBloc>();
+    await Navigator.of(context).push(route);
+    bloc.add(LoadProjectDetail(project.id));
+  }
+
+  Widget _buildContent(
+    BuildContext context,
+    Project currentProject,
+    String? errorMessage,
+  ) {
     return RivetScaffold(
       title: 'Detalle del\nproyecto',
       showBackButton: true,
@@ -47,12 +71,19 @@ class ProjectDetailScreen extends StatelessWidget {
         footer: AppButton(
           text: 'Ver propuestas recibidas',
           showChevron: true,
-          onPressed: () => AppNavigator.push(
+          onPressed: () => Navigator.of(
             context,
-            ReceivedProposalsScreen(projectId: currentProject.id),
-          ),
+          ).push(ReceivedProposalsScreen.route(projectId: currentProject.id)),
         ),
         children: [
+          if (errorMessage != null) ...[
+            AppInfoBanner(
+              message: errorMessage,
+              variant: AppInfoBannerVariant.danger,
+              icon: LucideIcons.circleAlert,
+            ),
+            const SizedBox(height: AppSpacing.md),
+          ],
           AppCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -162,21 +193,18 @@ class ProjectDetailScreen extends StatelessWidget {
                   subtitle: currentProject.materials.isEmpty
                       ? 'Configura o agrega insumos desde la Bodega'
                       : '${currentProject.materials.length} referencias · \$ ${formatCop(currentProject.materialsTotalCop)} COP',
-                  onTap: () => AppNavigator.push(
+                  onTap: () => _openAndReload(
                     context,
-                    ProjectMaterialsScreen(
-                      projectId: currentProject.id,
-                      initialProject: currentProject,
-                    ),
+                    ProjectMaterialsScreen.route(currentProject),
                   ),
                 ),
                 AppListTile(
                   leadingIcon: LucideIcons.pencil,
                   title: 'Editar datos, medidas o fotos',
                   subtitle: 'Abrir el asistente en modo edición',
-                  onTap: () => AppNavigator.push(
+                  onTap: () => _openAndReload(
                     context,
-                    CreateProjectScreen(initialProject: currentProject),
+                    CreateProjectScreen.route(initialProject: currentProject),
                   ),
                 ),
                 AppListTile(

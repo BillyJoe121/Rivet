@@ -26,9 +26,22 @@ enum ProjectStatus {
   negotiating('En negociación'),
   agreed('Acuerdo fijado'),
   inProgress('En ejecución'),
-  completed('Finalizado');
+  completed('Finalizado'),
+  cancelled('Cancelado');
 
   const ProjectStatus(this.label);
+  final String label;
+}
+
+/// Estado de una propuesta enviada por un contratista.
+enum ProposalStatus {
+  draft('Borrador'),
+  sent('Recibida'),
+  accepted('Aceptada'),
+  rejected('Rechazada'),
+  withdrawn('Retirada');
+
+  const ProposalStatus(this.label);
   final String label;
 }
 
@@ -207,10 +220,21 @@ class Proposal {
   final int laborCostCop;
   final int materialsCostCop;
   final int estimatedDays;
-  final String status; // 'Recibida', 'Aceptada', 'En revisión'
+  final ProposalStatus status;
   final String observations;
 
   int get totalCostCop => laborCostCop + materialsCostCop;
+
+  Proposal copyWith({ProposalStatus? status}) => Proposal(
+        id: id,
+        projectId: projectId,
+        contractor: contractor,
+        laborCostCop: laborCostCop,
+        materialsCostCop: materialsCostCop,
+        estimatedDays: estimatedDays,
+        status: status ?? this.status,
+        observations: observations,
+      );
 }
 
 /// Material de la Bodega Rivet. Tiene un precio para clientes y otro, menor,

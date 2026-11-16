@@ -74,9 +74,8 @@ class _ClientHomeViewState extends State<ClientHomeView> {
                       proposalCount: MockData.proposals
                           .where((p) => p.projectId == project.id)
                           .length,
-                      onTap: () => AppNavigator.push(
-                        context,
-                        ProjectDetailScreen(project: project),
+                      onTap: () => Navigator.of(context).push(
+                        ProjectDetailScreen.route(project),
                       ),
                     ),
                   ),

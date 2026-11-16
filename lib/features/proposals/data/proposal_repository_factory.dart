@@ -5,8 +5,8 @@ import 'sources/supabase_proposal_data_source.dart';
 
 /// Arma el repositorio de propuestas que la raíz de la app inyecta.
 ///
-/// Si Supabase no quedó inicializado (sin `.env`), la fuente de datos trabaja
-/// con su memoria local para que la app siga abriendo.
+/// Si Supabase no quedó inicializado (sin `.env`), la fuente de datos responde
+/// con un error de conexión en cada consulta en lugar de inventar datos.
 ProposalRepository createProposalRepository() {
   try {
     return ProposalRepositoryImpl(

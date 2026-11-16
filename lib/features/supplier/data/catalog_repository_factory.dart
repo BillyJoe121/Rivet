@@ -5,8 +5,8 @@ import 'sources/supabase_catalog_data_source.dart';
 
 /// Arma el repositorio de la Bodega Rivet que la raíz de la app inyecta.
 ///
-/// Si Supabase no quedó inicializado (sin `.env`), la fuente de datos trabaja
-/// con su catálogo local para que la app siga abriendo.
+/// Si Supabase no quedó inicializado (sin `.env`), la fuente de datos responde
+/// con un error de conexión en cada consulta en lugar de inventar datos.
 CatalogRepository createCatalogRepository() {
   try {
     return CatalogRepositoryImpl(
