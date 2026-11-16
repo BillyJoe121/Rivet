@@ -48,6 +48,23 @@ class SupabaseProjectDataSource {
     });
   }
 
+  /// Obtiene los proyectos abiertos disponibles para cotizar.
+  Future<List<Project>> getOpenProjects() {
+    return _guard(loadListMessage, () async {
+      final client = _requireClient();
+      _requireUser(client);
+
+      final rows = await client
+          .from('projects')
+          .select(_select)
+          .eq('status', 'open')
+          .order('created_at', ascending: false);
+      return [
+        for (final row in rows) projectFromRow(row),
+      ];
+    });
+  }
+
   /// Consulta el detalle de un proyecto por ID.
   Future<Project> getProjectDetail(String projectId) {
     return _guard(loadDetailMessage, () async {

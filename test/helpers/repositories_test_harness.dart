@@ -32,6 +32,10 @@ class _InMemoryProjectRepository implements ProjectRepository {
   }
 
   @override
+  Future<List<Project>> getOpenProjects() async =>
+      _items.where((p) => p.status == ProjectStatus.published).toList();
+
+  @override
   Future<Project> getProjectDetail(String projectId) async =>
       _items.firstWhere((p) => p.id == projectId);
 
@@ -98,6 +102,46 @@ class _InMemoryProposalRepository implements ProposalRepository {
       status: ProposalStatus.accepted,
       observations: p.observations,
     );
+  }
+
+  @override
+  Future<List<Proposal>> getMyProposals() async =>
+      List<Proposal>.unmodifiable(_items);
+
+  @override
+  Future<Proposal> saveProposal({
+    String? proposalId,
+    required String projectId,
+    required int laborCostCop,
+    required int materialsCostCop,
+    required int estimatedDays,
+    required String observations,
+    required ProposalStatus status,
+  }) async {
+    final proposal = Proposal(
+      id: proposalId ?? 'prop-${_items.length + 1}',
+      projectId: projectId,
+      contractor: MockData.contractors.first,
+      laborCostCop: laborCostCop,
+      materialsCostCop: materialsCostCop,
+      estimatedDays: estimatedDays,
+      status: status,
+      observations: observations,
+    );
+    final idx = _items.indexWhere((p) => p.id == proposal.id);
+    if (idx != -1) {
+      _items[idx] = proposal;
+    } else {
+      _items.insert(0, proposal);
+    }
+    return proposal;
+  }
+
+  @override
+  Future<void> withdrawProposal(String proposalId) async {
+    final idx = _items.indexWhere((p) => p.id == proposalId);
+    if (idx == -1) return;
+    _items[idx] = _items[idx].copyWith(status: ProposalStatus.withdrawn);
   }
 }
 

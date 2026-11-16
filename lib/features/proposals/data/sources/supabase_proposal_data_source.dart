@@ -25,6 +25,10 @@ class SupabaseProposalDataSource {
   static const notFoundMessage = 'No encontramos esta propuesta.';
   static const acceptMessage =
       'No pudimos aceptar la propuesta. Inténtalo de nuevo.';
+  static const saveMessage =
+      'No pudimos guardar tu propuesta. Inténtalo de nuevo.';
+  static const withdrawMessage =
+      'No pudimos retirar la propuesta. Inténtalo de nuevo.';
 
   /// Consulta las propuestas recibidas, opcionalmente de un solo proyecto.
   Future<List<Proposal>> getReceivedProposals({String? projectId}) {
@@ -65,6 +69,83 @@ class SupabaseProposalDataSource {
             'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
           .eq('id', proposalId)
+          .select('id')
+          .single();
+    });
+  }
+
+  /// Consulta las propuestas del contratista con sesión activa.
+  Future<List<Proposal>> getMyProposals() {
+    return _guard(loadListMessage, () async {
+      final client = _requireSession();
+      final userId = client.auth.currentUser!.id;
+      final rows = await client
+          .from('proposals')
+          .select(_select)
+          .eq('contractor_id', userId)
+          .order('created_at', ascending: false);
+      final ratings = await _ratingsFor(client, rows);
+      return [for (final row in rows) proposalFromRow(row, ratings: ratings)];
+    });
+  }
+
+  /// Inserta o actualiza una propuesta del contratista actual.
+  Future<Proposal> saveProposal({
+    String? proposalId,
+    required String projectId,
+    required int laborCostCop,
+    required int materialsCostCop,
+    required int estimatedDays,
+    required String observations,
+    required ProposalStatus status,
+  }) {
+    return _guard(saveMessage, () async {
+      final client = _requireSession();
+      final userId = client.auth.currentUser!.id;
+      final payload = {
+        'project_id': projectId,
+        'contractor_id': userId,
+        'labor_cost_cop': laborCostCop,
+        'materials_cost_cop': materialsCostCop,
+        'estimated_days': estimatedDays,
+        'observations': observations,
+        'status': proposalStatusToDb(status),
+        'updated_at': DateTime.now().toUtc().toIso8601String(),
+      };
+      final Map<String, dynamic> row;
+      if (proposalId != null && proposalId.isNotEmpty) {
+        row = await client
+            .from('proposals')
+            .update(payload)
+            .eq('id', proposalId)
+            .eq('contractor_id', userId)
+            .select(_select)
+            .single();
+      } else {
+        row = await client
+            .from('proposals')
+            .insert(payload)
+            .select(_select)
+            .single();
+      }
+      final ratings = await _ratingsFor(client, [row]);
+      return proposalFromRow(row, ratings: ratings);
+    });
+  }
+
+  /// Marca una propuesta del contratista como retirada.
+  Future<void> withdrawProposal(String proposalId) {
+    return _guard(withdrawMessage, () async {
+      final client = _requireSession();
+      final userId = client.auth.currentUser!.id;
+      await client
+          .from('proposals')
+          .update({
+            'status': proposalStatusToDb(ProposalStatus.withdrawn),
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .eq('id', proposalId)
+          .eq('contractor_id', userId)
           .select('id')
           .single();
     });

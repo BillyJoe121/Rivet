@@ -14,6 +14,9 @@ class MockProjectRepository implements ProjectRepository {
   Future<List<Project>> getMyProjects({ProjectStatus? status}) async => [];
 
   @override
+  Future<List<Project>> getOpenProjects() async => [];
+
+  @override
   Future<Project> getProjectDetail(String projectId) async => lastCreated!;
 
   @override

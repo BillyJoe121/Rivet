@@ -22,6 +22,12 @@ class FakeProjectRepository implements ProjectRepository {
   }
 
   @override
+  Future<List<Project>> getOpenProjects() async {
+    if (errorToThrow != null) throw errorToThrow!;
+    return projects.where((p) => p.status == ProjectStatus.published).toList();
+  }
+
+  @override
   Future<Project> getProjectDetail(String projectId) async {
     if (errorToThrow != null) throw errorToThrow!;
     return projects.firstWhere((p) => p.id == projectId);

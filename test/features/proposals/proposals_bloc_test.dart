@@ -40,6 +40,46 @@ class FakeProposalRepository implements ProposalRepository {
       );
     }
   }
+
+  @override
+  Future<List<Proposal>> getMyProposals() async => proposals;
+
+  @override
+  Future<Proposal> saveProposal({
+    String? proposalId,
+    required String projectId,
+    required int laborCostCop,
+    required int materialsCostCop,
+    required int estimatedDays,
+    required String observations,
+    required ProposalStatus status,
+  }) async {
+    final created = Proposal(
+      id: proposalId ?? 'prop-new',
+      projectId: projectId,
+      contractor: proposals.isNotEmpty
+          ? proposals.first.contractor
+          : const Contractor(
+              id: 'c-1',
+              name: 'Carlos Mendoza',
+              trade: 'Pintor',
+              rating: 4.9,
+              reviewCount: 20,
+              completedJobs: 30,
+              zone: 'Cali',
+            ),
+      laborCostCop: laborCostCop,
+      materialsCostCop: materialsCostCop,
+      estimatedDays: estimatedDays,
+      status: status,
+      observations: observations,
+    );
+    proposals.add(created);
+    return created;
+  }
+
+  @override
+  Future<void> withdrawProposal(String proposalId) async {}
 }
 
 void main() {

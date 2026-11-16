@@ -19,6 +19,12 @@ class ProjectRepositoryImpl implements ProjectRepository {
   );
 
   @override
+  Future<List<Project>> getOpenProjects() => _guard(
+    SupabaseProjectDataSource.loadListMessage,
+    _dataSource.getOpenProjects,
+  );
+
+  @override
   Future<Project> getProjectDetail(String projectId) => _guard(
     SupabaseProjectDataSource.loadDetailMessage,
     () => _dataSource.getProjectDetail(projectId),

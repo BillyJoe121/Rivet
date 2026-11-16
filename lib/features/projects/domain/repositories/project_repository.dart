@@ -5,6 +5,9 @@ abstract interface class ProjectRepository {
   /// Obtiene los proyectos del cliente actual, opcionalmente filtrados por estado.
   Future<List<Project>> getMyProjects({ProjectStatus? status});
 
+  /// Obtiene los proyectos abiertos disponibles para cotizar por contratistas.
+  Future<List<Project>> getOpenProjects();
+
   /// Obtiene el detalle completo de un proyecto por su identificador.
   Future<Project> getProjectDetail(String projectId);
 

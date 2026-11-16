@@ -10,8 +10,10 @@ import 'contractor_home_view.dart';
 import '../account/profile_screen.dart';
 import '../contractors/contractors_directory_screen.dart';
 import '../messaging/messaging_screens.dart';
+import '../projects/contractor/open_projects_screen.dart';
 import '../projects/my_projects_screen.dart';
 import '../proposals/all_proposals_screen.dart';
+import '../proposals/contractor/my_proposals_jobs_screen.dart';
 import '../supplier/materials_catalog_screen.dart';
 import '../under_construction/under_construction_screen.dart';
 
@@ -187,12 +189,17 @@ class _AppShellState extends State<AppShell> {
     return switch (page) {
       _Page.home =>
         _isContractor
-            ? ContractorHomeView(onSwitchRole: _switchRole)
+            ? ContractorHomeView.withBloc(
+                onSwitchRole: _switchRole,
+                onOpenProjects: () => _open(_Page.projects),
+                onOpenProposals: () => _open(_Page.proposals),
+                onOpenMessages: () => _open(_Page.messages),
+              )
             : ClientHomeView(onOpenProjects: () => _open(_Page.projects)),
       _Page.projects =>
         _isClient
             ? MyProjectsScreen.withBloc()
-            : UnderConstructionScreen(section: _sectionName(page)),
+            : OpenProjectsScreen.withBloc(),
       _Page.contractors =>
         _isClient
             ? ContractorsDirectoryScreen.withBloc()
@@ -201,11 +208,8 @@ class _AppShellState extends State<AppShell> {
       _Page.proposals =>
         _isClient
             ? AllProposalsScreen.withBloc()
-            : UnderConstructionScreen(section: _sectionName(page)),
-      _Page.messages =>
-        _isClient
-            ? ConversationsListScreen.withBloc()
-            : UnderConstructionScreen(section: _sectionName(page)),
+            : MyProposalsJobsScreen.withBloc(),
+      _Page.messages => ConversationsListScreen.withBloc(),
       _Page.profile => ProfileScreen(
         currentRole: _currentRole,
         onSwitchRole: _switchRole,

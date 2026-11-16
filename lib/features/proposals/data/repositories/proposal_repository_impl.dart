@@ -30,6 +30,40 @@ class ProposalRepositoryImpl implements ProposalRepository {
     () => _dataSource.acceptProposal(proposalId),
   );
 
+  @override
+  Future<List<Proposal>> getMyProposals() => _guard(
+    SupabaseProposalDataSource.loadListMessage,
+    _dataSource.getMyProposals,
+  );
+
+  @override
+  Future<Proposal> saveProposal({
+    String? proposalId,
+    required String projectId,
+    required int laborCostCop,
+    required int materialsCostCop,
+    required int estimatedDays,
+    required String observations,
+    required ProposalStatus status,
+  }) => _guard(
+    SupabaseProposalDataSource.saveMessage,
+    () => _dataSource.saveProposal(
+      proposalId: proposalId,
+      projectId: projectId,
+      laborCostCop: laborCostCop,
+      materialsCostCop: materialsCostCop,
+      estimatedDays: estimatedDays,
+      observations: observations,
+      status: status,
+    ),
+  );
+
+  @override
+  Future<void> withdrawProposal(String proposalId) => _guard(
+    SupabaseProposalDataSource.withdrawMessage,
+    () => _dataSource.withdrawProposal(proposalId),
+  );
+
   Future<T> _guard<T>(String message, Future<T> Function() run) async {
     try {
       return await run();
