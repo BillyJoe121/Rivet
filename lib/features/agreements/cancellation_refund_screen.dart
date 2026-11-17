@@ -11,10 +11,7 @@ import 'agreements_module.dart';
 
 /// Solicitud y resolución de cancelación con reembolso simulado (frame 66-14092).
 class CancellationRefundScreen extends StatefulWidget {
-  const CancellationRefundScreen({
-    super.key,
-    required this.agreementId,
-  });
+  const CancellationRefundScreen({super.key, required this.agreementId});
 
   final String agreementId;
 
@@ -41,24 +38,12 @@ class CancellationRefundScreen extends StatefulWidget {
 class _CancellationRefundScreenState extends State<CancellationRefundScreen> {
   final _reasonController = TextEditingController();
   final _descController = TextEditingController();
-  final List<ProgressPhotoUpload> _photos = [];
 
   @override
   void dispose() {
     _reasonController.dispose();
     _descController.dispose();
     super.dispose();
-  }
-
-  void _attachSamplePhoto() {
-    setState(() {
-      _photos.add(
-        ProgressPhotoUpload(
-          fileName: 'soporte_${_photos.length + 1}.jpg',
-          bytes: Uint8List.fromList([0xFF, 0xD8, 0xFF, 0xE0]),
-        ),
-      );
-    });
   }
 
   @override
@@ -83,7 +68,7 @@ class _CancellationRefundScreenState extends State<CancellationRefundScreen> {
         return RivetScaffold(
           title: 'Cancelación\ny reembolso',
           showBackButton: true,
-          backgroundImagePath: AppHeroImages.documents,
+          backgroundImagePath: AppHeroImages.planning,
           body: AppPageBody(
             footer: agreement == null
                 ? null
@@ -93,14 +78,12 @@ class _CancellationRefundScreenState extends State<CancellationRefundScreen> {
                     showChevron: true,
                     onPressed: () {
                       context.read<ClosureBloc>().add(
-                            RequestCancellationRequested(
-                              reason: _reasonController.text,
-                              description: _descController.text,
-                              photos: List<ProgressPhotoUpload>.unmodifiable(
-                                _photos,
-                              ),
-                            ),
-                          );
+                        RequestCancellationRequested(
+                          reason: _reasonController.text,
+                          description: _descController.text,
+                          photos: state.draftPhotos,
+                        ),
+                      );
                     },
                   ),
             children: [
@@ -120,10 +103,7 @@ class _CancellationRefundScreenState extends State<CancellationRefundScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Solicitar cancelación',
-                        style: AppTypography.subheading,
-                      ),
+                      const AppSectionHeader(title: 'Solicitar cancelación'),
                       const SizedBox(height: AppSpacing.sm),
                       AppTextField(
                         controller: _reasonController,
@@ -139,9 +119,25 @@ class _CancellationRefundScreenState extends State<CancellationRefundScreen> {
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       AppButton(
-                        text: 'Adjuntar foto de soporte (${_photos.length})',
+                        text:
+                            'Adjuntar foto de soporte (${state.draftPhotos.length})',
                         variant: AppButtonVariant.outline,
-                        onPressed: _attachSamplePhoto,
+                        onPressed: () {
+                          context.read<ClosureBloc>().add(
+                            ClosurePhotoAdded(
+                              ProgressPhotoUpload(
+                                fileName:
+                                    'soporte_${state.draftPhotos.length + 1}.jpg',
+                                bytes: Uint8List.fromList([
+                                  0xFF,
+                                  0xD8,
+                                  0xFF,
+                                  0xE0,
+                                ]),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -176,14 +172,12 @@ class _CancellationRefundScreenState extends State<CancellationRefundScreen> {
                                 ? TextButton(
                                     onPressed: state.isSubmitting
                                         ? null
-                                        : () => context
-                                              .read<ClosureBloc>()
-                                              .add(
-                                                ResolveCancellationRequested(
-                                                  cancellationId: c.id,
-                                                  approved: true,
-                                                ),
-                                              ),
+                                        : () => context.read<ClosureBloc>().add(
+                                            ResolveCancellationRequested(
+                                              cancellationId: c.id,
+                                              approved: true,
+                                            ),
+                                          ),
                                     child: const Text('Aprobar'),
                                   )
                                 : null,

@@ -46,15 +46,14 @@ class MyProposalsJobsScreen extends StatelessWidget {
                 const LoadMyProposalsAndJobs(),
               );
             },
-            children: [
-              AppSegmentedControl<int>(
-                items: const {0: 'Propuestas', 1: 'Trabajos'},
-                selected: state.tabIndex,
-                onChanged: (tab) => context.read<MyProposalsBloc>().add(
-                  MyProposalsTabChanged(tab),
-                ),
+            fixedHeader: AppSegmentedControl<int>(
+              items: const {0: 'Propuestas', 1: 'Trabajos'},
+              selected: state.tabIndex,
+              onChanged: (tab) => context.read<MyProposalsBloc>().add(
+                MyProposalsTabChanged(tab),
               ),
-              const SizedBox(height: AppSpacing.md),
+            ),
+            children: [
               if (state.tabIndex == 0) ...[
                 Row(
                   children: [

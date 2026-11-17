@@ -39,25 +39,11 @@ class RegisterProgressScreen extends StatefulWidget {
 
 class _RegisterProgressScreenState extends State<RegisterProgressScreen> {
   final _descController = TextEditingController();
-  double _percent = 35;
-  String? _selectedMilestoneId;
-  final List<ProgressPhotoUpload> _photos = [];
 
   @override
   void dispose() {
     _descController.dispose();
     super.dispose();
-  }
-
-  void _attachSamplePhoto() {
-    setState(() {
-      _photos.add(
-        ProgressPhotoUpload(
-          fileName: 'avance_${_photos.length + 1}.jpg',
-          bytes: Uint8List.fromList([0xFF, 0xD8, 0xFF, 0xE0]),
-        ),
-      );
-    });
   }
 
   @override
@@ -87,7 +73,7 @@ class _RegisterProgressScreenState extends State<RegisterProgressScreen> {
         return RivetScaffold(
           title: 'Registrar\navance',
           showBackButton: true,
-          backgroundImagePath: AppHeroImages.documents,
+          backgroundImagePath: AppHeroImages.paintRoller,
           body: AppPageBody(
             footer: agreement == null
                 ? null
@@ -99,12 +85,10 @@ class _RegisterProgressScreenState extends State<RegisterProgressScreen> {
                       context.read<ProgressBloc>().add(
                             SubmitProgressUpdateRequested(
                               agreementId: widget.agreementId,
-                              milestoneId: _selectedMilestoneId,
-                              percent: _percent.round(),
+                              milestoneId: state.selectedMilestoneId,
+                              percent: state.draftPercent,
                               description: _descController.text,
-                              photos: List<ProgressPhotoUpload>.unmodifiable(
-                                _photos,
-                              ),
+                              photos: state.draftPhotos,
                             ),
                           );
                     },
@@ -134,20 +118,37 @@ class _RegisterProgressScreenState extends State<RegisterProgressScreen> {
                         style: AppTypography.sectionTitle,
                       ),
                       const SizedBox(height: AppSpacing.sm),
-                      Text(
-                        'Porcentaje acumulado: ${_percent.round()}%',
-                        style: AppTypography.subheading,
-                      ),
-                      Slider(
-                        value: _percent,
-                        min: 0,
-                        max: 100,
-                        divisions: 20,
-                        activeColor: AppColors.brand700,
-                        label: '${_percent.round()}%',
-                        onChanged: (v) => setState(() => _percent = v),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Porcentaje acumulado',
+                            style: AppTypography.subheading,
+                          ),
+                          AppBadge(
+                            text: '${state.draftPercent}%',
+                            variant: AppBadgeVariant.brand,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: AppSpacing.sm),
+                      AppSegmentedControl<int>(
+                        items: const {
+                          25: '25%',
+                          50: '50%',
+                          75: '75%',
+                          100: '100%',
+                        },
+                        selected: state.draftPercent <= 25
+                            ? 25
+                            : (state.draftPercent <= 50
+                                  ? 50
+                                  : (state.draftPercent <= 75 ? 75 : 100)),
+                        onChanged: (v) => context.read<ProgressBloc>().add(
+                              ProgressPercentChanged(v),
+                            ),
+                      ),
+                      const SizedBox(height: AppSpacing.md),
                       AppTextField(
                         controller: _descController,
                         label: 'Descripción del avance',
@@ -162,10 +163,7 @@ class _RegisterProgressScreenState extends State<RegisterProgressScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Checklist mutuo de hitos',
-                        style: AppTypography.subheading,
-                      ),
+                      const AppSectionHeader(title: 'Checklist mutuo de hitos'),
                       const SizedBox(height: AppSpacing.sm),
                       for (final m in agreement.milestoneItems)
                         AppListTile(
@@ -174,27 +172,29 @@ class _RegisterProgressScreenState extends State<RegisterProgressScreen> {
                               ? 'Confirmado por ambas partes'
                               : (m.contractorConfirmedAt != null
                                     ? 'Confirmado por ti · Falta cliente'
-                                    : 'Toca para confirmar tu avance'),
+                                    : 'Activa para confirmar tu avance'),
                           leadingIcon: m.isDone
                               ? LucideIcons.circleCheck
                               : LucideIcons.circle,
                           showChevron: false,
-                          trailing: Checkbox(
+                          trailing: AppSwitch(
                             value: m.contractorConfirmedAt != null,
-                            activeColor: AppColors.brand700,
                             onChanged: m.contractorConfirmedAt != null
                                 ? null
                                 : (_) {
-                                    setState(() => _selectedMilestoneId = m.id);
-                                    context.read<ProgressBloc>().add(
-                                          ConfirmMilestoneRequested(
-                                            milestoneId: m.id,
-                                            asClient: false,
-                                          ),
-                                        );
+                                    context.read<ProgressBloc>()
+                                      ..add(ProgressMilestoneSelected(m.id))
+                                      ..add(
+                                        ConfirmMilestoneRequested(
+                                          milestoneId: m.id,
+                                          asClient: false,
+                                        ),
+                                      );
                                   },
                           ),
-                          onTap: () => setState(() => _selectedMilestoneId = m.id),
+                          onTap: () => context.read<ProgressBloc>().add(
+                                ProgressMilestoneSelected(m.id),
+                              ),
                         ),
                     ],
                   ),
@@ -206,13 +206,25 @@ class _RegisterProgressScreenState extends State<RegisterProgressScreen> {
                     children: [
                       AppSectionHeader(
                         title: 'Evidencia fotográfica',
-                        count: _photos.length,
+                        count: state.draftPhotos.length,
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       AppButton(
                         text: 'Adjuntar foto de evidencia',
                         variant: AppButtonVariant.outline,
-                        onPressed: _attachSamplePhoto,
+                        onPressed: () {
+                          context.read<ProgressBloc>().add(
+                                ProgressPhotoAdded(
+                                  ProgressPhotoUpload(
+                                    fileName:
+                                        'avance_${state.draftPhotos.length + 1}.jpg',
+                                    bytes: Uint8List.fromList(
+                                      [0xFF, 0xD8, 0xFF, 0xE0],
+                                    ),
+                                  ),
+                                ),
+                              );
+                        },
                       ),
                     ],
                   ),

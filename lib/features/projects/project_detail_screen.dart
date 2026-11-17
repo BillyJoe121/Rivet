@@ -6,6 +6,8 @@ import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../agreements/agreements_module.dart';
+import '../agreements/agreements_screens.dart';
 import '../messaging/messaging_screens.dart';
 import '../proposals/received_proposals_screen.dart';
 import '../supplier/material_price_tier.dart';
@@ -208,6 +210,48 @@ class ProjectDetailScreen extends StatelessWidget {
                     CreateProjectScreen.route(initialProject: currentProject),
                   ),
                 ),
+                if (currentProject.status == ProjectStatus.inProgress) ...[
+                  AppListTile(
+                    leadingIcon: LucideIcons.checkCheck,
+                    title: 'Seguimiento de obra y checklist',
+                    subtitle: 'Revisar avances, fotos y confirmar hitos',
+                    onTap: () async {
+                      final agr = await context
+                          .read<AgreementRepository>()
+                          .getAgreementForProject(currentProject.id);
+                      if (!context.mounted) return;
+                      if (agr != null) {
+                        await _openAndReload(
+                          context,
+                          ProgressTrackingScreen.route(
+                            agreementId: agr.id,
+                            asClient: true,
+                          ),
+                        );
+                      } else {
+                        ScaffoldMessenger.of(context)
+                          ..hideCurrentSnackBar()
+                          ..showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Aún no hay un acuerdo preparado para este proyecto.',
+                              ),
+                            ),
+                          );
+                      }
+                    },
+                  ),
+                  AppListTile(
+                    leadingIcon: LucideIcons.messageSquare,
+                    title: 'Mensajes del proyecto',
+                    subtitle: 'Abrir conversación con el contratista',
+                    showDivider: false,
+                    onTap: () => _openAndReload(
+                      context,
+                      ConversationsListScreen.route(),
+                    ),
+                  ),
+                ],
                 AppListTile(
                   leadingIcon: LucideIcons.messageSquare,
                   title: 'Conversaciones y contraofertas',

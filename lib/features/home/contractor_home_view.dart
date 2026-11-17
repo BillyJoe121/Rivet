@@ -4,6 +4,8 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/design_system/design_system.dart';
 import '../../core/models/models.dart';
+import '../agreements/agreements_module.dart';
+import '../agreements/agreements_screens.dart';
 import '../auth/domain/entities/rivet_user.dart';
 import '../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../messaging/client_notifications_screen.dart';
@@ -41,6 +43,7 @@ class ContractorHomeView extends StatelessWidget {
       create: (context) => ContractorHomeBloc.fromRepositories(
         context.read<ProjectRepository>(),
         context.read<ProposalRepository>(),
+        agreementRepository: context.read<AgreementRepository>(),
       )..add(const LoadContractorHome()),
       child: ContractorHomeView(
         onSwitchRole: onSwitchRole,
@@ -120,19 +123,36 @@ class ContractorHomeView extends StatelessWidget {
                       if (active != null)
                         ProProjectCard(
                           project: ProProjectSummary(
-                            title: 'Trabajo ${active.projectId}',
+                            title: state.activeProject?.title ??
+                                state.activeAgreement?.projectTitle ??
+                                'Obra en ejecución',
                             category: '${active.estimatedDays} días hábiles',
-                            location: 'Propuesta aceptada',
+                            location: state.activeAgreement?.status.label ??
+                                'Propuesta aceptada',
                             image: AppImages.proKitchen,
-                            stagesDone: 1,
-                            stagesTotal: 4,
-                            progress: 0.25,
+                            stagesDone: state.activeStagesDone,
+                            stagesTotal: state.activeStagesTotal > 0
+                                ? state.activeStagesTotal
+                                : 3,
+                            progress: state.activeProgress,
                           ),
-                          onTap:
-                              onOpenProposals ??
-                              () => Navigator.of(context).push(
+                          onTap: () {
+                            final agr = state.activeAgreement;
+                            if (agr != null) {
+                              Navigator.of(context).push(
+                                AgreementSummaryScreen.routeForAgreement(
+                                  agreementId: agr.id,
+                                  asClient: false,
+                                ),
+                              );
+                            } else if (onOpenProposals != null) {
+                              onOpenProposals!();
+                            } else {
+                              Navigator.of(context).push(
                                 MyProposalsJobsScreen.route(initialTab: 1),
-                              ),
+                              );
+                            }
+                          },
                         )
                       else
                         const AppEmptyState(

@@ -12,6 +12,26 @@ final class LoadProgressRequested extends ProgressEvent {
   final String agreementId;
 }
 
+final class ProgressPercentChanged extends ProgressEvent {
+  const ProgressPercentChanged(this.percent);
+  final int percent;
+}
+
+final class ProgressMilestoneSelected extends ProgressEvent {
+  const ProgressMilestoneSelected(this.milestoneId);
+  final String? milestoneId;
+}
+
+final class ProgressPhotoAdded extends ProgressEvent {
+  const ProgressPhotoAdded(this.photo);
+  final ProgressPhotoUpload photo;
+}
+
+final class ProgressPhotoRemoved extends ProgressEvent {
+  const ProgressPhotoRemoved(this.index);
+  final int index;
+}
+
 final class ConfirmMilestoneRequested extends ProgressEvent {
   const ConfirmMilestoneRequested({
     required this.milestoneId,
@@ -47,6 +67,9 @@ class ProgressState {
     this.status = ProgressStatus.initial,
     this.agreement,
     this.updates = const [],
+    this.draftPercent = 35,
+    this.selectedMilestoneId,
+    this.draftPhotos = const [],
     this.errorMessage,
     this.isSessionExpired = false,
     this.isPermissionDenied = false,
@@ -57,6 +80,9 @@ class ProgressState {
   final ProgressStatus status;
   final WorkAgreement? agreement;
   final List<ProgressUpdate> updates;
+  final int draftPercent;
+  final String? selectedMilestoneId;
+  final List<ProgressPhotoUpload> draftPhotos;
   final String? errorMessage;
   final bool isSessionExpired;
   final bool isPermissionDenied;
@@ -71,6 +97,9 @@ class ProgressState {
     ProgressStatus? status,
     WorkAgreement? agreement,
     List<ProgressUpdate>? updates,
+    int? draftPercent,
+    String? selectedMilestoneId,
+    List<ProgressPhotoUpload>? draftPhotos,
     String? errorMessage,
     bool clearError = false,
     bool? isSessionExpired,
@@ -82,6 +111,9 @@ class ProgressState {
       status: status ?? this.status,
       agreement: agreement ?? this.agreement,
       updates: updates ?? this.updates,
+      draftPercent: draftPercent ?? this.draftPercent,
+      selectedMilestoneId: selectedMilestoneId ?? this.selectedMilestoneId,
+      draftPhotos: draftPhotos ?? this.draftPhotos,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       isSessionExpired:
           clearError ? false : (isSessionExpired ?? this.isSessionExpired),
@@ -102,6 +134,21 @@ class ProgressBloc extends Bloc<ProgressEvent, ProgressState> {
     this._submitProgressUseCase,
   ) : super(const ProgressState()) {
     on<LoadProgressRequested>(_onLoad);
+    on<ProgressPercentChanged>(
+      (e, emit) => emit(state.copyWith(draftPercent: e.percent)),
+    );
+    on<ProgressMilestoneSelected>(
+      (e, emit) => emit(state.copyWith(selectedMilestoneId: e.milestoneId)),
+    );
+    on<ProgressPhotoAdded>(
+      (e, emit) =>
+          emit(state.copyWith(draftPhotos: [...state.draftPhotos, e.photo])),
+    );
+    on<ProgressPhotoRemoved>((e, emit) {
+      final next = List<ProgressPhotoUpload>.from(state.draftPhotos)
+        ..removeAt(e.index);
+      emit(state.copyWith(draftPhotos: next));
+    });
     on<ConfirmMilestoneRequested>(_onConfirmMilestone);
     on<SubmitProgressUpdateRequested>(_onSubmit);
   }

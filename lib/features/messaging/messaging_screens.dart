@@ -41,7 +41,7 @@ class _ConversationsListView extends StatelessWidget {
         final conversations = state.conversations;
         return RivetScaffold(
           title: 'Mensajes',
-          showBackButton: true,
+          showBackButton: Navigator.of(context).canPop(),
           backgroundImagePath: AppHeroImages.messages,
           body: AppPageBody(
             onRefresh: () async {

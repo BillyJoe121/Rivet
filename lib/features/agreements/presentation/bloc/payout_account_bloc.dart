@@ -10,6 +10,11 @@ final class LoadPayoutAccountRequested extends PayoutAccountEvent {
   const LoadPayoutAccountRequested();
 }
 
+final class PayoutAccountTypeChanged extends PayoutAccountEvent {
+  const PayoutAccountTypeChanged(this.accountType);
+  final String accountType;
+}
+
 final class SavePayoutAccountRequested extends PayoutAccountEvent {
   const SavePayoutAccountRequested({
     required this.bankName,
@@ -32,6 +37,7 @@ class PayoutAccountState {
   const PayoutAccountState({
     this.status = PayoutAccountStatus.initial,
     this.account,
+    this.selectedAccountType = 'ahorros',
     this.errorMessage,
     this.isSessionExpired = false,
     this.isPermissionDenied = false,
@@ -41,6 +47,7 @@ class PayoutAccountState {
 
   final PayoutAccountStatus status;
   final PayoutAccount? account;
+  final String selectedAccountType;
   final String? errorMessage;
   final bool isSessionExpired;
   final bool isPermissionDenied;
@@ -52,6 +59,7 @@ class PayoutAccountState {
   PayoutAccountState copyWith({
     PayoutAccountStatus? status,
     PayoutAccount? account,
+    String? selectedAccountType,
     String? errorMessage,
     bool clearError = false,
     bool? isSessionExpired,
@@ -62,6 +70,7 @@ class PayoutAccountState {
     return PayoutAccountState(
       status: status ?? this.status,
       account: account ?? this.account,
+      selectedAccountType: selectedAccountType ?? this.selectedAccountType,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       isSessionExpired:
           clearError ? false : (isSessionExpired ?? this.isSessionExpired),
@@ -79,6 +88,9 @@ class PayoutAccountBloc extends Bloc<PayoutAccountEvent, PayoutAccountState> {
     this._savePayoutAccountUseCase,
   ) : super(const PayoutAccountState()) {
     on<LoadPayoutAccountRequested>(_onLoad);
+    on<PayoutAccountTypeChanged>(
+      (e, emit) => emit(state.copyWith(selectedAccountType: e.accountType)),
+    );
     on<SavePayoutAccountRequested>(_onSave);
   }
 
@@ -128,6 +140,7 @@ class PayoutAccountBloc extends Bloc<PayoutAccountEvent, PayoutAccountState> {
         state.copyWith(
           status: PayoutAccountStatus.success,
           account: account,
+          selectedAccountType: account?.accountType,
         ),
       );
     } catch (e) {

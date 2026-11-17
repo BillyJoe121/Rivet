@@ -63,43 +63,33 @@ class _OpenProjectsViewState extends State<_OpenProjectsView> {
             onRefresh: () async {
               context.read<OpenProjectsBloc>().add(const LoadOpenProjects());
             },
-            children: [
-              AppSearchBar(
-                controller: _searchController,
-                hintText: 'Buscar por título, ciudad o barrio...',
-                onChanged: (value) => context.read<OpenProjectsBloc>().add(
-                  OpenProjectsSearchChanged(value),
-                ),
-              ),
-              if (cities.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.sm),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      ChoiceChip(
-                        label: const Text('Todas'),
-                        selected: state.selectedCity == null,
-                        onSelected: (_) => context.read<OpenProjectsBloc>().add(
-                          const OpenProjectsCityChanged(null),
-                        ),
-                      ),
-                      for (final city in cities) ...[
-                        const SizedBox(width: AppSpacing.xs),
-                        ChoiceChip(
-                          label: Text(city),
-                          selected: state.selectedCity == city,
-                          onSelected: (_) =>
-                              context.read<OpenProjectsBloc>().add(
-                                OpenProjectsCityChanged(city),
-                              ),
-                        ),
-                      ],
-                    ],
+            fixedHeader: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                AppSearchBar(
+                  controller: _searchController,
+                  hintText: 'Buscar por título, ciudad o barrio...',
+                  onChanged: (value) => context.read<OpenProjectsBloc>().add(
+                    OpenProjectsSearchChanged(value),
                   ),
                 ),
+                if (cities.isNotEmpty) ...[
+                  const SizedBox(height: AppSpacing.sm),
+                  AppSegmentedControl<String>(
+                    items: {
+                      '': 'Todas',
+                      for (final city in cities) city: city,
+                    },
+                    selected: state.selectedCity ?? '',
+                    onChanged: (val) => context.read<OpenProjectsBloc>().add(
+                      OpenProjectsCityChanged(val.isEmpty ? null : val),
+                    ),
+                  ),
+                ],
               ],
-              const SizedBox(height: AppSpacing.md),
+            ),
+            children: [
               if (state.isLoading && state.projects.isEmpty)
                 const AppLoadingState(label: 'Cargando proyectos disponibles')
               else if (state.isFailure && state.projects.isEmpty)

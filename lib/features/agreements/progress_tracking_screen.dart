@@ -61,7 +61,7 @@ class ProgressTrackingScreen extends StatelessWidget {
         return RivetScaffold(
           title: 'Seguimiento\nde obra',
           showBackButton: true,
-          backgroundImagePath: AppHeroImages.documents,
+          backgroundImagePath: AppHeroImages.greenery,
           body: AppPageBody(
             footer: agreement == null
                 ? null
@@ -154,9 +154,8 @@ class ProgressTrackingScreen extends StatelessWidget {
                               : LucideIcons.clock,
                           showChevron: false,
                           trailing: asClient
-                              ? Checkbox(
+                              ? AppSwitch(
                                   value: m.clientConfirmedAt != null,
-                                  activeColor: AppColors.brand700,
                                   onChanged: m.clientConfirmedAt != null
                                       ? null
                                       : (_) => context

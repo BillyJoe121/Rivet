@@ -13,6 +13,21 @@ final class LoadClosureRequested extends ClosureEvent {
   final String agreementId;
 }
 
+final class ClosureStarsChanged extends ClosureEvent {
+  const ClosureStarsChanged(this.stars);
+  final int stars;
+}
+
+final class ClosurePhotoAdded extends ClosureEvent {
+  const ClosurePhotoAdded(this.photo);
+  final ProgressPhotoUpload photo;
+}
+
+final class ClosurePhotoRemoved extends ClosureEvent {
+  const ClosurePhotoRemoved(this.index);
+  final int index;
+}
+
 final class CompleteAgreementRequested extends ClosureEvent {
   const CompleteAgreementRequested();
 }
@@ -66,6 +81,8 @@ class ClosureState {
     this.cancellations = const [],
     this.payments = const [],
     this.payoutAccount,
+    this.selectedStars = 5,
+    this.draftPhotos = const [],
     this.errorMessage,
     this.isSessionExpired = false,
     this.isPermissionDenied = false,
@@ -79,6 +96,8 @@ class ClosureState {
   final List<AgreementCancellation> cancellations;
   final List<PaymentRecord> payments;
   final PayoutAccount? payoutAccount;
+  final int selectedStars;
+  final List<ProgressPhotoUpload> draftPhotos;
   final String? errorMessage;
   final bool isSessionExpired;
   final bool isPermissionDenied;
@@ -94,6 +113,8 @@ class ClosureState {
     List<AgreementCancellation>? cancellations,
     List<PaymentRecord>? payments,
     PayoutAccount? payoutAccount,
+    int? selectedStars,
+    List<ProgressPhotoUpload>? draftPhotos,
     String? errorMessage,
     bool clearError = false,
     bool? isSessionExpired,
@@ -109,6 +130,8 @@ class ClosureState {
       cancellations: cancellations ?? this.cancellations,
       payments: payments ?? this.payments,
       payoutAccount: payoutAccount ?? this.payoutAccount,
+      selectedStars: selectedStars ?? this.selectedStars,
+      draftPhotos: draftPhotos ?? this.draftPhotos,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       isSessionExpired:
           clearError ? false : (isSessionExpired ?? this.isSessionExpired),
@@ -129,6 +152,18 @@ class ClosureBloc extends Bloc<ClosureEvent, ClosureState> {
     this._resolveCancellationUseCase,
   ) : super(const ClosureState()) {
     on<LoadClosureRequested>(_onLoad);
+    on<ClosureStarsChanged>(
+      (e, emit) => emit(state.copyWith(selectedStars: e.stars)),
+    );
+    on<ClosurePhotoAdded>(
+      (e, emit) =>
+          emit(state.copyWith(draftPhotos: [...state.draftPhotos, e.photo])),
+    );
+    on<ClosurePhotoRemoved>((e, emit) {
+      final next = List<ProgressPhotoUpload>.from(state.draftPhotos)
+        ..removeAt(e.index);
+      emit(state.copyWith(draftPhotos: next));
+    });
     on<CompleteAgreementRequested>(_onComplete);
     on<SubmitRatingRequested>(_onSubmitRating);
     on<RequestCancellationRequested>(_onRequestCancellation);

@@ -35,7 +35,6 @@ class _PayoutAccountScreenState extends State<PayoutAccountScreen> {
   final _holderController = TextEditingController();
   final _accountController = TextEditingController();
   final _documentController = TextEditingController();
-  String _accountType = 'ahorros';
   bool _prefilled = false;
 
   @override
@@ -52,7 +51,6 @@ class _PayoutAccountScreenState extends State<PayoutAccountScreen> {
     _prefilled = true;
     _bankController.text = account.bankName;
     _holderController.text = account.holderName;
-    _accountType = account.accountType;
   }
 
   @override
@@ -96,7 +94,7 @@ class _PayoutAccountScreenState extends State<PayoutAccountScreen> {
                       context.read<PayoutAccountBloc>().add(
                             SavePayoutAccountRequested(
                               bankName: _bankController.text,
-                              accountType: _accountType,
+                              accountType: state.selectedAccountType,
                               accountNumber: _accountController.text,
                               holderName: _holderController.text,
                               documentNumber: _documentController.text,
@@ -195,8 +193,10 @@ class _PayoutAccountScreenState extends State<PayoutAccountScreen> {
                           'ahorros': 'Ahorros',
                           'corriente': 'Corriente',
                         },
-                        selected: _accountType,
-                        onChanged: (val) => setState(() => _accountType = val),
+                        selected: state.selectedAccountType,
+                        onChanged: (val) => context
+                            .read<PayoutAccountBloc>()
+                            .add(PayoutAccountTypeChanged(val)),
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       AppTextField(

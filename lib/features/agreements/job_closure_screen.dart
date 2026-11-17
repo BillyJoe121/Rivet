@@ -57,10 +57,7 @@ class JobClosureScreen extends StatefulWidget {
   final String agreementId;
   final bool asClient;
 
-  static Widget withBloc({
-    required String agreementId,
-    bool asClient = true,
-  }) {
+  static Widget withBloc({required String agreementId, bool asClient = true}) {
     return BlocProvider<ClosureBloc>(
       create: (context) =>
           ClosureBloc.fromRepository(context.read<AgreementRepository>())
@@ -83,7 +80,6 @@ class JobClosureScreen extends StatefulWidget {
 }
 
 class _JobClosureScreenState extends State<JobClosureScreen> {
-  int _stars = 5;
   final _reviewController = TextEditingController();
 
   @override
@@ -129,8 +125,8 @@ class _JobClosureScreenState extends State<JobClosureScreen> {
                           showChevron: true,
                           onPressed: () {
                             context.read<ClosureBloc>().add(
-                                  const CompleteAgreementRequested(),
-                                );
+                              const CompleteAgreementRequested(),
+                            );
                           },
                         )
                       else
@@ -167,8 +163,8 @@ class _JobClosureScreenState extends State<JobClosureScreen> {
                             : 'No pudimos cargar el cierre'),
                   message: state.errorMessage ?? 'Intenta nuevamente.',
                   onRetry: () => context.read<ClosureBloc>().add(
-                        LoadClosureRequested(widget.agreementId),
-                      ),
+                    LoadClosureRequested(widget.agreementId),
+                  ),
                 )
               else ...[
                 AppCard(
@@ -201,22 +197,38 @@ class _JobClosureScreenState extends State<JobClosureScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Calificación mutua', style: AppTypography.subheading),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Calificación mutua',
+                            style: AppTypography.subheading,
+                          ),
+                          AppBadge(
+                            text: '${state.selectedStars} / 5',
+                            variant: AppBadgeVariant.brand,
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: AppSpacing.sm),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           for (var i = 1; i <= 5; i++)
                             IconButton(
-                              onPressed: () => setState(() => _stars = i),
+                              onPressed: () => context.read<ClosureBloc>().add(
+                                ClosureStarsChanged(i),
+                              ),
                               icon: Icon(
                                 LucideIcons.star,
-                                color: i <= _stars
+                                color: i <= state.selectedStars
                                     ? AppColors.brand700
                                     : AppColors.line300,
                               ),
                             ),
                         ],
                       ),
+                      const SizedBox(height: AppSpacing.xs),
                       AppTextField(
                         controller: _reviewController,
                         label: 'Comentario sobre el trabajo',
@@ -233,12 +245,12 @@ class _JobClosureScreenState extends State<JobClosureScreen> {
                               ? agreement.contractorId
                               : agreement.clientId;
                           context.read<ClosureBloc>().add(
-                                SubmitRatingRequested(
-                                  rateeId: rateeId,
-                                  stars: _stars,
-                                  review: _reviewController.text,
-                                ),
-                              );
+                            SubmitRatingRequested(
+                              rateeId: rateeId,
+                              stars: state.selectedStars,
+                              review: _reviewController.text,
+                            ),
+                          );
                         },
                       ),
                       if (state.ratings.isNotEmpty) ...[
