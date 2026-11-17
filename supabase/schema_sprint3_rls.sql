@@ -54,6 +54,13 @@ grant select on public.contractor_rating_summary to authenticated;
 -- ------------------------------------------------------------------------------
 -- 1. profiles: el rol no se puede cambiar y el perfil solo lo crea el trigger
 -- ------------------------------------------------------------------------------
+create or replace view public.public_profiles as
+  select id, full_name, role, avatar_url
+  from public.profiles;
+
+revoke all on public.public_profiles from anon;
+grant select on public.public_profiles to authenticated;
+
 revoke all on public.profiles from anon, authenticated;
 grant select on public.profiles to authenticated;
 grant update (full_name, phone, avatar_url, updated_at) on public.profiles to authenticated;
