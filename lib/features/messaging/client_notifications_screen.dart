@@ -17,7 +17,8 @@ class ClientNotificationsScreen extends StatelessWidget {
     return BlocProvider<MessagingBloc>(
       create: (context) =>
           MessagingBloc.fromRepository(context.read<MessagingRepository>())
-            ..add(const LoadMessagingData()),
+            ..add(const LoadMessagingData())
+            ..add(const SubscribeNotificationsRealtime()),
       child: const ClientNotificationsScreen(),
     );
   }

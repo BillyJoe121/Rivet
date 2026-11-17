@@ -8,11 +8,15 @@ import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import '../supplier/material_price_tier.dart';
 import 'agreements_module.dart';
+import 'progress_tracking_screen.dart';
 import 'project_payment_screen.dart';
+import 'register_progress_screen.dart';
 
 export 'payout_account_screen.dart';
+export 'progress_tracking_screen.dart';
 export 'project_payment_screen.dart';
 export 'proposals_compare_screen.dart';
+export 'register_progress_screen.dart';
 
 /// Resumen formal de acuerdo mutuo de obra antes del pago de anticipo (frame 22-145284).
 class AgreementSummaryScreen extends StatelessWidget {
@@ -175,15 +179,41 @@ class AgreementSummaryScreen extends StatelessWidget {
       );
     }
     if (asClient) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (!agreement.isPaymentApproved)
+            AppButton(
+              text: 'Continuar al pago de anticipo',
+              showChevron: true,
+              onPressed: () => AppNavigator.push(
+                context,
+                BlocProvider<AgreementsBloc>.value(
+                  value: context.read<AgreementsBloc>(),
+                  child: const ProjectPaymentScreen(),
+                ),
+              ),
+            )
+          else
+            AppButton(
+              text: 'Ver seguimiento de obra',
+              showChevron: true,
+              onPressed: () => Navigator.of(context).push(
+                ProgressTrackingScreen.route(
+                  agreementId: agreement.id,
+                  asClient: true,
+                ),
+              ),
+            ),
+        ],
+      );
+    }
+    if (agreement.status == AgreementStatus.active) {
       return AppButton(
-        text: 'Continuar al pago de anticipo',
+        text: 'Registrar avance de obra',
         showChevron: true,
-        onPressed: () => AppNavigator.push(
-          context,
-          BlocProvider<AgreementsBloc>.value(
-            value: context.read<AgreementsBloc>(),
-            child: const ProjectPaymentScreen(),
-          ),
+        onPressed: () => Navigator.of(context).push(
+          RegisterProgressScreen.route(agreementId: agreement.id),
         ),
       );
     }

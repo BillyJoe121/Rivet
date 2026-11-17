@@ -1,9 +1,11 @@
 import '../../../core/models/models.dart';
 import '../domain/agreements_domain.dart';
+import '../domain/progress_domain.dart';
 
 class LocalAgreementRepository implements AgreementRepository {
   final Map<String, WorkAgreement> _byProposalId = {};
   final Map<String, WorkAgreement> _byId = {};
+  final Map<String, List<ProgressUpdate>> _updatesByAgreement = {};
   PayoutAccount? _payoutAccount;
 
   @override
@@ -157,5 +159,69 @@ class LocalAgreementRepository implements AgreementRepository {
     );
     _payoutAccount = saved;
     return saved;
+  }
+
+  @override
+  Future<List<ProgressUpdate>> getProgressUpdates(String agreementId) async =>
+      List<ProgressUpdate>.unmodifiable(
+        _updatesByAgreement[agreementId] ?? const [],
+      );
+
+  @override
+  Future<AgreementMilestone> confirmMilestone({
+    required String milestoneId,
+    required bool asClient,
+  }) async {
+    for (final entry in _byId.entries) {
+      final idx = entry.value.milestoneItems.indexWhere(
+        (m) => m.id == milestoneId,
+      );
+      if (idx == -1) continue;
+      final current = entry.value.milestoneItems[idx];
+      final now = DateTime.now();
+      final clientAt = asClient ? (current.clientConfirmedAt ?? now) : current.clientConfirmedAt;
+      final contractorAt =
+          !asClient ? (current.contractorConfirmedAt ?? now) : current.contractorConfirmedAt;
+      final updated = current.copyWith(
+        clientConfirmedAt: clientAt,
+        contractorConfirmedAt: contractorAt,
+        isDone: clientAt != null && contractorAt != null,
+      );
+      final newItems = List<AgreementMilestone>.from(entry.value.milestoneItems)
+        ..[idx] = updated;
+      final newAgreement = entry.value.copyWith(milestoneItems: newItems);
+      _byId[entry.key] = newAgreement;
+      _byProposalId[newAgreement.proposalId] = newAgreement;
+      return updated;
+    }
+    throw const AgreementFailure('No encontramos el hito solicitado.');
+  }
+
+  @override
+  Future<ProgressUpdate> submitProgressUpdate({
+    required String agreementId,
+    String? milestoneId,
+    required int percent,
+    required String description,
+    List<ProgressPhotoUpload> photos = const [],
+    bool asDraft = false,
+  }) async {
+    final list = _updatesByAgreement.putIfAbsent(agreementId, () => []);
+    final update = ProgressUpdate(
+      id: 'upd-${list.length + 1}',
+      agreementId: agreementId,
+      milestoneId: milestoneId,
+      authorId: 'contractor-local',
+      percent: percent,
+      description: description,
+      photoPaths: [
+        for (var i = 0; i < photos.length; i++)
+          '$agreementId/${i}_${photos[i].fileName}',
+      ],
+      status: asDraft ? 'draft' : 'sent',
+      createdAt: DateTime.now(),
+    );
+    list.insert(0, update);
+    return update;
   }
 }

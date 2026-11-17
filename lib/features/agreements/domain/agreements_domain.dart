@@ -1,4 +1,5 @@
 import '../../../core/models/models.dart';
+import 'progress_domain.dart';
 
 enum AgreementStatus {
   pending('Pendiente de aceptación'),
@@ -256,6 +257,22 @@ abstract interface class AgreementRepository {
     required String accountNumberLast4,
     required String holderName,
     required String documentNumberLast4,
+  });
+
+  Future<List<ProgressUpdate>> getProgressUpdates(String agreementId);
+
+  Future<AgreementMilestone> confirmMilestone({
+    required String milestoneId,
+    required bool asClient,
+  });
+
+  Future<ProgressUpdate> submitProgressUpdate({
+    required String agreementId,
+    String? milestoneId,
+    required int percent,
+    required String description,
+    List<ProgressPhotoUpload> photos = const [],
+    bool asDraft = false,
   });
 }
 

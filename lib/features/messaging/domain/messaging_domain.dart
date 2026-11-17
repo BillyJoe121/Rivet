@@ -123,8 +123,15 @@ class ClientNotificationItem {
 }
 
 class MessagingFailure implements Exception {
-  const MessagingFailure(this.message);
+  const MessagingFailure(
+    this.message, {
+    this.isSessionExpired = false,
+    this.isPermissionDenied = false,
+  });
+
   final String message;
+  final bool isSessionExpired;
+  final bool isPermissionDenied;
 
   @override
   String toString() => message;
@@ -156,6 +163,11 @@ abstract class MessagingRepository {
   Future<List<ClientNotificationItem>> markNotificationRead(
     String notificationId,
   );
+
+  Stream<ChatMessage> watchMessages(String conversationId) =>
+      const Stream.empty();
+
+  Stream<ClientNotificationItem> watchNotifications() => const Stream.empty();
 }
 
 class GetConversationsUseCase {

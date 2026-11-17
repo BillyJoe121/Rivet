@@ -5,6 +5,13 @@ class LocalMessagingRepository implements MessagingRepository {
     : _conversations = _buildSeedConversations(),
       _notifications = _buildSeedNotifications();
 
+  @override
+  Stream<ChatMessage> watchMessages(String conversationId) =>
+      const Stream.empty();
+
+  @override
+  Stream<ClientNotificationItem> watchNotifications() => const Stream.empty();
+
   final List<ChatConversation> _conversations;
   final List<ClientNotificationItem> _notifications;
 

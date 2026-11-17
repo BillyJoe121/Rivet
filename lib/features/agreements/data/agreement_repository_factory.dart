@@ -1,12 +1,15 @@
 import '../../../core/config/supabase_config.dart';
 import '../../../core/models/models.dart';
 import '../domain/agreements_domain.dart';
+import '../domain/progress_domain.dart';
 import 'supabase_agreement_data_source.dart';
+import 'supabase_progress_data_source.dart';
 
 class AgreementRepositoryImpl implements AgreementRepository {
-  const AgreementRepositoryImpl(this._dataSource);
+  const AgreementRepositoryImpl(this._dataSource, this._progressDataSource);
 
   final SupabaseAgreementDataSource _dataSource;
+  final SupabaseProgressDataSource _progressDataSource;
 
   @override
   Future<WorkAgreement> prepareAgreement({
@@ -74,14 +77,51 @@ class AgreementRepositoryImpl implements AgreementRepository {
         holderName: holderName,
         documentNumberLast4: documentNumberLast4,
       );
+
+  @override
+  Future<List<ProgressUpdate>> getProgressUpdates(String agreementId) =>
+      _progressDataSource.getProgressUpdates(agreementId);
+
+  @override
+  Future<AgreementMilestone> confirmMilestone({
+    required String milestoneId,
+    required bool asClient,
+  }) =>
+      _progressDataSource.confirmMilestone(
+        milestoneId: milestoneId,
+        asClient: asClient,
+      );
+
+  @override
+  Future<ProgressUpdate> submitProgressUpdate({
+    required String agreementId,
+    String? milestoneId,
+    required int percent,
+    required String description,
+    List<ProgressPhotoUpload> photos = const [],
+    bool asDraft = false,
+  }) =>
+      _progressDataSource.submitProgressUpdate(
+        agreementId: agreementId,
+        milestoneId: milestoneId,
+        percent: percent,
+        description: description,
+        photos: photos,
+        asDraft: asDraft,
+      );
 }
 
 AgreementRepository createAgreementRepository() {
   try {
+    final client = SupabaseConfig.client;
     return AgreementRepositoryImpl(
-      SupabaseAgreementDataSource(SupabaseConfig.client),
+      SupabaseAgreementDataSource(client),
+      SupabaseProgressDataSource(client),
     );
   } catch (_) {
-    return AgreementRepositoryImpl(SupabaseAgreementDataSource(null));
+    return AgreementRepositoryImpl(
+      SupabaseAgreementDataSource(null),
+      SupabaseProgressDataSource(null),
+    );
   }
 }

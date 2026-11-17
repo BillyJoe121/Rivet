@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/messaging_domain.dart';
@@ -8,6 +10,30 @@ sealed class MessagingEvent {
 
 final class LoadMessagingData extends MessagingEvent {
   const LoadMessagingData();
+}
+
+final class SubscribeConversationRealtime extends MessagingEvent {
+  const SubscribeConversationRealtime(this.conversationId);
+  final String conversationId;
+}
+
+final class SubscribeNotificationsRealtime extends MessagingEvent {
+  const SubscribeNotificationsRealtime();
+}
+
+final class _RealtimeMessageArrived extends MessagingEvent {
+  const _RealtimeMessageArrived({
+    required this.conversationId,
+    required this.message,
+  });
+
+  final String conversationId;
+  final ChatMessage message;
+}
+
+final class _RealtimeNotificationArrived extends MessagingEvent {
+  const _RealtimeNotificationArrived(this.notification);
+  final ClientNotificationItem notification;
 }
 
 final class SendChatMessageRequested extends MessagingEvent {
@@ -56,12 +82,16 @@ class MessagingState {
     this.conversations = const [],
     this.notifications = const [],
     this.errorMessage,
+    this.isSessionExpired = false,
+    this.isPermissionDenied = false,
   });
 
   final MessagingStatus status;
   final List<ChatConversation> conversations;
   final List<ClientNotificationItem> notifications;
   final String? errorMessage;
+  final bool isSessionExpired;
+  final bool isPermissionDenied;
 
   bool get isLoading => status == MessagingStatus.loading;
   int get unreadNotificationsCount =>
@@ -80,12 +110,18 @@ class MessagingState {
     List<ClientNotificationItem>? notifications,
     String? errorMessage,
     bool clearError = false,
+    bool? isSessionExpired,
+    bool? isPermissionDenied,
   }) {
     return MessagingState(
       status: status ?? this.status,
       conversations: conversations ?? this.conversations,
       notifications: notifications ?? this.notifications,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      isSessionExpired:
+          clearError ? false : (isSessionExpired ?? this.isSessionExpired),
+      isPermissionDenied:
+          clearError ? false : (isPermissionDenied ?? this.isPermissionDenied),
     );
   }
 }
@@ -97,9 +133,14 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
     this._sendCounterOfferUseCase,
     this._respondCounterOfferUseCase,
     this._getClientNotificationsUseCase,
-    this._markNotificationReadUseCase,
-  ) : super(const MessagingState()) {
+    this._markNotificationReadUseCase, [
+    this._repository,
+  ]) : super(const MessagingState()) {
     on<LoadMessagingData>(_onLoad);
+    on<SubscribeConversationRealtime>(_onSubscribeConversation);
+    on<SubscribeNotificationsRealtime>(_onSubscribeNotifications);
+    on<_RealtimeMessageArrived>(_onRealtimeMessage);
+    on<_RealtimeNotificationArrived>(_onRealtimeNotification);
     on<SendChatMessageRequested>(_onSendMessage);
     on<SendCounterOfferRequested>(_onSendCounterOffer);
     on<RespondCounterOfferRequested>(_onRespondCounterOffer);
@@ -114,6 +155,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
       RespondCounterOfferUseCase(repository),
       GetClientNotificationsUseCase(repository),
       MarkNotificationReadUseCase(repository),
+      repository,
     );
   }
 
@@ -123,6 +165,25 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
   final RespondCounterOfferUseCase _respondCounterOfferUseCase;
   final GetClientNotificationsUseCase _getClientNotificationsUseCase;
   final MarkNotificationReadUseCase _markNotificationReadUseCase;
+  final MessagingRepository? _repository;
+
+  StreamSubscription<ChatMessage>? _messagesSub;
+  StreamSubscription<ClientNotificationItem>? _notificationsSub;
+
+  MessagingState _failureState(Object error) {
+    if (error is MessagingFailure) {
+      return state.copyWith(
+        status: MessagingStatus.failure,
+        errorMessage: error.message,
+        isSessionExpired: error.isSessionExpired,
+        isPermissionDenied: error.isPermissionDenied,
+      );
+    }
+    return state.copyWith(
+      status: MessagingStatus.failure,
+      errorMessage: error.toString().replaceFirst('Exception: ', ''),
+    );
+  }
 
   Future<void> _onLoad(
     LoadMessagingData event,
@@ -140,14 +201,70 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
         ),
       );
     } catch (e) {
-      final clean = e.toString().replaceFirst('Exception: ', '');
-      emit(
-        state.copyWith(
-          status: MessagingStatus.failure,
-          errorMessage: clean,
-        ),
-      );
+      emit(_failureState(e));
     }
+  }
+
+  Future<void> _onSubscribeConversation(
+    SubscribeConversationRealtime event,
+    Emitter<MessagingState> emit,
+  ) async {
+    await _messagesSub?.cancel();
+    final repo = _repository;
+    if (repo == null) return;
+    _messagesSub = repo.watchMessages(event.conversationId).listen((msg) {
+      if (!isClosed) {
+        add(_RealtimeMessageArrived(
+          conversationId: event.conversationId,
+          message: msg,
+        ));
+      }
+    });
+  }
+
+  Future<void> _onSubscribeNotifications(
+    SubscribeNotificationsRealtime event,
+    Emitter<MessagingState> emit,
+  ) async {
+    await _notificationsSub?.cancel();
+    final repo = _repository;
+    if (repo == null) return;
+    _notificationsSub = repo.watchNotifications().listen((notif) {
+      if (!isClosed) {
+        add(_RealtimeNotificationArrived(notif));
+      }
+    });
+  }
+
+  void _onRealtimeMessage(
+    _RealtimeMessageArrived event,
+    Emitter<MessagingState> emit,
+  ) {
+    final conv = state.conversationById(event.conversationId);
+    if (conv == null) return;
+    if (conv.messages.any((m) => m.id == event.message.id)) return;
+    final updated = conv.copyWith(
+      messages: [...conv.messages, event.message],
+    );
+    emit(
+      state.copyWith(
+        status: MessagingStatus.success,
+        conversations: _replaceConv(state.conversations, updated),
+      ),
+    );
+  }
+
+  void _onRealtimeNotification(
+    _RealtimeNotificationArrived event,
+    Emitter<MessagingState> emit,
+  ) {
+    if (state.notifications.any((n) => n.id == event.notification.id)) return;
+    emit(
+      state.copyWith(
+        status: MessagingStatus.success,
+        notifications: [event.notification, ...state.notifications],
+      ),
+    );
   }
 
   Future<void> _onSendMessage(
@@ -167,13 +284,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
         ),
       );
     } catch (e) {
-      final clean = e.toString().replaceFirst('Exception: ', '');
-      emit(
-        state.copyWith(
-          status: MessagingStatus.failure,
-          errorMessage: clean,
-        ),
-      );
+      emit(_failureState(e));
     }
   }
 
@@ -196,13 +307,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
         ),
       );
     } catch (e) {
-      final clean = e.toString().replaceFirst('Exception: ', '');
-      emit(
-        state.copyWith(
-          status: MessagingStatus.failure,
-          errorMessage: clean,
-        ),
-      );
+      emit(_failureState(e));
     }
   }
 
@@ -224,13 +329,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
         ),
       );
     } catch (e) {
-      final clean = e.toString().replaceFirst('Exception: ', '');
-      emit(
-        state.copyWith(
-          status: MessagingStatus.failure,
-          errorMessage: clean,
-        ),
-      );
+      emit(_failureState(e));
     }
   }
 
@@ -248,13 +347,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
         ),
       );
     } catch (e) {
-      final clean = e.toString().replaceFirst('Exception: ', '');
-      emit(
-        state.copyWith(
-          status: MessagingStatus.failure,
-          errorMessage: clean,
-        ),
-      );
+      emit(_failureState(e));
     }
   }
 
@@ -265,5 +358,12 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
     final exists = current.any((c) => c.id == updated.id);
     if (!exists) return [updated, ...current];
     return [for (final c in current) c.id == updated.id ? updated : c];
+  }
+
+  @override
+  Future<void> close() async {
+    await _messagesSub?.cancel();
+    await _notificationsSub?.cancel();
+    return super.close();
   }
 }
