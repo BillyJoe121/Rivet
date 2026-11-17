@@ -1,11 +1,15 @@
 import '../../../core/models/models.dart';
 import '../domain/agreements_domain.dart';
+import '../domain/closure_domain.dart';
 import '../domain/progress_domain.dart';
 
 class LocalAgreementRepository implements AgreementRepository {
   final Map<String, WorkAgreement> _byProposalId = {};
   final Map<String, WorkAgreement> _byId = {};
   final Map<String, List<ProgressUpdate>> _updatesByAgreement = {};
+  final Map<String, List<AgreementRating>> _ratingsByAgreement = {};
+  final Map<String, List<AgreementCancellation>> _cancellationsByAgreement = {};
+  final Map<String, List<PaymentRecord>> _paymentsByAgreement = {};
   PayoutAccount? _payoutAccount;
 
   @override
@@ -223,5 +227,135 @@ class LocalAgreementRepository implements AgreementRepository {
     );
     list.insert(0, update);
     return update;
+  }
+
+  @override
+  Future<List<AgreementRating>> getRatings(String agreementId) async =>
+      List<AgreementRating>.unmodifiable(
+        _ratingsByAgreement[agreementId] ?? const [],
+      );
+
+  @override
+  Future<AgreementRating> submitRating({
+    required String agreementId,
+    required String rateeId,
+    required int stars,
+    required String review,
+  }) async {
+    final list = _ratingsByAgreement.putIfAbsent(agreementId, () => []);
+    final rating = AgreementRating(
+      id: 'rat-${list.length + 1}',
+      agreementId: agreementId,
+      raterId: 'local-user',
+      rateeId: rateeId,
+      stars: stars,
+      review: review,
+      createdAt: DateTime.now(),
+    );
+    list.insert(0, rating);
+    return rating;
+  }
+
+  @override
+  Future<List<AgreementCancellation>> getCancellations(
+    String agreementId,
+  ) async =>
+      List<AgreementCancellation>.unmodifiable(
+        _cancellationsByAgreement[agreementId] ?? const [],
+      );
+
+  @override
+  Future<AgreementCancellation> requestCancellation({
+    required String agreementId,
+    required String reason,
+    required String description,
+    List<ProgressPhotoUpload> photos = const [],
+  }) async {
+    final list = _cancellationsByAgreement.putIfAbsent(agreementId, () => []);
+    final cancellation = AgreementCancellation(
+      id: 'can-${list.length + 1}',
+      agreementId: agreementId,
+      requestedBy: 'local-user',
+      reason: reason,
+      description: description,
+      photoPaths: [
+        for (var i = 0; i < photos.length; i++)
+          '$agreementId/${i}_${photos[i].fileName}',
+      ],
+      createdAt: DateTime.now(),
+    );
+    list.insert(0, cancellation);
+    return cancellation;
+  }
+
+  @override
+  Future<AgreementCancellation> resolveCancellation({
+    required String cancellationId,
+    required bool approved,
+  }) async {
+    for (final entry in _cancellationsByAgreement.entries) {
+      final idx = entry.value.indexWhere((c) => c.id == cancellationId);
+      if (idx == -1) continue;
+      final updated = entry.value[idx].copyWith(
+        status: approved
+            ? CancellationStatus.approved
+            : CancellationStatus.rejected,
+        resolvedAt: DateTime.now(),
+      );
+      entry.value[idx] = updated;
+      if (approved) {
+        final agr = _byId[entry.key];
+        if (agr != null) {
+          final cancelled = agr.copyWith(status: AgreementStatus.cancelled);
+          _byId[entry.key] = cancelled;
+          _byProposalId[cancelled.proposalId] = cancelled;
+        }
+      }
+      return updated;
+    }
+    throw const AgreementFailure('No encontramos la solicitud de cancelación.');
+  }
+
+  @override
+  Future<List<PaymentRecord>> getPayments(String agreementId) async {
+    final existing = _paymentsByAgreement[agreementId];
+    if (existing != null) return List<PaymentRecord>.unmodifiable(existing);
+    final agr = _byId[agreementId];
+    if (agr == null) return const [];
+    return [
+      PaymentRecord(
+        id: 'pay-local-1',
+        agreementId: agreementId,
+        kind: 'advance',
+        amountCop: agr.advanceAmountCop,
+        status: agr.paymentStatus,
+        cardBrand: agr.cardBrand,
+        cardLast4: agr.cardLast4,
+        createdAt: DateTime.now(),
+      ),
+    ];
+  }
+
+  @override
+  Future<PaymentRecord> releasePayment(String paymentId) async {
+    for (final list in _paymentsByAgreement.values) {
+      final idx = list.indexWhere((p) => p.id == paymentId);
+      if (idx == -1) continue;
+      final updated = list[idx].copyWith(
+        status: SimulatedPaymentStatus.released,
+        releasedAt: DateTime.now(),
+      );
+      list[idx] = updated;
+      return updated;
+    }
+    return PaymentRecord(
+      id: paymentId,
+      agreementId: 'local',
+      kind: 'advance',
+      amountCop: 0,
+      status: SimulatedPaymentStatus.released,
+      releasedAt: DateTime.now(),
+      createdAt: DateTime.now(),
+    );
   }
 }

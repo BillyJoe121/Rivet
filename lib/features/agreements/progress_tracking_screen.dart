@@ -6,6 +6,7 @@ import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import 'agreements_module.dart';
+import 'job_closure_screen.dart';
 
 /// Seguimiento de obra con checklist mutuo e historial de avances (frame 22-145438).
 class ProgressTrackingScreen extends StatelessWidget {
@@ -62,6 +63,29 @@ class ProgressTrackingScreen extends StatelessWidget {
           showBackButton: true,
           backgroundImagePath: AppHeroImages.documents,
           body: AppPageBody(
+            footer: agreement == null
+                ? null
+                : AppButton(
+                    text: 'Finalizar proyecto',
+                    showChevron: true,
+                    onPressed: () async {
+                      final allDone = agreement.milestoneItems.isNotEmpty &&
+                          agreement.milestoneItems.every((m) => m.isDone);
+                      final go = await showFinalizeProjectModal(
+                        context,
+                        projectTitle: agreement.projectTitle,
+                        allMilestonesDone: allDone,
+                      );
+                      if (go && context.mounted) {
+                        await Navigator.of(context).push(
+                          JobClosureScreen.route(
+                            agreementId: agreement.id,
+                            asClient: asClient,
+                          ),
+                        );
+                      }
+                    },
+                  ),
             onRefresh: () async {
               context.read<ProgressBloc>().add(
                     LoadProgressRequested(agreementId),

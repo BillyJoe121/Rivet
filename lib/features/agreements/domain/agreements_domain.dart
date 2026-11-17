@@ -1,4 +1,5 @@
 import '../../../core/models/models.dart';
+import 'closure_domain.dart';
 import 'progress_domain.dart';
 
 enum AgreementStatus {
@@ -274,6 +275,33 @@ abstract interface class AgreementRepository {
     List<ProgressPhotoUpload> photos = const [],
     bool asDraft = false,
   });
+
+  Future<List<AgreementRating>> getRatings(String agreementId);
+
+  Future<AgreementRating> submitRating({
+    required String agreementId,
+    required String rateeId,
+    required int stars,
+    required String review,
+  });
+
+  Future<List<AgreementCancellation>> getCancellations(String agreementId);
+
+  Future<AgreementCancellation> requestCancellation({
+    required String agreementId,
+    required String reason,
+    required String description,
+    List<ProgressPhotoUpload> photos = const [],
+  });
+
+  Future<AgreementCancellation> resolveCancellation({
+    required String cancellationId,
+    required bool approved,
+  });
+
+  Future<List<PaymentRecord>> getPayments(String agreementId);
+
+  Future<PaymentRecord> releasePayment(String paymentId);
 }
 
 class PrepareAgreementUseCase {

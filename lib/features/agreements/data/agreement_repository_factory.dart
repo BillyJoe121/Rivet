@@ -1,15 +1,22 @@
 import '../../../core/config/supabase_config.dart';
 import '../../../core/models/models.dart';
 import '../domain/agreements_domain.dart';
+import '../domain/closure_domain.dart';
 import '../domain/progress_domain.dart';
 import 'supabase_agreement_data_source.dart';
+import 'supabase_closure_data_source.dart';
 import 'supabase_progress_data_source.dart';
 
 class AgreementRepositoryImpl implements AgreementRepository {
-  const AgreementRepositoryImpl(this._dataSource, this._progressDataSource);
+  const AgreementRepositoryImpl(
+    this._dataSource,
+    this._progressDataSource,
+    this._closureDataSource,
+  );
 
   final SupabaseAgreementDataSource _dataSource;
   final SupabaseProgressDataSource _progressDataSource;
+  final SupabaseClosureDataSource _closureDataSource;
 
   @override
   Future<WorkAgreement> prepareAgreement({
@@ -109,6 +116,60 @@ class AgreementRepositoryImpl implements AgreementRepository {
         photos: photos,
         asDraft: asDraft,
       );
+
+  @override
+  Future<List<AgreementRating>> getRatings(String agreementId) =>
+      _closureDataSource.getRatings(agreementId);
+
+  @override
+  Future<AgreementRating> submitRating({
+    required String agreementId,
+    required String rateeId,
+    required int stars,
+    required String review,
+  }) =>
+      _closureDataSource.submitRating(
+        agreementId: agreementId,
+        rateeId: rateeId,
+        stars: stars,
+        review: review,
+      );
+
+  @override
+  Future<List<AgreementCancellation>> getCancellations(String agreementId) =>
+      _closureDataSource.getCancellations(agreementId);
+
+  @override
+  Future<AgreementCancellation> requestCancellation({
+    required String agreementId,
+    required String reason,
+    required String description,
+    List<ProgressPhotoUpload> photos = const [],
+  }) =>
+      _closureDataSource.requestCancellation(
+        agreementId: agreementId,
+        reason: reason,
+        description: description,
+        photos: photos,
+      );
+
+  @override
+  Future<AgreementCancellation> resolveCancellation({
+    required String cancellationId,
+    required bool approved,
+  }) =>
+      _closureDataSource.resolveCancellation(
+        cancellationId: cancellationId,
+        approved: approved,
+      );
+
+  @override
+  Future<List<PaymentRecord>> getPayments(String agreementId) =>
+      _closureDataSource.getPayments(agreementId);
+
+  @override
+  Future<PaymentRecord> releasePayment(String paymentId) =>
+      _closureDataSource.releasePayment(paymentId);
 }
 
 AgreementRepository createAgreementRepository() {
@@ -117,11 +178,13 @@ AgreementRepository createAgreementRepository() {
     return AgreementRepositoryImpl(
       SupabaseAgreementDataSource(client),
       SupabaseProgressDataSource(client),
+      SupabaseClosureDataSource(client),
     );
   } catch (_) {
     return AgreementRepositoryImpl(
       SupabaseAgreementDataSource(null),
       SupabaseProgressDataSource(null),
+      SupabaseClosureDataSource(null),
     );
   }
 }
