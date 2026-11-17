@@ -61,7 +61,8 @@ class _ConversationsListView extends StatelessWidget {
                     else if (state.status == MessagingStatus.failure &&
                         conversations.isEmpty)
                       AppErrorState(
-                        message: state.errorMessage ??
+                        message:
+                            state.errorMessage ??
                             'No pudimos cargar tus mensajes.',
                         onRetry: () => context.read<MessagingBloc>().add(
                           const LoadMessagingData(),
@@ -97,8 +98,7 @@ class _ConversationsListView extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               AppAvatar(
-                                initials: conversations[i]
-                                    .contractorName
+                                initials: conversations[i].contractorName
                                     .substring(0, 2)
                                     .toUpperCase(),
                                 size: 44,

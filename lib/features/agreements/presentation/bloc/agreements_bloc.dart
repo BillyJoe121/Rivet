@@ -19,9 +19,19 @@ final class PrepareAgreementRequested extends AgreementsEvent {
   final Proposal proposal;
 }
 
+final class LoadAgreementById extends AgreementsEvent {
+  const LoadAgreementById(this.agreementId);
+  final String agreementId;
+}
+
 final class ToggleAgreementTermsAccepted extends AgreementsEvent {
   const ToggleAgreementTermsAccepted(this.accepted);
   final bool accepted;
+}
+
+final class AcceptAgreementRequested extends AgreementsEvent {
+  const AcceptAgreementRequested({required this.asClient});
+  final bool asClient;
 }
 
 final class SelectSimulatedPaymentMethod extends AgreementsEvent {
@@ -30,7 +40,14 @@ final class SelectSimulatedPaymentMethod extends AgreementsEvent {
 }
 
 final class SubmitSimulatedPayment extends AgreementsEvent {
-  const SubmitSimulatedPayment({this.simulateFailure = false});
+  const SubmitSimulatedPayment({
+    this.cardBrand,
+    this.cardLast4,
+    this.simulateFailure = false,
+  });
+
+  final String? cardBrand;
+  final String? cardLast4;
   final bool simulateFailure;
 }
 
@@ -45,6 +62,9 @@ class AgreementsState {
     this.status = AgreementsStatus.initial,
     this.agreement,
     this.errorMessage,
+    this.isSessionExpired = false,
+    this.isPermissionDenied = false,
+    this.isAccepting = false,
     this.isProcessingPayment = false,
     this.hasPaymentResult = false,
   });
@@ -52,6 +72,9 @@ class AgreementsState {
   final AgreementsStatus status;
   final WorkAgreement? agreement;
   final String? errorMessage;
+  final bool isSessionExpired;
+  final bool isPermissionDenied;
+  final bool isAccepting;
   final bool isProcessingPayment;
   final bool hasPaymentResult;
 
@@ -62,6 +85,9 @@ class AgreementsState {
     WorkAgreement? agreement,
     String? errorMessage,
     bool clearError = false,
+    bool? isSessionExpired,
+    bool? isPermissionDenied,
+    bool? isAccepting,
     bool? isProcessingPayment,
     bool? hasPaymentResult,
   }) {
@@ -69,6 +95,11 @@ class AgreementsState {
       status: status ?? this.status,
       agreement: agreement ?? this.agreement,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      isSessionExpired:
+          clearError ? false : (isSessionExpired ?? this.isSessionExpired),
+      isPermissionDenied:
+          clearError ? false : (isPermissionDenied ?? this.isPermissionDenied),
+      isAccepting: isAccepting ?? this.isAccepting,
       isProcessingPayment: isProcessingPayment ?? this.isProcessingPayment,
       hasPaymentResult: hasPaymentResult ?? this.hasPaymentResult,
     );
@@ -78,11 +109,15 @@ class AgreementsState {
 class AgreementsBloc extends Bloc<AgreementsEvent, AgreementsState> {
   AgreementsBloc(
     this._prepareAgreementUseCase,
+    this._acceptAgreementUseCase,
     this._processSimulatedPaymentUseCase,
     this._confirmWorkCompletionUseCase,
+    this._repository,
   ) : super(const AgreementsState()) {
     on<PrepareAgreementRequested>(_onPrepare);
+    on<LoadAgreementById>(_onLoadById);
     on<ToggleAgreementTermsAccepted>(_onToggleTerms);
+    on<AcceptAgreementRequested>(_onAccept);
     on<SelectSimulatedPaymentMethod>(_onSelectMethod);
     on<SubmitSimulatedPayment>(_onSubmitPayment);
     on<ConfirmWorkCompletedRequested>(_onConfirmWorkCompleted);
@@ -91,17 +126,39 @@ class AgreementsBloc extends Bloc<AgreementsEvent, AgreementsState> {
   factory AgreementsBloc.fromRepository(AgreementRepository repository) {
     return AgreementsBloc(
       PrepareAgreementUseCase(repository),
+      AcceptAgreementUseCase(repository),
       ProcessSimulatedPaymentUseCase(repository),
       ConfirmWorkCompletionUseCase(repository),
+      repository,
     );
   }
 
   final PrepareAgreementUseCase _prepareAgreementUseCase;
+  final AcceptAgreementUseCase _acceptAgreementUseCase;
   final ProcessSimulatedPaymentUseCase _processSimulatedPaymentUseCase;
   final ConfirmWorkCompletionUseCase _confirmWorkCompletionUseCase;
+  final AgreementRepository _repository;
 
-  String _cleanError(Object error) =>
-      error.toString().replaceFirst('Exception: ', '');
+  AgreementsState _failureState(Object error, {bool isAccepting = false, bool isProcessingPayment = false, bool hasPaymentResult = false}) {
+    if (error is AgreementFailure) {
+      return state.copyWith(
+        status: AgreementsStatus.failure,
+        errorMessage: error.message,
+        isSessionExpired: error.isSessionExpired,
+        isPermissionDenied: error.isPermissionDenied,
+        isAccepting: isAccepting,
+        isProcessingPayment: isProcessingPayment,
+        hasPaymentResult: hasPaymentResult,
+      );
+    }
+    return state.copyWith(
+      status: AgreementsStatus.failure,
+      errorMessage: error.toString().replaceFirst('Exception: ', ''),
+      isAccepting: isAccepting,
+      isProcessingPayment: isProcessingPayment,
+      hasPaymentResult: hasPaymentResult,
+    );
+  }
 
   Future<void> _onPrepare(
     PrepareAgreementRequested event,
@@ -121,12 +178,25 @@ class AgreementsBloc extends Bloc<AgreementsEvent, AgreementsState> {
         ),
       );
     } catch (e) {
+      emit(_failureState(e));
+    }
+  }
+
+  Future<void> _onLoadById(
+    LoadAgreementById event,
+    Emitter<AgreementsState> emit,
+  ) async {
+    emit(state.copyWith(status: AgreementsStatus.loading, clearError: true));
+    try {
+      final agreement = await _repository.getAgreementById(event.agreementId);
       emit(
         state.copyWith(
-          status: AgreementsStatus.failure,
-          errorMessage: _cleanError(e),
+          status: AgreementsStatus.success,
+          agreement: agreement,
         ),
       );
+    } catch (e) {
+      emit(_failureState(e));
     }
   }
 
@@ -144,6 +214,30 @@ class AgreementsBloc extends Bloc<AgreementsEvent, AgreementsState> {
         hasPaymentResult: false,
       ),
     );
+  }
+
+  Future<void> _onAccept(
+    AcceptAgreementRequested event,
+    Emitter<AgreementsState> emit,
+  ) async {
+    final current = state.agreement;
+    if (current == null) return;
+    emit(state.copyWith(isAccepting: true, clearError: true));
+    try {
+      final updated = await _acceptAgreementUseCase(
+        agreementId: current.id,
+        asClient: event.asClient,
+      );
+      emit(
+        state.copyWith(
+          status: AgreementsStatus.success,
+          agreement: updated,
+          isAccepting: false,
+        ),
+      );
+    } catch (e) {
+      emit(_failureState(e, isAccepting: false));
+    }
   }
 
   void _onSelectMethod(
@@ -178,6 +272,8 @@ class AgreementsBloc extends Bloc<AgreementsEvent, AgreementsState> {
     try {
       final updated = await _processSimulatedPaymentUseCase(
         agreement: current,
+        cardBrand: event.cardBrand,
+        cardLast4: event.cardLast4,
         simulateFailure: event.simulateFailure,
       );
       emit(
@@ -190,9 +286,8 @@ class AgreementsBloc extends Bloc<AgreementsEvent, AgreementsState> {
       );
     } catch (e) {
       emit(
-        state.copyWith(
-          status: AgreementsStatus.failure,
-          errorMessage: _cleanError(e),
+        _failureState(
+          e,
           isProcessingPayment: false,
           hasPaymentResult: true,
         ),
@@ -206,22 +301,18 @@ class AgreementsBloc extends Bloc<AgreementsEvent, AgreementsState> {
   ) async {
     final current = state.agreement;
     if (current == null) return;
+    emit(state.copyWith(status: AgreementsStatus.loading, clearError: true));
     try {
       final updated = await _confirmWorkCompletionUseCase(current);
       emit(
         state.copyWith(
           status: AgreementsStatus.success,
           agreement: updated,
-          clearError: true,
+          hasPaymentResult: false,
         ),
       );
     } catch (e) {
-      emit(
-        state.copyWith(
-          status: AgreementsStatus.failure,
-          errorMessage: _cleanError(e),
-        ),
-      );
+      emit(_failureState(e));
     }
   }
 }

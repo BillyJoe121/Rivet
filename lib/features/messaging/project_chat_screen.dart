@@ -68,112 +68,108 @@ class _ProjectChatScreenState extends State<ProjectChatScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<MessagingBloc, MessagingState>(
-        listener: (context, state) {
-          if (state.status == MessagingStatus.failure &&
-              state.errorMessage != null) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                SnackBar(
-                  content: Text(state.errorMessage!),
-                  duration: const Duration(seconds: 5),
-                ),
-              );
-          }
-        },
-        builder: (context, state) {
-          final conv = state.conversationById(widget.conversationId) ??
-              (state.conversations.isNotEmpty
-                  ? state.conversations.first
-                  : null);
-
-          return RivetScaffold(
-            title: 'Conversación',
-            showBackButton: true,
-            backgroundImagePath: AppHeroImages.messages,
-            actions: [
-              IconButton(
-                tooltip: 'Enviar contraoferta',
-                onPressed: conv == null
-                    ? null
-                    : () => _openCounterOfferSheet(context, conv.id),
-                icon: const Icon(
-                  LucideIcons.handCoins,
-                  color: AppColors.brand700,
-                ),
+      listener: (context, state) {
+        if (state.status == MessagingStatus.failure &&
+            state.errorMessage != null) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Text(state.errorMessage!),
+                duration: const Duration(seconds: 5),
               ),
-            ],
-            bottomBar: _ChatComposerBar(
-              controller: _messageController,
-              onSend: () {
-                final targetId = conv?.id ?? widget.conversationId;
-                final text = _messageController.text;
-                _messageController.clear();
-                context.read<MessagingBloc>().add(
-                  SendChatMessageRequested(
-                    conversationId: targetId,
-                    text: text,
-                  ),
-                );
-              },
-              onCounterOffer: conv == null
+            );
+        }
+      },
+      builder: (context, state) {
+        final conv =
+            state.conversationById(widget.conversationId) ??
+            (state.conversations.isNotEmpty ? state.conversations.first : null);
+
+        return RivetScaffold(
+          title: 'Conversación',
+          showBackButton: true,
+          backgroundImagePath: AppHeroImages.messages,
+          actions: [
+            IconButton(
+              tooltip: 'Enviar contraoferta',
+              onPressed: conv == null
                   ? null
                   : () => _openCounterOfferSheet(context, conv.id),
+              icon: const Icon(
+                LucideIcons.handCoins,
+                color: AppColors.brand700,
+              ),
             ),
-            body: AppPageBody(
-              children: [
-                AppCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        conv?.contractorName ?? widget.contractorName,
-                        style: AppTypography.sectionTitle,
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        conv?.projectTitle ?? widget.projectTitle,
-                        style: AppTypography.caption,
-                      ),
-                      const SizedBox(height: AppSpacing.sm),
-                      const AppInfoBanner(
-                        compact: true,
-                        message:
-                            'Chat simulado de prueba. Tus mensajes reciben respuesta automática.',
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.md),
-                if (conv == null && state.isLoading)
-                  const AppLoadingState(label: 'Cargando conversación')
-                else if (conv == null)
-                  const AppEmptyState(
-                    title: 'Sin mensajes previos',
-                    message:
-                        'Escribe tu primer mensaje abajo para iniciar el hilo.',
-                  )
-                else
-                  for (final msg in conv.messages) ...[
-                    _ChatBubble(
-                      message: msg,
-                      onRespondCounterOffer: (accepted) {
-                        context.read<MessagingBloc>().add(
-                          RespondCounterOfferRequested(
-                            conversationId: conv.id,
-                            messageId: msg.id,
-                            accepted: accepted,
-                          ),
-                        );
-                      },
+          ],
+          bottomBar: _ChatComposerBar(
+            controller: _messageController,
+            onSend: () {
+              final targetId = conv?.id ?? widget.conversationId;
+              final text = _messageController.text;
+              _messageController.clear();
+              context.read<MessagingBloc>().add(
+                SendChatMessageRequested(conversationId: targetId, text: text),
+              );
+            },
+            onCounterOffer: conv == null
+                ? null
+                : () => _openCounterOfferSheet(context, conv.id),
+          ),
+          body: AppPageBody(
+            children: [
+              AppCard(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      conv?.contractorName ?? widget.contractorName,
+                      style: AppTypography.sectionTitle,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      conv?.projectTitle ?? widget.projectTitle,
+                      style: AppTypography.caption,
                     ),
                     const SizedBox(height: AppSpacing.sm),
+                    const AppInfoBanner(
+                      compact: true,
+                      message:
+                          'Chat simulado de prueba. Tus mensajes reciben respuesta automática.',
+                    ),
                   ],
-              ],
-            ),
-          );
-        },
-      );
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              if (conv == null && state.isLoading)
+                const AppLoadingState(label: 'Cargando conversación')
+              else if (conv == null)
+                const AppEmptyState(
+                  title: 'Sin mensajes previos',
+                  message:
+                      'Escribe tu primer mensaje abajo para iniciar el hilo.',
+                )
+              else
+                for (final msg in conv.messages) ...[
+                  _ChatBubble(
+                    message: msg,
+                    onRespondCounterOffer: (accepted) {
+                      context.read<MessagingBloc>().add(
+                        RespondCounterOfferRequested(
+                          conversationId: conv.id,
+                          messageId: msg.id,
+                          accepted: accepted,
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                ],
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _openCounterOfferSheet(BuildContext context, String conversationId) {
@@ -293,8 +289,10 @@ class _ChatBubble extends StatelessWidget {
                       const SizedBox(height: 4),
                       AppBadge(
                         text: switch (message.counterOfferStatus) {
-                          CounterOfferStatus.pending => 'Pendiente de respuesta',
-                          CounterOfferStatus.accepted => 'Contraoferta aceptada',
+                          CounterOfferStatus.pending =>
+                            'Pendiente de respuesta',
+                          CounterOfferStatus.accepted =>
+                            'Contraoferta aceptada',
                           CounterOfferStatus.rejected =>
                             'Contraoferta rechazada',
                         },
@@ -399,4 +397,3 @@ class _ChatComposerBar extends StatelessWidget {
     );
   }
 }
-

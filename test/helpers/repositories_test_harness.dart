@@ -88,20 +88,17 @@ class _InMemoryProposalRepository implements ProposalRepository {
       _items.firstWhere((p) => p.id == proposalId);
 
   @override
-  Future<void> acceptProposal(String proposalId) async {
+  Future<void> acceptProposal(String proposalId) =>
+      updateProposalStatus(proposalId, ProposalStatus.accepted);
+
+  @override
+  Future<void> updateProposalStatus(
+    String proposalId,
+    ProposalStatus status,
+  ) async {
     final idx = _items.indexWhere((p) => p.id == proposalId);
     if (idx == -1) return;
-    final p = _items[idx];
-    _items[idx] = Proposal(
-      id: p.id,
-      projectId: p.projectId,
-      contractor: p.contractor,
-      laborCostCop: p.laborCostCop,
-      materialsCostCop: p.materialsCostCop,
-      estimatedDays: p.estimatedDays,
-      status: ProposalStatus.accepted,
-      observations: p.observations,
-    );
+    _items[idx] = _items[idx].copyWith(status: status);
   }
 
   @override

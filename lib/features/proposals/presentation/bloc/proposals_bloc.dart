@@ -1,6 +1,7 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/models/models.dart';
+import '../../../projects/domain/repositories/project_repository.dart';
 import '../../domain/errors/proposal_failure.dart';
 import '../../domain/repositories/proposal_repository.dart';
 import '../../domain/usecases/accept_proposal_usecase.dart';
@@ -23,10 +24,13 @@ class ProposalsBloc extends Bloc<ProposalsEvent, ProposalsState> {
   }
 
   /// Arma el Bloc con los casos de uso sobre [repository].
-  factory ProposalsBloc.fromRepository(ProposalRepository repository) {
+  factory ProposalsBloc.fromRepository(
+    ProposalRepository repository, {
+    ProjectRepository? projectRepository,
+  }) {
     return ProposalsBloc(
       GetReceivedProposalsUseCase(repository),
-      AcceptProposalUseCase(repository),
+      AcceptProposalUseCase(repository, projectRepository),
     );
   }
 
@@ -64,14 +68,23 @@ class ProposalsBloc extends Bloc<ProposalsEvent, ProposalsState> {
     emit(state.copyWith(isSubmitting: true, clearError: true));
     try {
       await _acceptProposalUseCase(event.proposalId);
+      final accepted = state.proposals
+          .where((p) => p.id == event.proposalId)
+          .firstOrNull;
+      final projectId = accepted?.projectId;
       emit(state.copyWith(
         status: ProposalsStatus.success,
         isSubmitting: false,
         proposals: [
           for (final p in state.proposals)
-            p.id == event.proposalId
-                ? p.copyWith(status: ProposalStatus.accepted)
-                : p,
+            if (p.id == event.proposalId)
+              p.copyWith(status: ProposalStatus.accepted)
+            else if (projectId != null &&
+                p.projectId == projectId &&
+                p.status == ProposalStatus.sent)
+              p.copyWith(status: ProposalStatus.rejected)
+            else
+              p,
         ],
         acceptedProposalId: event.proposalId,
       ));

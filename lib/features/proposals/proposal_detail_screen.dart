@@ -9,24 +9,24 @@ import '../../core/widgets/widgets.dart';
 import '../agreements/agreements_screens.dart';
 import '../contractors/contractors_screens.dart';
 import '../messaging/messaging_screens.dart';
+import '../projects/domain/repositories/project_repository.dart';
 import '../supplier/material_price_tier.dart';
 import 'presentation/bloc/proposals_bloc.dart';
 import 'domain/repositories/proposal_repository.dart';
 
 /// Ficha técnica y detalle de una cotización para aceptación formal del cliente (P-031).
 class ProposalDetailScreen extends StatelessWidget {
-  const ProposalDetailScreen({
-    super.key,
-    required this.proposal,
-  });
+  const ProposalDetailScreen({super.key, required this.proposal});
 
   final Proposal proposal;
 
   /// Pantalla con su propio [ProposalsBloc].
   static Widget withBloc(Proposal proposal) {
     return BlocProvider<ProposalsBloc>(
-      create: (context) =>
-          ProposalsBloc.fromRepository(context.read<ProposalRepository>()),
+      create: (context) => ProposalsBloc.fromRepository(
+        context.read<ProposalRepository>(),
+        projectRepository: context.read<ProjectRepository>(),
+      ),
       child: ProposalDetailScreen(proposal: proposal),
     );
   }
@@ -73,9 +73,9 @@ class _ProposalDetailView extends StatelessWidget {
             (p) => p.id == proposal.id,
             orElse: () => proposal,
           );
-          Navigator.of(context).push(
-            AgreementSummaryScreen.route(proposal: currentProposal),
-          );
+          Navigator.of(
+            context,
+          ).push(AgreementSummaryScreen.route(proposal: currentProposal));
         }
       },
       builder: (context, state) {
@@ -84,7 +84,8 @@ class _ProposalDetailView extends StatelessWidget {
           orElse: () => proposal,
         );
 
-        final isAccepted = currentProposal.status == ProposalStatus.accepted ||
+        final isAccepted =
+            currentProposal.status == ProposalStatus.accepted ||
             state.acceptedProposalId == proposal.id;
 
         return RivetScaffold(

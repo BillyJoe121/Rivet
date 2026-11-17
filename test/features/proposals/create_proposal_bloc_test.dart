@@ -46,6 +46,12 @@ class _FakeProposalRepo implements ProposalRepository {
   Future<void> acceptProposal(String proposalId) async {}
 
   @override
+  Future<void> updateProposalStatus(
+    String proposalId,
+    ProposalStatus status,
+  ) async {}
+
+  @override
   Future<List<Proposal>> getMyProposals() async => [];
 
   @override

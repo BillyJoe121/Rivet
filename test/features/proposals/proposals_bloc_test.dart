@@ -24,20 +24,17 @@ class FakeProposalRepository implements ProposalRepository {
   }
 
   @override
-  Future<void> acceptProposal(String proposalId) async {
+  Future<void> acceptProposal(String proposalId) =>
+      updateProposalStatus(proposalId, ProposalStatus.accepted);
+
+  @override
+  Future<void> updateProposalStatus(
+    String proposalId,
+    ProposalStatus status,
+  ) async {
     final idx = proposals.indexWhere((p) => p.id == proposalId);
     if (idx != -1) {
-      final p = proposals[idx];
-      proposals[idx] = Proposal(
-        id: p.id,
-        projectId: p.projectId,
-        contractor: p.contractor,
-        laborCostCop: p.laborCostCop,
-        materialsCostCop: p.materialsCostCop,
-        estimatedDays: p.estimatedDays,
-        status: ProposalStatus.accepted,
-        observations: p.observations,
-      );
+      proposals[idx] = proposals[idx].copyWith(status: status);
     }
   }
 

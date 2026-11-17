@@ -31,6 +31,13 @@ class ProposalRepositoryImpl implements ProposalRepository {
   );
 
   @override
+  Future<void> updateProposalStatus(String proposalId, ProposalStatus status) =>
+      _guard(
+        SupabaseProposalDataSource.acceptMessage,
+        () => _dataSource.updateProposalStatus(proposalId, status),
+      );
+
+  @override
   Future<List<Proposal>> getMyProposals() => _guard(
     SupabaseProposalDataSource.loadListMessage,
     _dataSource.getMyProposals,

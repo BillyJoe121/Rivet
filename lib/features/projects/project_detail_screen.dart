@@ -19,10 +19,7 @@ import 'project_materials_screen.dart';
 /// Espera un [ProjectsBloc] en el contexto ([withBloc] o [route]); muestra
 /// [project] y, al volver de editar, la versión recargada del servidor.
 class ProjectDetailScreen extends StatelessWidget {
-  const ProjectDetailScreen({
-    super.key,
-    required this.project,
-  });
+  const ProjectDetailScreen({super.key, required this.project});
 
   final Project project;
 
@@ -44,15 +41,19 @@ class ProjectDetailScreen extends StatelessWidget {
     return BlocBuilder<ProjectsBloc, ProjectsState>(
       builder: (context, state) {
         final selected = state.selectedProject;
-        final currentProject =
-            selected != null && selected.id == project.id ? selected : project;
+        final currentProject = selected != null && selected.id == project.id
+            ? selected
+            : project;
         return _buildContent(context, currentProject, state.errorMessage);
       },
     );
   }
 
   /// Abre [route] y, al volver, recarga el proyecto para reflejar cambios.
-  Future<void> _openAndReload(BuildContext context, Route<Object?> route) async {
+  Future<void> _openAndReload(
+    BuildContext context,
+    Route<Object?> route,
+  ) async {
     final bloc = context.read<ProjectsBloc>();
     await Navigator.of(context).push(route);
     bloc.add(LoadProjectDetail(project.id));

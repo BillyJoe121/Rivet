@@ -98,9 +98,7 @@ class SupabaseAuthDataSource {
 
   /// Actualiza la contraseña del usuario en la sesión activa de recuperación.
   Future<void> updatePassword(String newPassword) async {
-    await _client.auth.updateUser(
-      UserAttributes(password: newPassword),
-    );
+    await _client.auth.updateUser(UserAttributes(password: newPassword));
   }
 
   /// Cierra la sesión activa.

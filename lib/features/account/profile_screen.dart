@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/models/models.dart';
 import '../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../../core/design_system/design_system.dart';
+import '../agreements/payout_account_screen.dart';
 import '../onboarding/welcome_screen.dart';
 import '../under_construction/under_construction_screen.dart';
 import 'account_mock.dart';
@@ -143,6 +144,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         SizedBox(
                           height: 40,
                           child: ProOptionRow(icon: icon, title: title, subtitle: value, trailing: null),
+                        ),
+                      if (widget.currentRole == UserRole.contractor)
+                        SizedBox(
+                          height: 44,
+                          child: ProOptionRow(
+                            icon: LucideIcon.creditCard,
+                            title: 'Cuenta para recibir pagos',
+                            subtitle: 'Datos bancarios enmascarados',
+                            onTap: () => AppNavigator.push(
+                              context,
+                              PayoutAccountScreen.withBloc(),
+                            ),
+                          ),
                         ),
                     ],
                   ),

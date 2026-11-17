@@ -11,6 +11,9 @@ abstract interface class ProposalRepository {
   /// Acepta formalmente una propuesta y formaliza el acuerdo con el contratista.
   Future<void> acceptProposal(String proposalId);
 
+  /// Actualiza el estado de una propuesta (rechazo o reversión a enviada).
+  Future<void> updateProposalStatus(String proposalId, ProposalStatus status);
+
   /// Obtiene las propuestas enviadas o en borrador del contratista actual.
   Future<List<Proposal>> getMyProposals();
 

@@ -37,7 +37,7 @@ Future<void> main() async {
       proposalRepository: createProposalRepository(),
       catalogRepository: createCatalogRepository(),
       contractorRepository: LocalContractorRepository(),
-      agreementRepository: LocalAgreementRepository(),
+      agreementRepository: createAgreementRepository(),
       messagingRepository: LocalMessagingRepository(),
       projectDraftRepository: LocalProjectDraftRepository(),
     ),
@@ -87,7 +87,7 @@ class _RivetAppState extends State<RivetApp> {
   late final ContractorRepository _contractorRepository =
       widget.contractorRepository ?? LocalContractorRepository();
   late final AgreementRepository _agreementRepository =
-      widget.agreementRepository ?? LocalAgreementRepository();
+      widget.agreementRepository ?? createAgreementRepository();
   late final MessagingRepository _messagingRepository =
       widget.messagingRepository ?? LocalMessagingRepository();
   late final ProjectDraftRepository _projectDraftRepository =

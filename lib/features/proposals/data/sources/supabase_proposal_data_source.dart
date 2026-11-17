@@ -59,13 +59,17 @@ class SupabaseProposalDataSource {
   }
 
   /// Marca una propuesta como aceptada; falla si la base no la actualiza.
-  Future<void> acceptProposal(String proposalId) {
+  Future<void> acceptProposal(String proposalId) =>
+      updateProposalStatus(proposalId, ProposalStatus.accepted);
+
+  /// Actualiza el estado de una propuesta en Supabase; falla si no existe o RLS bloquea.
+  Future<void> updateProposalStatus(String proposalId, ProposalStatus status) {
     return _guard(acceptMessage, () async {
       final client = _requireSession();
       await client
           .from('proposals')
           .update({
-            'status': proposalStatusToDb(ProposalStatus.accepted),
+            'status': proposalStatusToDb(status),
             'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
           .eq('id', proposalId)

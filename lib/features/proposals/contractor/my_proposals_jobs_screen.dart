@@ -6,6 +6,7 @@ import '../../../core/models/models.dart';
 import '../../../core/theme/theme.dart';
 import '../../../core/utils/app_page_route.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../agreements/agreements_screens.dart';
 import '../../projects/domain/repositories/project_repository.dart';
 import '../../supplier/material_price_tier.dart';
 import '../domain/repositories/proposal_repository.dart';
@@ -172,6 +173,14 @@ class MyProposalsJobsScreen extends StatelessWidget {
           _ContractorProposalCard(
             proposal: job,
             project: state.projectFor(job.projectId),
+            onTap: () => Navigator.of(context).push(
+              AgreementSummaryScreen.route(
+                proposal: job,
+                projectTitle:
+                    state.projectFor(job.projectId)?.title ?? 'Proyecto Rivet',
+                asClient: false,
+              ),
+            ),
           ),
           const SizedBox(height: AppSpacing.md),
         ],
