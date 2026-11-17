@@ -256,7 +256,13 @@ class ProImage extends StatelessWidget {
         width: width,
         height: height,
         color: background,
-        child: Image.asset(asset, fit: fit, errorBuilder: (_, _, _) => const SizedBox.shrink()),
+        child: Image.asset(
+          asset,
+          fit: fit,
+          cacheWidth: 640,
+          gaplessPlayback: true,
+          errorBuilder: (_, _, _) => const SizedBox.shrink(),
+        ),
       ),
     );
   }

@@ -54,7 +54,7 @@ class ProScreen extends StatelessWidget {
           ),
         Padding(
           padding: EdgeInsets.only(top: top),
-          child: body,
+          child: RepaintBoundary(child: body),
         ),
       ],
     );
@@ -67,7 +67,10 @@ class ProScreen extends StatelessWidget {
               context: context,
               removeBottom: bottomNav != null || footer != null,
               child: scrollable
-                  ? SingleChildScrollView(child: content)
+                  ? SingleChildScrollView(
+                      physics: const ClampingScrollPhysics(),
+                      child: content,
+                    )
                   : content,
             ),
           ),

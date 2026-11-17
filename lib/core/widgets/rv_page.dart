@@ -46,7 +46,14 @@ class RvPage extends StatelessWidget {
               left: 0,
               right: 0,
               height: headerImageHeight,
-              child: Image.asset(headerImage!, fit: BoxFit.cover),
+              child: RepaintBoundary(
+                child: Image.asset(
+                  headerImage!,
+                  fit: BoxFit.cover,
+                  cacheWidth: 824,
+                  gaplessPlayback: true,
+                ),
+              ),
             ),
           Column(
             children: [
