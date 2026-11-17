@@ -45,3 +45,14 @@ Rivet es una plataforma móvil en Flutter (Dart) que conecta a propietarios de o
   - **Contraseña segura**: Mínimo 8 caracteres, al menos una mayúscula, un número y un carácter especial en `Validators.password`.
   - **Número de celular**: Formato nacional estándar (10 dígitos en Colombia iniciando en 3) en `Validators.phone`.
 - [x] **Seguridad contra SQL Injection**: Uso exclusivo del Query Builder parametrizado de Supabase (`.from('profiles').select().eq(...)`) y modelos fuertemente tipados.
+
+
+---
+
+## Backlog de Tareas — Sprint 3 (Contratista, Acuerdos, Ejecución, Chat Realtime y Cierre)
+- [x] **Esquema SQL y RLS**: Versionado en `supabase/schema_sprint3_tables.sql`, `supabase/schema_sprint3_functions.sql`, `supabase/schema_sprint3_rls.sql` y `supabase/schema_sprint3_storage_realtime.sql` (pendiente de revisión y aplicación manual en Supabase).
+- [x] **Arquitectura por pantalla con Bloc**: Módulos `projects`, `proposals`, `supplier`, `agreements`, `contractors` y `messaging` separados en `domain/`, `data/` y `presentation/`, sin fallbacks silenciosos a mocks ni Blocs globales en `main.dart`.
+- [x] **Flujo del contratista**: `OpenProjectsScreen`, `ContractorProjectDetailScreen`, `CreateProposalScreen` (3 pasos con borrador), `MyProposalsJobsScreen` y `ContractorHomeView` con datos reales.
+- [x] **Acuerdos y pago simulado**: `AcceptProposalUseCase` con reversión ante fallos, aceptación mutua en `AgreementSummaryScreen`, `ProjectPaymentScreen` con recibo en hoja inferior (sin guardar datos de tarjeta) y `PayoutAccountScreen` con cuenta enmascarada.
+- [x] **Ejecución y mensajería Realtime**: `RegisterProgressScreen` y `ProgressTrackingScreen` con checklist mutuo y fotos en Storage (`progress-photos`), `ProjectChatScreen`, `ConversationsListScreen` y `ClientNotificationsScreen` con Supabase Realtime.
+- [x] **Cierre y cancelación**: Modal `Finalizar proyecto`, `JobClosureScreen` con calificación mutua, `PaymentReceivedScreen` y `CancellationRefundScreen`.

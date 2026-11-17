@@ -121,3 +121,10 @@ Reducen pasos innecesarios fusionándose en las pantallas principales:
 19. `payment_receipt_screen.dart` $\rightarrow$ Se muestra como un modal/bottom-sheet de confirmación tras el pago sin navegar a una pantalla completa.
 20. `payment_received_screen.dart` $\rightarrow$ Notificación en la lista de transacciones sin vista estática dedicada.
 21. `create_incident_screen.dart` e `incident_detail_screen.dart` $\rightarrow$ Se unifican en el flujo de `CancellationRefundScreen` para no crear un sistema de tickets complejo en el MVP.
+
+
+---
+
+## 4. Estado de Implementación — Sprint 3
+- **Base de datos y seguridad**: Scripts SQL idempotentes (`supabase/schema_sprint3_*.sql`) con RLS por `auth.uid()`, triggers de integridad para acuerdos/hitos/pagos/cancelaciones, buckets privados (`progress-photos`, `cancellation-photos`) y publicación Realtime en `messages` y `notifications`.
+- **Flujo completo conectado**: Contratista (proyectos abiertos, propuestas con borrador, acuerdos pendientes, cuenta de cobro, registro de avance con fotos) y Cliente (aceptación transaccional de propuesta, acuerdo mutuo, anticipo simulado con comprobante en hoja inferior, seguimiento de hitos, chat Realtime, cierre con calificación mutua y cancelación/reembolso).

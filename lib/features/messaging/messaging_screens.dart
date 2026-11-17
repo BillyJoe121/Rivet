@@ -61,6 +61,11 @@ class _ConversationsListView extends StatelessWidget {
                     else if (state.status == MessagingStatus.failure &&
                         conversations.isEmpty)
                       AppErrorState(
+                        title: state.isSessionExpired
+                            ? 'Sesión vencida'
+                            : (state.isPermissionDenied
+                                  ? 'Permiso insuficiente'
+                                  : 'No pudimos cargar tus mensajes'),
                         message:
                             state.errorMessage ??
                             'No pudimos cargar tus mensajes.',

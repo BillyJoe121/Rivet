@@ -72,6 +72,11 @@ class _ClientNotificationsView extends StatelessWidget {
                     else if (state.status == MessagingStatus.failure &&
                         items.isEmpty)
                       AppErrorState(
+                        title: state.isSessionExpired
+                            ? 'Sesión vencida'
+                            : (state.isPermissionDenied
+                                  ? 'Permiso insuficiente'
+                                  : 'No pudimos consultar tus notificaciones'),
                         message: state.errorMessage ??
                             'No pudimos consultar tus notificaciones.',
                         onRetry: () => context.read<MessagingBloc>().add(
