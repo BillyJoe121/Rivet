@@ -168,6 +168,12 @@ abstract class MessagingRepository {
       const Stream.empty();
 
   Stream<ClientNotificationItem> watchNotifications() => const Stream.empty();
+
+  Future<List<ChatMessage>> fetchMessagesBefore({
+    required String conversationId,
+    required DateTime before,
+    int limit = 20,
+  }) async => const [];
 }
 
 class GetConversationsUseCase {
@@ -252,4 +258,19 @@ class MarkNotificationReadUseCase {
 
   Future<List<ClientNotificationItem>> call(String notificationId) =>
       _repository.markNotificationRead(notificationId);
+}
+
+class LoadOlderMessagesUseCase {
+  const LoadOlderMessagesUseCase(this._repository);
+  final MessagingRepository _repository;
+
+  Future<List<ChatMessage>> call({
+    required String conversationId,
+    required DateTime before,
+    int limit = 20,
+  }) => _repository.fetchMessagesBefore(
+    conversationId: conversationId,
+    before: before,
+    limit: limit,
+  );
 }

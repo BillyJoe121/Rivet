@@ -6,6 +6,7 @@ import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import 'contractors_module.dart';
 import 'contractors_screens.dart';
 
@@ -16,9 +17,11 @@ class ContractorsDirectoryScreen extends StatelessWidget {
   /// Pantalla con su propio [ContractorsBloc] cargando el directorio.
   static Widget withBloc() {
     return BlocProvider<ContractorsBloc>(
-      create: (context) =>
-          ContractorsBloc.fromRepository(context.read<ContractorRepository>())
-            ..add(const LoadContractors()),
+      create: (context) => resolveBloc<ContractorsBloc>(
+        () => ContractorsBloc.fromRepository(
+          context.read<ContractorRepository>(),
+        ),
+      )..add(const LoadContractors()),
       child: const ContractorsDirectoryScreen(),
     );
   }

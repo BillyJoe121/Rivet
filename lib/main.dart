@@ -7,7 +7,6 @@ import 'core/theme/theme.dart';
 import 'core/utils/app_page_route.dart';
 import 'core/widgets/keyboard_dismisser.dart';
 import 'features/auth/auth_gate.dart';
-import 'features/auth/data/auth_repository_factory.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/usecases.dart';
 import 'features/auth/presentation/bloc/auth/auth_bloc.dart';
@@ -23,6 +22,7 @@ import 'features/proposals/data/proposal_repository_factory.dart';
 import 'features/proposals/domain/repositories/proposal_repository.dart';
 import 'features/supplier/data/catalog_repository_factory.dart';
 import 'features/supplier/domain/repositories/catalog_repository.dart';
+import 'injection_container.dart';
 
 final GlobalKey<NavigatorState> rootNavigatorKey = GlobalKey<NavigatorState>();
 
@@ -30,16 +30,17 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   setupHttpOverrides();
   await SupabaseConfig.initialize();
+  await initDependencies();
   runApp(
     RivetApp(
-      authRepository: createAuthRepository(),
-      projectRepository: createProjectRepository(),
-      proposalRepository: createProposalRepository(),
-      catalogRepository: createCatalogRepository(),
-      contractorRepository: LocalContractorRepository(),
-      agreementRepository: createAgreementRepository(),
-      messagingRepository: createMessagingRepository(),
-      projectDraftRepository: LocalProjectDraftRepository(),
+      authRepository: sl<AuthRepository>(),
+      projectRepository: sl<ProjectRepository>(),
+      proposalRepository: sl<ProposalRepository>(),
+      catalogRepository: sl<CatalogRepository>(),
+      contractorRepository: sl<ContractorRepository>(),
+      agreementRepository: sl<AgreementRepository>(),
+      messagingRepository: sl<MessagingRepository>(),
+      projectDraftRepository: sl<ProjectDraftRepository>(),
     ),
   );
 }
@@ -85,7 +86,7 @@ class _RivetAppState extends State<RivetApp> {
   late final CatalogRepository _catalogRepository =
       widget.catalogRepository ?? createCatalogRepository();
   late final ContractorRepository _contractorRepository =
-      widget.contractorRepository ?? LocalContractorRepository();
+      widget.contractorRepository ?? createContractorRepository();
   late final AgreementRepository _agreementRepository =
       widget.agreementRepository ?? createAgreementRepository();
   late final MessagingRepository _messagingRepository =
@@ -161,10 +162,17 @@ class _RivetAppState extends State<RivetApp> {
         ),
       ],
       child: BlocProvider<AuthBloc>(
-        create: (_) => AuthBloc(
-          GetCurrentUserUseCase(authRepository),
-          SignOutUseCase(authRepository),
-        )..add(const AuthCheckRequested()),
+        create: (_) {
+          final bloc =
+              sl.isRegistered<AuthBloc>() &&
+                  identical(authRepository, sl<AuthRepository>())
+              ? sl<AuthBloc>()
+              : AuthBloc(
+                  GetCurrentUserUseCase(authRepository),
+                  SignOutUseCase(authRepository),
+                );
+          return bloc..add(const AuthCheckRequested());
+        },
         child: MaterialApp(
         navigatorKey: rootNavigatorKey,
         title: 'Rivet · Cotizaciones para tu obra',

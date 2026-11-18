@@ -187,6 +187,54 @@ class SupabaseMessagingDataSource {
     return controller.stream;
   }
 
+  /// Carga mensajes anteriores a [before] en orden cronológico ascendente.
+  Future<List<ChatMessage>> fetchMessagesBefore({
+    required String conversationId,
+    required DateTime before,
+    int limit = 20,
+  }) {
+    return _guard('No pudimos cargar mensajes anteriores.', () async {
+      final client = _requireSession();
+      final userId = client.auth.currentUser!.id;
+      final conv = await client
+          .from('conversations')
+          .select('client_id, contractor_id')
+          .eq('id', conversationId)
+          .maybeSingle();
+      final clientId = conv?['client_id'] as String?;
+      final contractorId = conv?['contractor_id'] as String?;
+      final otherId = clientId == userId ? contractorId : clientId;
+      String otherName = 'Participante';
+      if (otherId != null) {
+        final otherProfile = await client
+            .from('public_profiles')
+            .select('full_name')
+            .eq('id', otherId)
+            .maybeSingle();
+        otherName = otherProfile?['full_name'] as String? ?? 'Participante';
+      }
+
+      final rows = await client
+          .from('messages')
+          .select()
+          .eq('conversation_id', conversationId)
+          .lt('created_at', before.toUtc().toIso8601String())
+          .order('created_at', ascending: false)
+          .limit(limit);
+
+      final messages = [
+        for (final m in rows)
+          _messageFromRow(
+            m,
+            currentUserId: userId,
+            clientId: clientId,
+            otherName: otherName,
+          ),
+      ];
+      return messages.reversed.toList();
+    });
+  }
+
   Stream<ClientNotificationItem> watchNotifications() {
     final client = _client;
     final userId = client?.auth.currentUser?.id;
@@ -257,11 +305,14 @@ class SupabaseMessagingDataSource {
         .eq('id', otherId)
         .maybeSingle();
 
-    final msgRows = await client
-        .from('messages')
-        .select()
-        .eq('conversation_id', conversationId)
-        .order('created_at', ascending: true);
+    final msgRows = (await client
+            .from('messages')
+            .select()
+            .eq('conversation_id', conversationId)
+            .order('created_at', ascending: false)
+            .limit(20))
+        .reversed
+        .toList();
 
     final otherName = otherProfile?['full_name'] as String? ?? 'Participante';
     final otherRole = otherProfile?['role'] as String?;

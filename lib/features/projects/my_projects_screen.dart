@@ -6,6 +6,7 @@ import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import 'create_project_screen.dart';
 import 'presentation/bloc/projects_bloc.dart';
 import 'project_detail_screen.dart';
@@ -28,9 +29,9 @@ class MyProjectsScreen extends StatelessWidget {
   /// Pantalla con su [ProjectsBloc] cargando los proyectos.
   static Widget withBloc({bool forContractor = false, bool showBidsOnly = false}) {
     return BlocProvider<ProjectsBloc>(
-      create: (context) =>
-          ProjectsBloc.fromRepository(context.read<ProjectRepository>())
-            ..add(const LoadProjects()),
+      create: (context) => resolveBloc<ProjectsBloc>(
+        () => ProjectsBloc.fromRepository(context.read<ProjectRepository>()),
+      )..add(const LoadProjects()),
       child: MyProjectsScreen(
         forContractor: forContractor,
         showBidsOnly: showBidsOnly,

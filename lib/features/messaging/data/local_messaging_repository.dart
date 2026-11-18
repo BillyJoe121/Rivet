@@ -231,4 +231,11 @@ class LocalMessagingRepository implements MessagingRepository {
     }
     return List<ClientNotificationItem>.unmodifiable(_notifications);
   }
+
+  @override
+  Future<List<ChatMessage>> fetchMessagesBefore({
+    required String conversationId,
+    required DateTime before,
+    int limit = 20,
+  }) async => const [];
 }

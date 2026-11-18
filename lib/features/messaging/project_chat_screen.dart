@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import '../supplier/material_price_tier.dart';
 import 'messaging_module.dart';
 
@@ -28,7 +29,11 @@ class ProjectChatScreen extends StatefulWidget {
   }) {
     return BlocProvider<MessagingBloc>(
       create: (context) =>
-          MessagingBloc.fromRepository(context.read<MessagingRepository>())
+          resolveBloc<MessagingBloc>(
+              () => MessagingBloc.fromRepository(
+                context.read<MessagingRepository>(),
+              ),
+            )
             ..add(const LoadMessagingData())
             ..add(SubscribeConversationRealtime(conversationId)),
       child: ProjectChatScreen(
@@ -150,7 +155,28 @@ class _ProjectChatScreenState extends State<ProjectChatScreen> {
                   message:
                       'Escribe tu primer mensaje abajo para iniciar el hilo.',
                 )
-              else
+              else ...[
+                if (conv.messages.isNotEmpty && state.hasMoreMessages(conv.id))
+                  Center(
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: state.isLoadingOlder
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : TextButton.icon(
+                              onPressed: () {
+                                context.read<MessagingBloc>().add(
+                                  LoadOlderMessagesRequested(conv.id),
+                                );
+                              },
+                              icon: const Icon(LucideIcons.history, size: 16),
+                              label: const Text('Cargar mensajes anteriores'),
+                            ),
+                    ),
+                  ),
                 for (final msg in conv.messages) ...[
                   _ChatBubble(
                     message: msg,
@@ -166,6 +192,7 @@ class _ProjectChatScreenState extends State<ProjectChatScreen> {
                   ),
                   const SizedBox(height: AppSpacing.sm),
                 ],
+              ],
             ],
           ),
         );

@@ -74,6 +74,12 @@ final class MarkNotificationAsRead extends MessagingEvent {
   final String notificationId;
 }
 
+final class LoadOlderMessagesRequested extends MessagingEvent {
+  const LoadOlderMessagesRequested(this.conversationId, {this.limit = 20});
+  final String conversationId;
+  final int limit;
+}
+
 enum MessagingStatus { initial, loading, success, failure }
 
 class MessagingState {
@@ -84,6 +90,8 @@ class MessagingState {
     this.errorMessage,
     this.isSessionExpired = false,
     this.isPermissionDenied = false,
+    this.isLoadingOlder = false,
+    this.hasMoreByConversation = const {},
   });
 
   final MessagingStatus status;
@@ -92,10 +100,15 @@ class MessagingState {
   final String? errorMessage;
   final bool isSessionExpired;
   final bool isPermissionDenied;
+  final bool isLoadingOlder;
+  final Map<String, bool> hasMoreByConversation;
 
   bool get isLoading => status == MessagingStatus.loading;
   int get unreadNotificationsCount =>
       notifications.where((n) => !n.isRead).length;
+
+  bool hasMoreMessages(String conversationId) =>
+      hasMoreByConversation[conversationId] ?? true;
 
   ChatConversation? conversationById(String id) {
     for (final c in conversations) {
@@ -112,6 +125,8 @@ class MessagingState {
     bool clearError = false,
     bool? isSessionExpired,
     bool? isPermissionDenied,
+    bool? isLoadingOlder,
+    Map<String, bool>? hasMoreByConversation,
   }) {
     return MessagingState(
       status: status ?? this.status,
@@ -122,6 +137,9 @@ class MessagingState {
           clearError ? false : (isSessionExpired ?? this.isSessionExpired),
       isPermissionDenied:
           clearError ? false : (isPermissionDenied ?? this.isPermissionDenied),
+      isLoadingOlder: isLoadingOlder ?? this.isLoadingOlder,
+      hasMoreByConversation:
+          hasMoreByConversation ?? this.hasMoreByConversation,
     );
   }
 }
@@ -135,7 +153,11 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
     this._getClientNotificationsUseCase,
     this._markNotificationReadUseCase, [
     this._repository,
-  ]) : super(const MessagingState()) {
+    LoadOlderMessagesUseCase? loadOlderMessagesUseCase,
+  ]) : _loadOlderMessagesUseCase =
+           loadOlderMessagesUseCase ??
+           (_repository != null ? LoadOlderMessagesUseCase(_repository) : null),
+       super(const MessagingState()) {
     on<LoadMessagingData>(_onLoad);
     on<SubscribeConversationRealtime>(_onSubscribeConversation);
     on<SubscribeNotificationsRealtime>(_onSubscribeNotifications);
@@ -145,6 +167,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
     on<SendCounterOfferRequested>(_onSendCounterOffer);
     on<RespondCounterOfferRequested>(_onRespondCounterOffer);
     on<MarkNotificationAsRead>(_onMarkNotificationRead);
+    on<LoadOlderMessagesRequested>(_onLoadOlderMessages);
   }
 
   factory MessagingBloc.fromRepository(MessagingRepository repository) {
@@ -156,6 +179,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
       GetClientNotificationsUseCase(repository),
       MarkNotificationReadUseCase(repository),
       repository,
+      LoadOlderMessagesUseCase(repository),
     );
   }
 
@@ -166,6 +190,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
   final GetClientNotificationsUseCase _getClientNotificationsUseCase;
   final MarkNotificationReadUseCase _markNotificationReadUseCase;
   final MessagingRepository? _repository;
+  final LoadOlderMessagesUseCase? _loadOlderMessagesUseCase;
 
   StreamSubscription<ChatMessage>? _messagesSub;
   StreamSubscription<ClientNotificationItem>? _notificationsSub;
@@ -351,13 +376,66 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
     }
   }
 
+  Future<void> _onLoadOlderMessages(
+    LoadOlderMessagesRequested event,
+    Emitter<MessagingState> emit,
+  ) async {
+    final useCase = _loadOlderMessagesUseCase;
+    if (useCase == null || state.isLoadingOlder) return;
+    final conv = state.conversationById(event.conversationId);
+    if (conv == null || conv.messages.isEmpty) return;
+
+    emit(state.copyWith(isLoadingOlder: true, clearError: true));
+    try {
+      final oldest = conv.messages.first.sentAt;
+      final older = await useCase(
+        conversationId: event.conversationId,
+        before: oldest,
+        limit: event.limit,
+      );
+      final merged = _mergeMessages(older, conv.messages);
+      final updated = conv.copyWith(messages: merged);
+      final nextHasMore = Map<String, bool>.from(state.hasMoreByConversation)
+        ..[event.conversationId] = older.length >= event.limit;
+      emit(
+        state.copyWith(
+          status: MessagingStatus.success,
+          conversations: _replaceConv(state.conversations, updated),
+          isLoadingOlder: false,
+          hasMoreByConversation: nextHasMore,
+        ),
+      );
+    } catch (e) {
+      emit(_failureState(e).copyWith(isLoadingOlder: false));
+    }
+  }
+
+  List<ChatMessage> _mergeMessages(
+    List<ChatMessage> older,
+    List<ChatMessage> current,
+  ) {
+    final byId = <String, ChatMessage>{
+      for (final m in older) m.id: m,
+      for (final m in current) m.id: m,
+    };
+    final result = byId.values.toList()
+      ..sort((a, b) => a.sentAt.compareTo(b.sentAt));
+    return result;
+  }
+
   List<ChatConversation> _replaceConv(
     List<ChatConversation> current,
     ChatConversation updated,
   ) {
     final exists = current.any((c) => c.id == updated.id);
     if (!exists) return [updated, ...current];
-    return [for (final c in current) c.id == updated.id ? updated : c];
+    return [
+      for (final c in current)
+        if (c.id == updated.id)
+          updated.copyWith(messages: _mergeMessages(c.messages, updated.messages))
+        else
+          c,
+    ];
   }
 
   @override

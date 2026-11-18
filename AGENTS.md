@@ -5,7 +5,7 @@ Rivet es una plataforma móvil en Flutter (Dart) que conecta a propietarios de o
 
 ## Arquitectura y Principios
 - **Lógica de negocio**: Centralizada en código cliente Flutter (Dart) mediante casos de uso y repositorios limpios.
-- **Inyección de dependencias**: `main.dart` arma una sola vez cada repositorio (`createProjectRepository`, `createProposalRepository`, `createCatalogRepository`, `createAuthRepository` y los repositorios locales de contratistas, acuerdos, mensajes y borradores) y los comparte con `MultiRepositoryProvider`. Las pantallas arman sus casos de uso con `context.read<XRepository>()` al crear el Bloc; no hay servicios globales. En pruebas, `test/helpers/repositories_test_harness.dart` (`withRepositories`, `withAppBlocs`) provee repositorios en memoria.
+- **Inyección de dependencias**: `lib/injection_container.dart` registra una sola vez cada repositorio (`createProjectRepository`, `createProposalRepository`, `createCatalogRepository`, `createAuthRepository`, `createContractorRepository`, `createAgreementRepository`, `createMessagingRepository` y `LocalProjectDraftRepository`) y los casos de uso mediante `GetIt` (`registerLazySingleton`), además de los `Bloc` por pantalla (`registerFactory`). `main.dart` ejecuta `await initDependencies()`, expone los repositorios con `MultiRepositoryProvider` y las pantallas resuelven su `Bloc` con `resolveBloc` (o `context.read<XRepository>()` en pruebas aisladas). En pruebas, `test/helpers/repositories_test_harness.dart` (`withRepositories`, `withAppBlocs`) provee repositorios en memoria.
 - **Backend & Base de datos**: Supabase (PostgreSQL, Auth, Storage, Row Level Security).
 - **Seguridad**: Prevención estricta de inyecciones SQL mediante consultas parametrizadas del SDK oficial de Supabase y políticas RLS obligatorias.
 - **Design System**: Estilos medidos en Figma bajo `lib/core/design_system/`. Ningún estilo visual hardcodeado en las vistas.
@@ -50,9 +50,10 @@ Rivet es una plataforma móvil en Flutter (Dart) que conecta a propietarios de o
 ---
 
 ## Backlog de Tareas — Sprint 3 (Contratista, Acuerdos, Ejecución, Chat Realtime y Cierre)
-- [x] **Esquema SQL y RLS**: Versionado en `supabase/schema_sprint3_tables.sql`, `supabase/schema_sprint3_functions.sql`, `supabase/schema_sprint3_rls.sql` y `supabase/schema_sprint3_storage_realtime.sql` (pendiente de revisión y aplicación manual en Supabase).
+- [x] **Esquema SQL y RLS**: Versionado en `supabase/schema_sprint3_tables.sql`, `supabase/schema_sprint3_functions.sql`, `supabase/schema_sprint3_rls.sql` y `supabase/schema_sprint3_storage_realtime.sql` (aplicado en Supabase).
+- [x] **Inyección de dependencias con GetIt**: Contenedor central en `lib/injection_container.dart` con `registerLazySingleton` para repositorios/casos de uso, `registerFactory` para BLoCs, `resolveBloc` en pantallas, `0` imports de `data/` en `domain/` y pruebas en `test/injection_container_test.dart`.
 - [x] **Arquitectura por pantalla con Bloc**: Módulos `projects`, `proposals`, `supplier`, `agreements`, `contractors` y `messaging` separados en `domain/`, `data/` y `presentation/`, sin fallbacks silenciosos a mocks ni Blocs globales en `main.dart`.
 - [x] **Flujo del contratista**: `OpenProjectsScreen`, `ContractorProjectDetailScreen`, `CreateProposalScreen` (3 pasos con borrador), `MyProposalsJobsScreen` y `ContractorHomeView` con datos reales.
 - [x] **Acuerdos y pago simulado**: `AcceptProposalUseCase` con reversión ante fallos, aceptación mutua en `AgreementSummaryScreen`, `ProjectPaymentScreen` con recibo en hoja inferior (sin guardar datos de tarjeta) y `PayoutAccountScreen` con cuenta enmascarada.
-- [x] **Ejecución y mensajería Realtime**: `RegisterProgressScreen` y `ProgressTrackingScreen` con checklist mutuo y fotos en Storage (`progress-photos`), `ProjectChatScreen`, `ConversationsListScreen` y `ClientNotificationsScreen` con Supabase Realtime.
+- [x] **Ejecución y mensajería Realtime**: `RegisterProgressScreen` y `ProgressTrackingScreen` con checklist mutuo y fotos en Storage (`progress-photos`), `ProjectChatScreen` (con paginación `fetchMessagesBefore` y fusión por `id`), `ConversationsListScreen` y `ClientNotificationsScreen` con Supabase Realtime.
 - [x] **Cierre y cancelación**: Modal `Finalizar proyecto`, `JobClosureScreen` con calificación mutua, `PaymentReceivedScreen` y `CancellationRefundScreen`.

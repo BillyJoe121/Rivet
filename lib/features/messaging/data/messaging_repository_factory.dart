@@ -61,6 +61,17 @@ class MessagingRepositoryImpl implements MessagingRepository {
   @override
   Stream<ClientNotificationItem> watchNotifications() =>
       _dataSource.watchNotifications();
+
+  @override
+  Future<List<ChatMessage>> fetchMessagesBefore({
+    required String conversationId,
+    required DateTime before,
+    int limit = 20,
+  }) => _dataSource.fetchMessagesBefore(
+    conversationId: conversationId,
+    before: before,
+    limit: limit,
+  );
 }
 
 MessagingRepository createMessagingRepository() {
