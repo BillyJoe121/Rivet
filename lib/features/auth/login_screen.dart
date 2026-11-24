@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/models/models.dart';
+import '../../injection_container.dart';
 import '../home/app_shell.dart';
 import '../../core/design_system/design_system.dart';
 import 'domain/repositories/auth_repository.dart';
@@ -44,7 +45,9 @@ class LoginScreen extends StatelessWidget {
       return _LoginView(role: role);
     } catch (_) {
       return BlocProvider<LoginBloc>(
-        create: (_) => LoginBloc(SignInUseCase(context.read<AuthRepository>())),
+        create: (_) => resolveBloc<LoginBloc>(
+          () => LoginBloc(SignInUseCase(context.read<AuthRepository>())),
+        ),
         child: _LoginView(role: role),
       );
     }

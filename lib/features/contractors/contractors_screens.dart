@@ -6,6 +6,7 @@ import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import '../messaging/messaging_screens.dart';
 import '../supplier/material_price_tier.dart';
 import 'contractors_module.dart';
@@ -263,8 +264,11 @@ class VisitRequestScreen extends StatefulWidget {
     String projectId = 'proj-101',
   }) {
     return BlocProvider<ContractorsBloc>(
-      create: (context) =>
-          ContractorsBloc.fromRepository(context.read<ContractorRepository>()),
+      create: (context) => resolveBloc<ContractorsBloc>(
+        () => ContractorsBloc.fromRepository(
+          context.read<ContractorRepository>(),
+        ),
+      ),
       child: VisitRequestScreen(
         contractor: contractor,
         projectId: projectId,

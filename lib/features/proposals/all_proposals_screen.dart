@@ -6,7 +6,9 @@ import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import '../agreements/agreements_screens.dart';
+import '../projects/domain/repositories/project_repository.dart';
 import 'presentation/bloc/proposals_bloc.dart';
 import 'proposal_detail_screen.dart';
 import 'domain/repositories/proposal_repository.dart';
@@ -19,9 +21,12 @@ class AllProposalsScreen extends StatelessWidget {
   /// Pantalla con su propio [ProposalsBloc] cargando las propuestas.
   static Widget withBloc() {
     return BlocProvider<ProposalsBloc>(
-      create: (context) =>
-          ProposalsBloc.fromRepository(context.read<ProposalRepository>())
-            ..add(const LoadReceivedProposals()),
+      create: (context) => resolveBloc<ProposalsBloc>(
+        () => ProposalsBloc.fromRepository(
+          context.read<ProposalRepository>(),
+          projectRepository: context.read<ProjectRepository>(),
+        ),
+      )..add(const LoadReceivedProposals()),
       child: const AllProposalsScreen(),
     );
   }
@@ -30,7 +35,9 @@ class AllProposalsScreen extends StatelessWidget {
     return RivetPageRoute<void>(builder: (_) => withBloc());
   }
 
-  String _projectTitle(String projectId) {
+  String _projectTitle(ProposalsState state, String projectId) {
+    final title = state.projectTitles[projectId]?.trim();
+    if (title != null && title.isNotEmpty) return title;
     final shortId = projectId.length > 8 ? projectId.substring(0, 8) : projectId;
     return 'Proyecto $shortId';
   }
@@ -81,7 +88,7 @@ class AllProposalsScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         AppSectionHeader(
-                          title: _projectTitle(entry.key),
+                          title: _projectTitle(state, entry.key),
                           count: entry.value.length,
                           actionLabel: entry.value.length >= 2
                               ? 'Comparar'
@@ -92,7 +99,10 @@ class AllProposalsScreen extends StatelessWidget {
                                   ProposalsCompareScreen(
                                     projectId: entry.key,
                                     proposals: entry.value,
-                                    projectTitle: _projectTitle(entry.key),
+                                    projectTitle: _projectTitle(
+                                      state,
+                                      entry.key,
+                                    ),
                                   ),
                                 )
                               : null,

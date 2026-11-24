@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/models/models.dart';
 import '../../../projects/domain/repositories/project_repository.dart';
+import '../../../projects/domain/usecases/get_my_projects_usecase.dart';
 import '../../domain/errors/proposal_failure.dart';
 import '../../domain/repositories/proposal_repository.dart';
 import '../../domain/usecases/accept_proposal_usecase.dart';
@@ -16,8 +17,9 @@ export 'proposals_state.dart';
 class ProposalsBloc extends Bloc<ProposalsEvent, ProposalsState> {
   ProposalsBloc(
     this._getReceivedProposalsUseCase,
-    this._acceptProposalUseCase,
-  ) : super(const ProposalsState()) {
+    this._acceptProposalUseCase, [
+    this._getMyProjectsUseCase,
+  ]) : super(const ProposalsState()) {
     on<LoadReceivedProposals>(_onLoadProposals);
     on<AcceptProposalSubmitted>(_onAcceptProposal);
     on<ProposalsErrorDismissed>(_onErrorDismissed);
@@ -31,6 +33,9 @@ class ProposalsBloc extends Bloc<ProposalsEvent, ProposalsState> {
     return ProposalsBloc(
       GetReceivedProposalsUseCase(repository),
       AcceptProposalUseCase(repository, projectRepository),
+      projectRepository != null
+          ? GetMyProjectsUseCase(projectRepository)
+          : null,
     );
   }
 
@@ -39,6 +44,7 @@ class ProposalsBloc extends Bloc<ProposalsEvent, ProposalsState> {
 
   final GetReceivedProposalsUseCase _getReceivedProposalsUseCase;
   final AcceptProposalUseCase _acceptProposalUseCase;
+  final GetMyProjectsUseCase? _getMyProjectsUseCase;
 
   String _messageOf(Object error) =>
       error is ProposalFailure ? error.message : _genericError;
@@ -52,7 +58,25 @@ class ProposalsBloc extends Bloc<ProposalsEvent, ProposalsState> {
       final list = await _getReceivedProposalsUseCase(
         projectId: event.projectId,
       );
-      emit(state.copyWith(status: ProposalsStatus.success, proposals: list));
+      var projectTitles = state.projectTitles;
+      final getProjects = _getMyProjectsUseCase;
+      if (getProjects != null) {
+        try {
+          final projects = await getProjects();
+          projectTitles = {
+            for (final project in projects) project.id: project.title,
+          };
+        } catch (_) {
+          // Si falla la carga de proyectos, se mantiene el respaldo por ID.
+        }
+      }
+      emit(
+        state.copyWith(
+          status: ProposalsStatus.success,
+          proposals: list,
+          projectTitles: projectTitles,
+        ),
+      );
     } catch (e) {
       emit(state.copyWith(
         status: ProposalsStatus.failure,

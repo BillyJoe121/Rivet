@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import '../proposals/received_proposals_screen.dart';
 import 'messaging_module.dart';
 import 'messaging_screens.dart';
@@ -16,7 +17,11 @@ class ClientNotificationsScreen extends StatelessWidget {
   static Widget withBloc() {
     return BlocProvider<MessagingBloc>(
       create: (context) =>
-          MessagingBloc.fromRepository(context.read<MessagingRepository>())
+          resolveBloc<MessagingBloc>(
+              () => MessagingBloc.fromRepository(
+                context.read<MessagingRepository>(),
+              ),
+            )
             ..add(const LoadMessagingData())
             ..add(const SubscribeNotificationsRealtime()),
       child: const ClientNotificationsScreen(),

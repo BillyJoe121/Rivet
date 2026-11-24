@@ -7,6 +7,7 @@ class ProposalsState {
   const ProposalsState({
     this.status = ProposalsStatus.initial,
     this.proposals = const [],
+    this.projectTitles = const {},
     this.acceptedProposalId,
     this.errorMessage,
     this.isSubmitting = false,
@@ -14,6 +15,7 @@ class ProposalsState {
 
   final ProposalsStatus status;
   final List<Proposal> proposals;
+  final Map<String, String> projectTitles;
   final String? acceptedProposalId;
   final String? errorMessage;
 
@@ -31,6 +33,7 @@ class ProposalsState {
   ProposalsState copyWith({
     ProposalsStatus? status,
     List<Proposal>? proposals,
+    Map<String, String>? projectTitles,
     String? acceptedProposalId,
     String? errorMessage,
     bool? isSubmitting,
@@ -39,6 +42,7 @@ class ProposalsState {
     return ProposalsState(
       status: status ?? this.status,
       proposals: proposals ?? this.proposals,
+      projectTitles: projectTitles ?? this.projectTitles,
       acceptedProposalId: acceptedProposalId ?? this.acceptedProposalId,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
       isSubmitting: isSubmitting ?? this.isSubmitting,

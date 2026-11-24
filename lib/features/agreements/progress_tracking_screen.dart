@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import 'agreements_module.dart';
 import 'job_closure_screen.dart';
 
@@ -24,9 +25,9 @@ class ProgressTrackingScreen extends StatelessWidget {
     bool asClient = true,
   }) {
     return BlocProvider<ProgressBloc>(
-      create: (context) =>
-          ProgressBloc.fromRepository(context.read<AgreementRepository>())
-            ..add(LoadProgressRequested(agreementId)),
+      create: (context) => resolveBloc<ProgressBloc>(
+        () => ProgressBloc.fromRepository(context.read<AgreementRepository>()),
+      )..add(LoadProgressRequested(agreementId)),
       child: ProgressTrackingScreen(
         agreementId: agreementId,
         asClient: asClient,

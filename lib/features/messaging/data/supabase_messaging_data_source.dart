@@ -121,7 +121,7 @@ class SupabaseMessagingDataSource {
         'body': accepted
             ? 'Contraoferta aceptada.'
             : 'Contraoferta rechazada.',
-        'kind': 'system',
+        'kind': 'text',
       });
       return _loadConversationById(client, conversationId, userId);
     });

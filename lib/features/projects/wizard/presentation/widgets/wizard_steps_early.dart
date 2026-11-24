@@ -281,7 +281,7 @@ class WizardStepPhotos extends StatefulWidget {
 
 class _WizardStepPhotosState extends State<WizardStepPhotos> {
   static const MethodChannel _cameraChannel = MethodChannel(
-    'com.example.rivet/camera',
+    'com.rivet.app/camera',
   );
   bool _openingCamera = false;
 

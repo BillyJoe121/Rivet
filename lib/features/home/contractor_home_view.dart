@@ -4,6 +4,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/design_system/design_system.dart';
 import '../../core/models/models.dart';
+import '../../injection_container.dart';
 import '../agreements/agreements_module.dart';
 import '../agreements/agreements_screens.dart';
 import '../auth/domain/entities/rivet_user.dart';
@@ -40,10 +41,12 @@ class ContractorHomeView extends StatelessWidget {
     VoidCallback? onOpenMessages,
   }) {
     return BlocProvider<ContractorHomeBloc>(
-      create: (context) => ContractorHomeBloc.fromRepositories(
-        context.read<ProjectRepository>(),
-        context.read<ProposalRepository>(),
-        agreementRepository: context.read<AgreementRepository>(),
+      create: (context) => resolveBloc<ContractorHomeBloc>(
+        () => ContractorHomeBloc.fromRepositories(
+          context.read<ProjectRepository>(),
+          context.read<ProposalRepository>(),
+          agreementRepository: context.read<AgreementRepository>(),
+        ),
       )..add(const LoadContractorHome()),
       child: ContractorHomeView(
         onSwitchRole: onSwitchRole,

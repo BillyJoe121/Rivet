@@ -5,7 +5,9 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import '../agreements/agreements_screens.dart';
+import '../projects/domain/repositories/project_repository.dart';
 import 'presentation/bloc/proposals_bloc.dart';
 import 'proposal_detail_screen.dart';
 import 'domain/repositories/proposal_repository.dart';
@@ -23,9 +25,12 @@ class ReceivedProposalsScreen extends StatelessWidget {
   /// Pantalla con su propio [ProposalsBloc] cargando las propuestas.
   static Widget withBloc({String? projectId}) {
     return BlocProvider<ProposalsBloc>(
-      create: (context) =>
-          ProposalsBloc.fromRepository(context.read<ProposalRepository>())
-            ..add(LoadReceivedProposals(projectId: projectId)),
+      create: (context) => resolveBloc<ProposalsBloc>(
+        () => ProposalsBloc.fromRepository(
+          context.read<ProposalRepository>(),
+          projectRepository: context.read<ProjectRepository>(),
+        ),
+      )..add(LoadReceivedProposals(projectId: projectId)),
       child: ReceivedProposalsScreen(projectId: projectId),
     );
   }

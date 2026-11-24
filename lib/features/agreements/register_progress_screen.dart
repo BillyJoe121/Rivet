@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import 'agreements_module.dart';
 
 /// Registro de avance de obra del contratista con checklist mutuo y fotos (frame 66:14265).
@@ -20,9 +21,9 @@ class RegisterProgressScreen extends StatefulWidget {
 
   static Widget withBloc({required String agreementId}) {
     return BlocProvider<ProgressBloc>(
-      create: (context) =>
-          ProgressBloc.fromRepository(context.read<AgreementRepository>())
-            ..add(LoadProgressRequested(agreementId)),
+      create: (context) => resolveBloc<ProgressBloc>(
+        () => ProgressBloc.fromRepository(context.read<AgreementRepository>()),
+      )..add(LoadProgressRequested(agreementId)),
       child: RegisterProgressScreen(agreementId: agreementId),
     );
   }

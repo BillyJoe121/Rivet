@@ -1,19 +1,35 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rivet/core/models/models.dart';
 import 'package:rivet/features/agreements/agreements_module.dart';
 import 'package:rivet/features/auth/domain/repositories/auth_repository.dart';
 import 'package:rivet/features/auth/domain/usecases/usecases.dart';
 import 'package:rivet/features/auth/presentation/bloc/auth/auth_bloc.dart';
+import 'package:rivet/features/auth/presentation/bloc/forgot_password/forgot_password_bloc.dart';
+import 'package:rivet/features/auth/presentation/bloc/login/login_bloc.dart';
+import 'package:rivet/features/auth/presentation/bloc/reset_password/reset_password_bloc.dart';
+import 'package:rivet/features/auth/presentation/bloc/signup/signup_bloc.dart';
 import 'package:rivet/features/contractors/contractors_module.dart';
+import 'package:rivet/features/home/client_home_bloc.dart';
 import 'package:rivet/features/home/contractor_home_bloc.dart';
 import 'package:rivet/features/messaging/messaging_module.dart';
 import 'package:rivet/features/projects/contractor/open_projects_bloc.dart';
 import 'package:rivet/features/projects/domain/repositories/project_repository.dart';
+import 'package:rivet/features/projects/domain/usecases/usecases.dart';
 import 'package:rivet/features/projects/presentation/bloc/projects_bloc.dart';
+import 'package:rivet/features/projects/wizard/domain/add_material_to_draft_usecase.dart';
+import 'package:rivet/features/projects/wizard/domain/estimate_materials_usecase.dart';
 import 'package:rivet/features/projects/wizard/domain/project_draft_repository.dart';
+import 'package:rivet/features/projects/wizard/domain/publish_project_wizard_usecase.dart';
+import 'package:rivet/features/projects/wizard/presentation/bloc/project_wizard_bloc.dart';
+import 'package:rivet/features/proposals/contractor/create_proposal_bloc.dart';
+import 'package:rivet/features/proposals/contractor/my_proposals_bloc.dart';
 import 'package:rivet/features/proposals/domain/repositories/proposal_repository.dart';
 import 'package:rivet/features/proposals/domain/usecases/accept_proposal_usecase.dart';
+import 'package:rivet/features/proposals/domain/usecases/get_my_proposals_usecase.dart';
+import 'package:rivet/features/proposals/domain/usecases/save_proposal_usecase.dart';
+import 'package:rivet/features/proposals/domain/usecases/withdraw_proposal_usecase.dart';
 import 'package:rivet/features/proposals/presentation/bloc/proposals_bloc.dart';
 import 'package:rivet/features/supplier/domain/repositories/catalog_repository.dart';
 import 'package:rivet/features/supplier/domain/usecases/get_catalog_materials_usecase.dart';
@@ -26,14 +42,11 @@ void main() {
   });
 
   test(
-    'initDependencies registra singletons de repositorios/casos de uso y factories de BLoCs',
+    'initDependencies registra singletons de repositorios/casos de uso y factories de los 20 BLoCs',
     () async {
       await initDependencies(reset: true);
 
-      expect(
-        identical(sl<AuthRepository>(), sl<AuthRepository>()),
-        isTrue,
-      );
+      expect(identical(sl<AuthRepository>(), sl<AuthRepository>()), isTrue);
       expect(
         identical(sl<ProjectRepository>(), sl<ProjectRepository>()),
         isTrue,
@@ -67,12 +80,65 @@ void main() {
         identical(sl<GetCurrentUserUseCase>(), sl<GetCurrentUserUseCase>()),
         isTrue,
       );
+      expect(identical(sl<SignInUseCase>(), sl<SignInUseCase>()), isTrue);
+      expect(identical(sl<SignUpUseCase>(), sl<SignUpUseCase>()), isTrue);
       expect(
-        identical(sl<LoadOlderMessagesUseCase>(), sl<LoadOlderMessagesUseCase>()),
+        identical(
+          sl<SendPasswordResetUseCase>(),
+          sl<SendPasswordResetUseCase>(),
+        ),
+        isTrue,
+      );
+      expect(
+        identical(sl<UpdatePasswordUseCase>(), sl<UpdatePasswordUseCase>()),
+        isTrue,
+      );
+      expect(
+        identical(sl<GetMyProjectsUseCase>(), sl<GetMyProjectsUseCase>()),
+        isTrue,
+      );
+      expect(
+        identical(
+          sl<EstimateMaterialsUseCase>(),
+          sl<EstimateMaterialsUseCase>(),
+        ),
+        isTrue,
+      );
+      expect(
+        identical(
+          sl<PublishProjectWizardUseCase>(),
+          sl<PublishProjectWizardUseCase>(),
+        ),
+        isTrue,
+      );
+      expect(
+        identical(
+          sl<AddMaterialToDraftUseCase>(),
+          sl<AddMaterialToDraftUseCase>(),
+        ),
+        isTrue,
+      );
+      expect(
+        identical(
+          sl<LoadOlderMessagesUseCase>(),
+          sl<LoadOlderMessagesUseCase>(),
+        ),
         isTrue,
       );
       expect(
         identical(sl<AcceptProposalUseCase>(), sl<AcceptProposalUseCase>()),
+        isTrue,
+      );
+      expect(
+        identical(sl<GetMyProposalsUseCase>(), sl<GetMyProposalsUseCase>()),
+        isTrue,
+      );
+      expect(
+        identical(sl<SaveProposalUseCase>(), sl<SaveProposalUseCase>()),
+        isTrue,
+      );
+      expect(
+        identical(sl<WithdrawProposalUseCase>(), sl<WithdrawProposalUseCase>()),
         isTrue,
       );
       expect(
@@ -85,9 +151,31 @@ void main() {
 
       final authBloc1 = sl<AuthBloc>();
       final authBloc2 = sl<AuthBloc>();
+      final loginBloc = sl<LoginBloc>();
+      final signUpBloc = resolveBlocParam<SignUpBloc, UserRole, void>(
+        UserRole.contractor,
+        null,
+        () => throw StateError('SignUpBloc debe resolverse desde sl'),
+      );
+      final forgotBloc = sl<ForgotPasswordBloc>();
+      final resetBloc = sl<ResetPasswordBloc>();
+      final clientHomeBloc = sl<ClientHomeBloc>();
       final projectsBloc1 = sl<ProjectsBloc>();
       final projectsBloc2 = sl<ProjectsBloc>();
+      final wizardBloc = sl<ProjectWizardBloc>();
       final proposalsBloc = sl<ProposalsBloc>();
+      final createProposalBloc =
+          resolveBlocParam<CreateProposalBloc, String, Proposal?>(
+            'proj-1',
+            null,
+            () =>
+                throw StateError('CreateProposalBloc debe resolverse desde sl'),
+          );
+      final myProposalsBloc = resolveBlocParam<MyProposalsBloc, int, void>(
+        1,
+        null,
+        () => throw StateError('MyProposalsBloc debe resolverse desde sl'),
+      );
       final catalogBloc = sl<CatalogBloc>();
       final contractorsBloc = sl<ContractorsBloc>();
       final agreementsBloc = sl<AgreementsBloc>();
@@ -103,23 +191,38 @@ void main() {
 
       expect(identical(authBloc1, authBloc2), isFalse);
       expect(identical(projectsBloc1, projectsBloc2), isFalse);
+      expect(signUpBloc.state.role, UserRole.contractor);
+      expect(createProposalBloc.state.projectId, 'proj-1');
+      expect(myProposalsBloc.state.tabIndex, 1);
       expect(resolvedCatalog, isA<CatalogBloc>());
 
-      await authBloc1.close();
-      await authBloc2.close();
-      await projectsBloc1.close();
-      await projectsBloc2.close();
-      await proposalsBloc.close();
-      await catalogBloc.close();
-      await contractorsBloc.close();
-      await agreementsBloc.close();
-      await progressBloc.close();
-      await closureBloc.close();
-      await payoutBloc.close();
-      await openProjectsBloc.close();
-      await contractorHomeBloc.close();
-      await messagingBloc.close();
-      await resolvedCatalog.close();
+      for (final bloc in [
+        authBloc1,
+        authBloc2,
+        loginBloc,
+        signUpBloc,
+        forgotBloc,
+        resetBloc,
+        clientHomeBloc,
+        projectsBloc1,
+        projectsBloc2,
+        wizardBloc,
+        proposalsBloc,
+        createProposalBloc,
+        myProposalsBloc,
+        catalogBloc,
+        contractorsBloc,
+        agreementsBloc,
+        progressBloc,
+        closureBloc,
+        payoutBloc,
+        openProjectsBloc,
+        contractorHomeBloc,
+        messagingBloc,
+        resolvedCatalog,
+      ]) {
+        await bloc.close();
+      }
     },
   );
 

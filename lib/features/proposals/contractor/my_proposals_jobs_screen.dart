@@ -6,6 +6,7 @@ import '../../../core/models/models.dart';
 import '../../../core/theme/theme.dart';
 import '../../../core/utils/app_page_route.dart';
 import '../../../core/widgets/widgets.dart';
+import '../../../injection_container.dart';
 import '../../agreements/agreements_screens.dart';
 import '../../projects/domain/repositories/project_repository.dart';
 import '../../supplier/material_price_tier.dart';
@@ -19,10 +20,14 @@ class MyProposalsJobsScreen extends StatelessWidget {
 
   static Widget withBloc({int initialTab = 0}) {
     return BlocProvider<MyProposalsBloc>(
-      create: (context) => MyProposalsBloc.fromRepositories(
-        context.read<ProposalRepository>(),
-        context.read<ProjectRepository>(),
-        initialTab: initialTab,
+      create: (context) => resolveBlocParam<MyProposalsBloc, int, void>(
+        initialTab,
+        null,
+        () => MyProposalsBloc.fromRepositories(
+          context.read<ProposalRepository>(),
+          context.read<ProjectRepository>(),
+          initialTab: initialTab,
+        ),
       )..add(const LoadMyProposalsAndJobs()),
       child: const MyProposalsJobsScreen(),
     );

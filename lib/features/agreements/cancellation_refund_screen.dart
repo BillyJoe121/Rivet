@@ -7,6 +7,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import 'agreements_module.dart';
 
 /// Solicitud y resolución de cancelación con reembolso simulado (frame 66-14092).
@@ -17,9 +18,9 @@ class CancellationRefundScreen extends StatefulWidget {
 
   static Widget withBloc({required String agreementId}) {
     return BlocProvider<ClosureBloc>(
-      create: (context) =>
-          ClosureBloc.fromRepository(context.read<AgreementRepository>())
-            ..add(LoadClosureRequested(agreementId)),
+      create: (context) => resolveBloc<ClosureBloc>(
+        () => ClosureBloc.fromRepository(context.read<AgreementRepository>()),
+      )..add(LoadClosureRequested(agreementId)),
       child: CancellationRefundScreen(agreementId: agreementId),
     );
   }

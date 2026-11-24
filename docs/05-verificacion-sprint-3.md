@@ -7,7 +7,7 @@ Documento de control para verificar el estado actual de **Rivet** frente al tema
 - `flutter test`: 173/173 pruebas pasando con repositorios en memoria.
 - `lib/features/*/domain/`: 0 imports hacia `data/`.
 - `pubspec.yaml`: `version: 1.0.0+1` (`get_it`, `flutter_bloc`, `supabase_flutter`, `flutter_dotenv`; sin `google_maps_flutter` ni paquetes de Firebase).
-- `android/app/build.gradle.kts`: `applicationId = "com.rivet.app"`.
+- `android/app/build.gradle.kts`: `namespace = "com.rivet.app"`, `applicationId = "com.rivet.app"` y soporte de firma `release` vía `android/key.properties`.
 - `ios/Runner.xcodeproj/project.pbxproj`: `PRODUCT_BUNDLE_IDENTIFIER = com.rivet.app`.
 
 ---
@@ -16,11 +16,11 @@ Documento de control para verificar el estado actual de **Rivet** frente al tema
 
 | Bloque | Lecciones | Estado en Rivet | Qué falta |
 | :--- | :--- | :--- | :--- |
-| 1. Inyección de dependencias | `0079` | Implementado con `GetIt` (`lib/injection_container.dart`) + `MultiRepositoryProvider` + `resolveBloc` | Completado y cubierto por pruebas. |
-| 2. Realtime DB y Streams | `0097`, `0063`, `0094`, `0062`, `0096`, `0065` | Implementado en `messaging` (incluye `fetchMessagesBefore`) y SQL aplicado en Supabase | Probar en dispositivo real contra Supabase (chat en vivo, RLS y `progress-photos`). |
+| 1. Inyección de dependencias | `0079` | 100% completado con `GetIt` (`lib/injection_container.dart`), todos los casos de uso y los 20 BLoCs cableados | Ninguno. |
+| 2. Realtime DB y Streams | `0097`, `0063`, `0094`, `0062`, `0096`, `0065` | Implementado en `messaging` (incluye `fetchMessagesBefore`), fix de `respondCounterOffer` y `seed_professor_demo.sql` | Ejecutar `seed_professor_demo.sql` y probar en vivo contra Supabase. |
 | 3. Google Maps | `0070`–`0073` | Fuera de este tramo | Integrar `google_maps_flutter` y API Keys cuando entre en alcance. |
 | 4. Push Notifications | `0074`–`0078` | Fuera de este tramo | Conectar Firebase (`flutterfire configure`), APNs y backend cuando entre en alcance. |
-| 5. Deploy | `0095`, `0080`, `0082`, `0083` | `applicationId` actualizado a `com.rivet.app` | Keystore/firma, App Distribution, AAB/IPA, prueba cerrada (12 testers / 14 días) y tiendas. |
+| 5. Deploy | `0095`, `0080`, `0082`, `0083` | `namespace` y `applicationId` en `com.rivet.app`, `MainActivity` migrado, soporte `key.properties` y builds `APK`/`Web` verificados | Generar `keystore` propio fuera del repo y publicar en App Distribution / tiendas. |
 
 ---
 

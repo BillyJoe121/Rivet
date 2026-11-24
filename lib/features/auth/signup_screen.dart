@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/models/models.dart';
+import '../../injection_container.dart';
 import '../home/app_shell.dart';
 import '../../core/design_system/design_system.dart';
 import 'domain/repositories/auth_repository.dart';
@@ -44,11 +45,14 @@ class SignupScreen extends StatelessWidget {
       return _SignupView(initialRole: role);
     } catch (_) {
       return BlocProvider<SignUpBloc>(
-        create: (_) =>
-            SignUpBloc(
-              SignUpUseCase(context.read<AuthRepository>()),
-              initialRole: role,
-            ),
+        create: (_) => resolveBlocParam<SignUpBloc, UserRole, void>(
+          role,
+          null,
+          () => SignUpBloc(
+            SignUpUseCase(context.read<AuthRepository>()),
+            initialRole: role,
+          ),
+        ),
         child: _SignupView(initialRole: role),
       );
     }

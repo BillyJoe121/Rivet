@@ -6,6 +6,7 @@ import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import '../supplier/material_price_tier.dart';
 import 'agreements_module.dart';
 import 'progress_tracking_screen.dart';
@@ -43,14 +44,17 @@ class AgreementSummaryScreen extends StatelessWidget {
   }) {
     return BlocProvider<AgreementsBloc>(
       create: (context) =>
-          AgreementsBloc.fromRepository(context.read<AgreementRepository>())
-            ..add(
-              PrepareAgreementRequested(
-                projectId: proposal.projectId,
-                projectTitle: projectTitle,
-                proposal: proposal,
-              ),
+          resolveBloc<AgreementsBloc>(
+            () => AgreementsBloc.fromRepository(
+              context.read<AgreementRepository>(),
             ),
+          )..add(
+            PrepareAgreementRequested(
+              projectId: proposal.projectId,
+              projectTitle: projectTitle,
+              proposal: proposal,
+            ),
+          ),
       child: AgreementSummaryScreen(
         proposal: proposal,
         projectTitle: projectTitle,
@@ -64,9 +68,11 @@ class AgreementSummaryScreen extends StatelessWidget {
     bool asClient = false,
   }) {
     return BlocProvider<AgreementsBloc>(
-      create: (context) =>
-          AgreementsBloc.fromRepository(context.read<AgreementRepository>())
-            ..add(LoadAgreementById(agreementId)),
+      create: (context) => resolveBloc<AgreementsBloc>(
+        () => AgreementsBloc.fromRepository(
+          context.read<AgreementRepository>(),
+        ),
+      )..add(LoadAgreementById(agreementId)),
       child: AgreementSummaryScreen(
         agreementId: agreementId,
         asClient: asClient,

@@ -1,4 +1,4 @@
-package com.example.rivet
+package com.rivet.app
 
 import android.app.Activity
 import android.content.Intent
@@ -12,7 +12,7 @@ import java.io.File
 import java.io.FileOutputStream
 
 class MainActivity : FlutterActivity() {
-    private val channelName = "com.example.rivet/camera"
+    private val channelName = "com.rivet.app/camera"
     private val requestImageCapture = 4102
     private var pendingCameraResult: MethodChannel.Result? = null
 

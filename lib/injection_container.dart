@@ -1,11 +1,17 @@
 import 'package:get_it/get_it.dart';
 
+import 'core/models/models.dart';
 import 'features/agreements/agreements_module.dart';
 import 'features/auth/data/auth_repository_factory.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
 import 'features/auth/domain/usecases/usecases.dart';
 import 'features/auth/presentation/bloc/auth/auth_bloc.dart';
+import 'features/auth/presentation/bloc/forgot_password/forgot_password_bloc.dart';
+import 'features/auth/presentation/bloc/login/login_bloc.dart';
+import 'features/auth/presentation/bloc/reset_password/reset_password_bloc.dart';
+import 'features/auth/presentation/bloc/signup/signup_bloc.dart';
 import 'features/contractors/contractors_module.dart';
+import 'features/home/client_home_bloc.dart';
 import 'features/home/contractor_home_bloc.dart';
 import 'features/messaging/messaging_module.dart';
 import 'features/projects/contractor/open_projects_bloc.dart';
@@ -14,11 +20,20 @@ import 'features/projects/domain/repositories/project_repository.dart';
 import 'features/projects/domain/usecases/usecases.dart';
 import 'features/projects/presentation/bloc/projects_bloc.dart';
 import 'features/projects/wizard/data/local_project_draft_repository.dart';
+import 'features/projects/wizard/domain/add_material_to_draft_usecase.dart';
+import 'features/projects/wizard/domain/estimate_materials_usecase.dart';
 import 'features/projects/wizard/domain/project_draft_repository.dart';
+import 'features/projects/wizard/domain/publish_project_wizard_usecase.dart';
+import 'features/projects/wizard/presentation/bloc/project_wizard_bloc.dart';
+import 'features/proposals/contractor/create_proposal_bloc.dart';
+import 'features/proposals/contractor/my_proposals_bloc.dart';
 import 'features/proposals/data/proposal_repository_factory.dart';
 import 'features/proposals/domain/repositories/proposal_repository.dart';
 import 'features/proposals/domain/usecases/accept_proposal_usecase.dart';
+import 'features/proposals/domain/usecases/get_my_proposals_usecase.dart';
 import 'features/proposals/domain/usecases/get_received_proposals_usecase.dart';
+import 'features/proposals/domain/usecases/save_proposal_usecase.dart';
+import 'features/proposals/domain/usecases/withdraw_proposal_usecase.dart';
 import 'features/proposals/presentation/bloc/proposals_bloc.dart';
 import 'features/supplier/data/catalog_repository_factory.dart';
 import 'features/supplier/domain/repositories/catalog_repository.dart';
@@ -32,6 +47,13 @@ final GetIt sl = GetIt.instance;
 /// [fallback] en entornos de prueba aislados.
 T resolveBloc<T extends Object>(T Function() fallback) =>
     sl.isRegistered<T>() ? sl<T>() : fallback();
+
+/// Resuelve un BLoC parametrizado [T] desde [sl] o usa [fallback] en pruebas.
+T resolveBlocParam<T extends Object, P1, P2>(
+  P1 param1,
+  P2 param2,
+  T Function() fallback,
+) => sl.isRegistered<T>() ? sl<T>(param1: param1, param2: param2) : fallback();
 
 /// Registra repositorios, casos de uso y BLoCs de adentro hacia afuera.
 ///
@@ -85,6 +107,18 @@ Future<void> initDependencies({
     ..registerLazySingleton<GetCurrentUserUseCase>(
       () => GetCurrentUserUseCase(sl<AuthRepository>()),
     )
+    ..registerLazySingleton<SignInUseCase>(
+      () => SignInUseCase(sl<AuthRepository>()),
+    )
+    ..registerLazySingleton<SignUpUseCase>(
+      () => SignUpUseCase(sl<AuthRepository>()),
+    )
+    ..registerLazySingleton<SendPasswordResetUseCase>(
+      () => SendPasswordResetUseCase(sl<AuthRepository>()),
+    )
+    ..registerLazySingleton<UpdatePasswordUseCase>(
+      () => UpdatePasswordUseCase(sl<AuthRepository>()),
+    )
     ..registerLazySingleton<SignOutUseCase>(
       () => SignOutUseCase(sl<AuthRepository>()),
     )
@@ -103,6 +137,19 @@ Future<void> initDependencies({
     ..registerLazySingleton<UpdateProjectUseCase>(
       () => UpdateProjectUseCase(sl<ProjectRepository>()),
     )
+    ..registerLazySingleton<EstimateMaterialsUseCase>(
+      () => const EstimateMaterialsUseCase(),
+    )
+    ..registerLazySingleton<PublishProjectWizardUseCase>(
+      () => PublishProjectWizardUseCase(
+        createProjectUseCase: sl<CreateProjectUseCase>(),
+        updateProjectUseCase: sl<UpdateProjectUseCase>(),
+        draftRepository: sl<ProjectDraftRepository>(),
+      ),
+    )
+    ..registerLazySingleton<AddMaterialToDraftUseCase>(
+      () => AddMaterialToDraftUseCase(sl<ProjectDraftRepository>()),
+    )
     ..registerLazySingleton<GetReceivedProposalsUseCase>(
       () => GetReceivedProposalsUseCase(sl<ProposalRepository>()),
     )
@@ -111,6 +158,15 @@ Future<void> initDependencies({
         sl<ProposalRepository>(),
         sl<ProjectRepository>(),
       ),
+    )
+    ..registerLazySingleton<GetMyProposalsUseCase>(
+      () => GetMyProposalsUseCase(sl<ProposalRepository>()),
+    )
+    ..registerLazySingleton<SaveProposalUseCase>(
+      () => SaveProposalUseCase(sl<ProposalRepository>()),
+    )
+    ..registerLazySingleton<WithdrawProposalUseCase>(
+      () => WithdrawProposalUseCase(sl<ProposalRepository>()),
     )
     ..registerLazySingleton<GetCatalogMaterialsUseCase>(
       () => GetCatalogMaterialsUseCase(sl<CatalogRepository>()),
@@ -140,6 +196,23 @@ Future<void> initDependencies({
     ..registerFactory<AuthBloc>(
       () => AuthBloc(sl<GetCurrentUserUseCase>(), sl<SignOutUseCase>()),
     )
+    ..registerFactory<LoginBloc>(() => LoginBloc(sl<SignInUseCase>()))
+    ..registerFactoryParam<SignUpBloc, UserRole, void>(
+      (initialRole, _) =>
+          SignUpBloc(sl<SignUpUseCase>(), initialRole: initialRole),
+    )
+    ..registerFactory<ForgotPasswordBloc>(
+      () => ForgotPasswordBloc(sl<SendPasswordResetUseCase>()),
+    )
+    ..registerFactory<ResetPasswordBloc>(
+      () => ResetPasswordBloc(sl<UpdatePasswordUseCase>()),
+    )
+    ..registerFactory<ClientHomeBloc>(
+      () => ClientHomeBloc(
+        sl<GetMyProjectsUseCase>(),
+        sl<GetReceivedProposalsUseCase>(),
+      ),
+    )
     ..registerFactory<ProjectsBloc>(
       () => ProjectsBloc(
         sl<GetMyProjectsUseCase>(),
@@ -148,10 +221,33 @@ Future<void> initDependencies({
         sl<UpdateProjectUseCase>(),
       ),
     )
+    ..registerFactory<ProjectWizardBloc>(
+      () => ProjectWizardBloc(
+        draftRepository: sl<ProjectDraftRepository>(),
+        estimateMaterialsUseCase: sl<EstimateMaterialsUseCase>(),
+        publishProjectWizardUseCase: sl<PublishProjectWizardUseCase>(),
+      ),
+    )
     ..registerFactory<ProposalsBloc>(
       () => ProposalsBloc(
         sl<GetReceivedProposalsUseCase>(),
         sl<AcceptProposalUseCase>(),
+        sl<GetMyProjectsUseCase>(),
+      ),
+    )
+    ..registerFactoryParam<CreateProposalBloc, String, Proposal?>(
+      (projectId, initialProposal) => CreateProposalBloc(
+        sl<SaveProposalUseCase>(),
+        projectId: projectId,
+        initialProposal: initialProposal,
+      ),
+    )
+    ..registerFactoryParam<MyProposalsBloc, int, void>(
+      (initialTab, _) => MyProposalsBloc(
+        sl<GetMyProposalsUseCase>(),
+        sl<GetOpenProjectsUseCase>(),
+        sl<WithdrawProposalUseCase>(),
+        initialTab: initialTab,
       ),
     )
     ..registerFactory<CatalogBloc>(

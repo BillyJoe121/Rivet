@@ -6,6 +6,7 @@ import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import '../agreements/agreements_module.dart';
 import '../agreements/agreements_screens.dart';
 import '../messaging/messaging_screens.dart';
@@ -28,8 +29,9 @@ class ProjectDetailScreen extends StatelessWidget {
   /// Pantalla con su propio [ProjectsBloc].
   static Widget withBloc(Project project) {
     return BlocProvider<ProjectsBloc>(
-      create: (context) =>
-          ProjectsBloc.fromRepository(context.read<ProjectRepository>()),
+      create: (context) => resolveBloc<ProjectsBloc>(
+        () => ProjectsBloc.fromRepository(context.read<ProjectRepository>()),
+      ),
       child: ProjectDetailScreen(project: project),
     );
   }

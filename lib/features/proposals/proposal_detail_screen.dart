@@ -6,6 +6,7 @@ import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import '../agreements/agreements_screens.dart';
 import '../contractors/contractors_screens.dart';
 import '../messaging/messaging_screens.dart';
@@ -23,9 +24,11 @@ class ProposalDetailScreen extends StatelessWidget {
   /// Pantalla con su propio [ProposalsBloc].
   static Widget withBloc(Proposal proposal) {
     return BlocProvider<ProposalsBloc>(
-      create: (context) => ProposalsBloc.fromRepository(
-        context.read<ProposalRepository>(),
-        projectRepository: context.read<ProjectRepository>(),
+      create: (context) => resolveBloc<ProposalsBloc>(
+        () => ProposalsBloc.fromRepository(
+          context.read<ProposalRepository>(),
+          projectRepository: context.read<ProjectRepository>(),
+        ),
       ),
       child: ProposalDetailScreen(proposal: proposal),
     );

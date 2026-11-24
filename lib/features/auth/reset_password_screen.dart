@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/design_system/design_system.dart';
+import '../../injection_container.dart';
 import 'domain/repositories/auth_repository.dart';
 import 'domain/usecases/usecases.dart';
 import 'login_screen.dart';
@@ -34,8 +35,10 @@ class ResetPasswordScreen extends StatelessWidget {
       return const _ResetPasswordView();
     } catch (_) {
       return BlocProvider<ResetPasswordBloc>(
-        create: (_) => ResetPasswordBloc(
-          UpdatePasswordUseCase(context.read<AuthRepository>()),
+        create: (_) => resolveBloc<ResetPasswordBloc>(
+          () => ResetPasswordBloc(
+            UpdatePasswordUseCase(context.read<AuthRepository>()),
+          ),
         ),
         child: const _ResetPasswordView(),
       );

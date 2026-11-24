@@ -7,6 +7,7 @@ import '../../../../core/models/models.dart';
 import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/app_page_route.dart';
 import '../../../../core/widgets/widgets.dart';
+import '../../../../injection_container.dart';
 import '../../domain/repositories/project_repository.dart';
 import '../../domain/usecases/usecases.dart';
 import '../domain/estimate_materials_usecase.dart';
@@ -27,7 +28,7 @@ class ProjectWizardScreen extends StatefulWidget {
   /// Pantalla con su [ProjectWizardBloc] listo, para crear o editar.
   static Widget withBloc({Project? initialProject}) {
     return BlocProvider<ProjectWizardBloc>(
-      create: (context) {
+      create: (context) => resolveBloc<ProjectWizardBloc>(() {
         final draftRepository = context.read<ProjectDraftRepository>();
         final projectRepository = context.read<ProjectRepository>();
         return ProjectWizardBloc(
@@ -38,8 +39,8 @@ class ProjectWizardScreen extends StatefulWidget {
             updateProjectUseCase: UpdateProjectUseCase(projectRepository),
             draftRepository: draftRepository,
           ),
-        )..add(WizardInitialized(initialProject: initialProject));
-      },
+        );
+      })..add(WizardInitialized(initialProject: initialProject)),
       child: const ProjectWizardScreen(),
     );
   }

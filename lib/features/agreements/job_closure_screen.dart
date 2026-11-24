@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import 'agreements_module.dart';
 import 'cancellation_refund_screen.dart';
 import 'payment_received_screen.dart';
@@ -59,9 +60,9 @@ class JobClosureScreen extends StatefulWidget {
 
   static Widget withBloc({required String agreementId, bool asClient = true}) {
     return BlocProvider<ClosureBloc>(
-      create: (context) =>
-          ClosureBloc.fromRepository(context.read<AgreementRepository>())
-            ..add(LoadClosureRequested(agreementId)),
+      create: (context) => resolveBloc<ClosureBloc>(
+        () => ClosureBloc.fromRepository(context.read<AgreementRepository>()),
+      )..add(LoadClosureRequested(agreementId)),
       child: JobClosureScreen(agreementId: agreementId, asClient: asClient),
     );
   }

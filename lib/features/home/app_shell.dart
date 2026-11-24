@@ -195,7 +195,9 @@ class _AppShellState extends State<AppShell> {
                 onOpenProposals: () => _open(_Page.proposals),
                 onOpenMessages: () => _open(_Page.messages),
               )
-            : ClientHomeView(onOpenProjects: () => _open(_Page.projects)),
+            : ClientHomeView.withBloc(
+                onOpenProjects: () => _open(_Page.projects),
+              ),
       _Page.projects =>
         _isClient
             ? MyProjectsScreen.withBloc()
@@ -209,7 +211,7 @@ class _AppShellState extends State<AppShell> {
         _isClient
             ? AllProposalsScreen.withBloc()
             : MyProposalsJobsScreen.withBloc(),
-      _Page.messages => ConversationsListScreen.withBloc(),
+      _Page.messages => ConversationsListScreen.withBloc(role: _currentRole),
       _Page.profile => ProfileScreen(
         currentRole: _currentRole,
         onSwitchRole: _switchRole,

@@ -2,40 +2,52 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import 'messaging_module.dart';
 import 'project_chat_screen.dart';
 
 export 'project_chat_screen.dart';
 
-/// Bandeja de conversaciones del cliente (P-030 lista).
+/// Bandeja de conversaciones del usuario (P-030 lista).
 class ConversationsListScreen extends StatelessWidget {
-  const ConversationsListScreen({super.key});
+  const ConversationsListScreen({super.key, this.role});
 
-  static Widget withBloc() {
+  final UserRole? role;
+
+  static Widget withBloc({UserRole? role}) {
     return BlocProvider<MessagingBloc>(
       create: (context) =>
-          MessagingBloc.fromRepository(context.read<MessagingRepository>())
-            ..add(const LoadMessagingData()),
-      child: const ConversationsListScreen(),
+          resolveBloc<MessagingBloc>(
+            () => MessagingBloc.fromRepository(
+              context.read<MessagingRepository>(),
+            ),
+          )..add(const LoadMessagingData()),
+      child: ConversationsListScreen(role: role),
     );
   }
 
-  static Route<void> route() {
-    return RivetPageRoute<void>(builder: (_) => withBloc());
+  static Route<void> route({UserRole? role}) {
+    return RivetPageRoute<void>(builder: (_) => withBloc(role: role));
   }
 
   @override
-  Widget build(BuildContext context) => const _ConversationsListView();
+  Widget build(BuildContext context) => _ConversationsListView(role: role);
 }
 
 class _ConversationsListView extends StatelessWidget {
-  const _ConversationsListView();
+  const _ConversationsListView({this.role});
+
+  final UserRole? role;
 
   @override
   Widget build(BuildContext context) {
+    final sectionTitle = role == UserRole.contractor
+        ? 'Conversaciones con clientes'
+        : 'Conversaciones con contratistas';
     return BlocBuilder<MessagingBloc, MessagingState>(
       builder: (context, state) {
         final conversations = state.conversations;
@@ -52,8 +64,8 @@ class _ConversationsListView extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const AppSectionHeader(
-                      title: 'Conversaciones con contratistas',
+                    AppSectionHeader(
+                      title: sectionTitle,
                     ),
                     const SizedBox(height: AppSpacing.md),
                     if (state.isLoading && conversations.isEmpty)

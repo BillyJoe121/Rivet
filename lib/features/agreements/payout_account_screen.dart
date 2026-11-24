@@ -5,6 +5,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import 'agreements_module.dart';
 
 /// Pantalla de cuenta bancaria del contratista para recibir pagos (frame 66-14323).
@@ -15,9 +16,11 @@ class PayoutAccountScreen extends StatefulWidget {
 
   static Widget withBloc() {
     return BlocProvider<PayoutAccountBloc>(
-      create: (context) =>
-          PayoutAccountBloc.fromRepository(context.read<AgreementRepository>())
-            ..add(const LoadPayoutAccountRequested()),
+      create: (context) => resolveBloc<PayoutAccountBloc>(
+        () => PayoutAccountBloc.fromRepository(
+          context.read<AgreementRepository>(),
+        ),
+      )..add(const LoadPayoutAccountRequested()),
       child: const PayoutAccountScreen(),
     );
   }

@@ -6,6 +6,7 @@ import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
+import '../../injection_container.dart';
 import '../supplier/material_price_tier.dart';
 import '../supplier/materials_catalog_screen.dart';
 import 'presentation/bloc/projects_bloc.dart';
@@ -25,9 +26,9 @@ class ProjectMaterialsScreen extends StatelessWidget {
   /// Pantalla con su propio [ProjectsBloc] cargando el detalle del proyecto.
   static Widget withBloc(Project project) {
     return BlocProvider<ProjectsBloc>(
-      create: (context) =>
-          ProjectsBloc.fromRepository(context.read<ProjectRepository>())
-            ..add(LoadProjectDetail(project.id)),
+      create: (context) => resolveBloc<ProjectsBloc>(
+        () => ProjectsBloc.fromRepository(context.read<ProjectRepository>()),
+      )..add(LoadProjectDetail(project.id)),
       child: ProjectMaterialsScreen(
         projectId: project.id,
         initialProject: project,
