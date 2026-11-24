@@ -13,9 +13,8 @@
 do $$
 declare
   -- Ajustar antes de ejecutar si usas otro correo o nombre para el profesor:
-  v_prof_email text := 'profesor.rivet@demo.com';
-  v_prof_name  text := 'Profesor Evaluador';
-
+v_prof_email text := 'profesor@rivet.com';
+v_prof_name  text := 'Nombre del Profesor';
   v_prof_id uuid;
 
   -- Contrapartes demo (reutiliza las de Sprint 3 y añade un segundo cliente)
