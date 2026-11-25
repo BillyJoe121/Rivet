@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rivet/core/data/mock_data.dart';
 import 'package:rivet/core/models/models.dart';
 import 'package:rivet/features/home/client_home_bloc.dart';
 import 'package:rivet/features/projects/domain/errors/project_failure.dart';
@@ -8,6 +7,7 @@ import 'package:rivet/features/projects/domain/repositories/project_repository.d
 import 'package:rivet/features/proposals/all_proposals_screen.dart';
 import 'package:rivet/features/proposals/domain/repositories/proposal_repository.dart';
 
+import '../../helpers/mock_data.dart';
 import '../../helpers/repositories_test_harness.dart';
 
 class _FailingProposalsRepository implements ProposalRepository {

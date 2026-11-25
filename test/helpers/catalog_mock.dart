@@ -1,5 +1,5 @@
-import '../../core/models/models.dart';
-import '../../core/design_system/design_system.dart';
+import 'package:rivet/core/design_system/design_system.dart';
+import 'package:rivet/core/models/models.dart';
 
 /// Materiales simulados de la Bodega Rivet; el precio de contratista es menor.
 abstract final class CatalogMock {

@@ -1,4 +1,4 @@
-import '../models/models.dart';
+import 'package:rivet/core/models/models.dart';
 
 /// Datos mock realistas basados en el contexto del mercado en Colombia y la guía de marca.
 abstract final class MockData {

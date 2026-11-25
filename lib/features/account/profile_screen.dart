@@ -7,7 +7,6 @@ import '../../core/design_system/design_system.dart';
 import '../agreements/payout_account_screen.dart';
 import '../onboarding/welcome_screen.dart';
 import '../under_construction/under_construction_screen.dart';
-import 'account_mock.dart';
 import 'widgets/account_profile_widgets.dart';
 import 'widgets/account_role_sheet.dart';
 
@@ -44,14 +43,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final fallbackMock = AccountProfile.forRole(widget.currentRole);
     final realUser = context.select((AuthBloc bloc) => bloc.state.user);
 
     // Solo datos del usuario real; sin sesión cargada los campos quedan vacíos
-    // en lugar de mostrar el perfil de ejemplo.
+    // en lugar de mostrar datos de ejemplo.
     final displayName = realUser?.fullName ?? '';
     final displayEmail = realUser?.email ?? '';
     final displayPhone = realUser?.phone ?? '';
+    final displayZone = (realUser?.zone.isNotEmpty ?? false)
+        ? realUser!.zone
+        : 'Sin zona registrada';
 
     final initials = displayName.trim().split(' ').map((p) => p.isNotEmpty ? p[0] : '').take(2).join().toUpperCase();
 
@@ -139,7 +140,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         (LucideIcon.user, 'Nombre visible', displayName),
                         (LucideIcon.mail, 'Correo electrónico', displayEmail),
                         (LucideIcon.phone, 'Número de contacto', displayPhone),
-                        (LucideIcon.mapPin, 'Ciudad / zona', fallbackMock.zone),
+                        (LucideIcon.mapPin, 'Ciudad / zona', displayZone),
                       ])
                         SizedBox(
                           height: 40,

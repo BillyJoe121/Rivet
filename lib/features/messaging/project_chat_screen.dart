@@ -9,7 +9,7 @@ import '../../injection_container.dart';
 import '../supplier/material_price_tier.dart';
 import 'messaging_module.dart';
 
-/// Hilo de chat y contraoferta del proyecto con respuesta simulada (P-030).
+/// Hilo de conversación y contraofertas del proyecto en tiempo real (P-030).
 class ProjectChatScreen extends StatefulWidget {
   const ProjectChatScreen({
     super.key,
@@ -131,12 +131,6 @@ class _ProjectChatScreenState extends State<ProjectChatScreen> {
                     Text(
                       conv?.projectTitle ?? widget.projectTitle,
                       style: AppTypography.caption,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    const AppInfoBanner(
-                      compact: true,
-                      message:
-                          'Chat simulado de prueba. Tus mensajes reciben respuesta automática.',
                     ),
                   ],
                 ),

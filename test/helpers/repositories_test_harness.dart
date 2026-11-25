@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:rivet/core/data/mock_data.dart';
 import 'package:rivet/core/models/models.dart';
 import 'package:rivet/features/agreements/agreements_module.dart';
 import 'package:rivet/features/auth/domain/repositories/auth_repository.dart';
@@ -13,12 +12,13 @@ import 'package:rivet/features/projects/wizard/data/local_project_draft_reposito
 import 'package:rivet/features/projects/wizard/domain/project_draft_repository.dart';
 import 'package:rivet/features/proposals/domain/repositories/proposal_repository.dart';
 import 'package:rivet/features/proposals/presentation/bloc/proposals_bloc.dart';
-import 'package:rivet/features/supplier/catalog_mock.dart';
 import 'package:rivet/features/supplier/domain/repositories/catalog_repository.dart';
 import 'package:rivet/features/supplier/presentation/bloc/catalog_bloc.dart';
 import 'package:rivet/injection_container.dart';
 
 import 'auth_test_harness.dart';
+import 'catalog_mock.dart';
+import 'mock_data.dart';
 
 class _InMemoryProjectRepository implements ProjectRepository {
   final List<Project> _items = List<Project>.from(MockData.projects);

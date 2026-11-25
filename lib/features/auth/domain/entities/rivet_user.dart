@@ -8,6 +8,7 @@ class RivetUser {
     required this.fullName,
     required this.role,
     this.phone = '',
+    this.zone = '',
     this.avatarUrl,
     this.createdAt,
     this.isVerified = false,
@@ -18,6 +19,7 @@ class RivetUser {
   final String fullName;
   final UserRole role;
   final String phone;
+  final String zone;
   final String? avatarUrl;
   final DateTime? createdAt;
 
@@ -35,6 +37,7 @@ class RivetUser {
       fullName: json['full_name'] as String? ?? '',
       role: role,
       phone: json['phone'] as String? ?? '',
+      zone: json['zone'] as String? ?? '',
       avatarUrl: json['avatar_url'] as String?,
       createdAt: json['created_at'] != null
           ? DateTime.tryParse(json['created_at'] as String)
@@ -61,6 +64,7 @@ class RivetUser {
     String? fullName,
     UserRole? role,
     String? phone,
+    String? zone,
     String? avatarUrl,
     DateTime? createdAt,
     bool? isVerified,
@@ -71,6 +75,7 @@ class RivetUser {
       fullName: fullName ?? this.fullName,
       role: role ?? this.role,
       phone: phone ?? this.phone,
+      zone: zone ?? this.zone,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       createdAt: createdAt ?? this.createdAt,
       isVerified: isVerified ?? this.isVerified,

@@ -8,7 +8,6 @@ import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import '../../injection_container.dart';
 import 'catalog_filters.dart';
-import 'catalog_mock.dart';
 import 'material_detail_screen.dart';
 import 'material_price_tier.dart';
 import 'presentation/bloc/catalog_bloc.dart';
@@ -20,12 +19,10 @@ class MaterialsCatalogScreen extends StatelessWidget {
   const MaterialsCatalogScreen({
     super.key,
     this.priceTier = MaterialPriceTier.client,
-    this.products = CatalogMock.products,
     this.preselectedProjectId,
   });
 
   final MaterialPriceTier priceTier;
-  final List<MaterialProduct> products;
   final String? preselectedProjectId;
 
   /// Pantalla con su propio [CatalogBloc] cargando el catálogo.
@@ -58,7 +55,6 @@ class MaterialsCatalogScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return _MaterialsCatalogView(
       priceTier: priceTier,
-      initialProducts: products,
       preselectedProjectId: preselectedProjectId,
     );
   }
@@ -67,12 +63,10 @@ class MaterialsCatalogScreen extends StatelessWidget {
 class _MaterialsCatalogView extends StatefulWidget {
   const _MaterialsCatalogView({
     required this.priceTier,
-    required this.initialProducts,
     this.preselectedProjectId,
   });
 
   final MaterialPriceTier priceTier;
-  final List<MaterialProduct> initialProducts;
   final String? preselectedProjectId;
 
   @override
@@ -118,9 +112,7 @@ class _MaterialsCatalogViewState extends State<_MaterialsCatalogView> {
 
     return BlocBuilder<CatalogBloc, CatalogState>(
       builder: (context, state) {
-        final availableProducts = state.products.isNotEmpty
-            ? state.products
-            : widget.initialProducts;
+        final availableProducts = state.products;
 
         final results = _filters.apply(availableProducts, tier, _query);
         final activeCount = _filters.activeCount;
@@ -178,14 +170,20 @@ class _MaterialsCatalogViewState extends State<_MaterialsCatalogView> {
               ],
             ),
             children: [
-              if (state.isLoading && availableProducts.isEmpty)
-                const Padding(
-                  padding: EdgeInsets.all(AppSpacing.xxl),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(AppColors.brand700),
-                    ),
+              if (state.isWaiting && availableProducts.isEmpty)
+                const AppLoadingState(label: 'Cargando materiales de la Bodega')
+              else if (state.isFailure && availableProducts.isEmpty)
+                AppErrorState(
+                  message: state.errorMessage ?? 'No pudimos cargar la Bodega.',
+                  onRetry: () => context.read<CatalogBloc>().add(
+                    const LoadCatalogProducts(),
                   ),
+                )
+              else if (availableProducts.isEmpty)
+                const AppEmptyState(
+                  title: 'Catálogo sin materiales',
+                  message: 'Aún no hay materiales disponibles en la Bodega.',
+                  icon: LucideIcons.packageOpen,
                 )
               else if (results.isEmpty)
                 AppEmptyState(

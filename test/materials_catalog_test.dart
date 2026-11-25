@@ -4,11 +4,13 @@ import 'package:rivet/core/models/models.dart';
 import 'package:rivet/core/widgets/widgets.dart';
 import 'package:rivet/features/auth/domain/entities/rivet_user.dart';
 import 'package:rivet/features/supplier/catalog_filters.dart';
-import 'package:rivet/features/supplier/catalog_mock.dart';
+import 'package:rivet/features/supplier/domain/errors/catalog_failure.dart';
+import 'package:rivet/features/supplier/domain/repositories/catalog_repository.dart';
 import 'package:rivet/features/supplier/material_price_tier.dart';
 import 'package:rivet/features/supplier/materials_catalog_screen.dart';
 import 'package:rivet/features/supplier/widgets/catalog_material_card.dart';
 
+import 'helpers/catalog_mock.dart';
 import 'helpers/repositories_test_harness.dart';
 
 const _note = 'Verifica tu cuenta para acceder a precios de contratista.';
@@ -227,4 +229,63 @@ void main() {
       expect(user.toJson().containsKey('is_verified'), isFalse);
     });
   });
+
+  group('estado real sin fallback silencioso', () {
+    testWidgets('muestra AppErrorState cuando falla la consulta al catálogo', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        withRepositories(
+          MaterialApp(home: MaterialsCatalogScreen.withBloc()),
+          catalog: _FailingCatalogRepository(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byType(AppErrorState), findsOneWidget);
+      expect(find.text('Error real de Bodega'), findsOneWidget);
+      expect(find.byType(CatalogMaterialCard), findsNothing);
+    });
+
+    testWidgets('muestra estado vacío cuando Supabase devuelve lista vacía', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        withRepositories(
+          MaterialApp(home: MaterialsCatalogScreen.withBloc()),
+          catalog: _EmptyCatalogRepository(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Catálogo sin materiales'), findsOneWidget);
+      expect(find.byType(CatalogMaterialCard), findsNothing);
+    });
+  });
+}
+
+class _FailingCatalogRepository implements CatalogRepository {
+  @override
+  Future<List<MaterialProduct>> getProducts({
+    String? category,
+    String? searchQuery,
+  }) async {
+    throw const CatalogFailure('Error real de Bodega');
+  }
+
+  @override
+  Future<MaterialProduct> getProductDetail(String productId) async =>
+      throw const CatalogFailure('Error real de Bodega');
+}
+
+class _EmptyCatalogRepository implements CatalogRepository {
+  @override
+  Future<List<MaterialProduct>> getProducts({
+    String? category,
+    String? searchQuery,
+  }) async => const [];
+
+  @override
+  Future<MaterialProduct> getProductDetail(String productId) async =>
+      throw const CatalogFailure('No encontrado');
 }
