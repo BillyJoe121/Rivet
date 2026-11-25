@@ -22,6 +22,8 @@ v_prof_name  text := 'Nombre del Profesor';
   v_carolina_id uuid := '11111111-1111-4111-8111-111111111102';
   v_laura_id    uuid := '11111111-1111-4111-8111-111111111103';
   v_mateo_id    uuid := '11111111-1111-4111-8111-111111111104';
+  v_julian_id   uuid := '11111111-1111-4111-8111-111111111105';
+  v_natalia_id  uuid := '11111111-1111-4111-8111-111111111106';
 
   -- Proyectos abiertos visibles para el profesor como Contratista (de Laura y Mateo)
   v_p_pro_open_1  uuid := 'b2222222-2222-4222-8222-222222222201';
@@ -94,13 +96,88 @@ begin
     (v_mateo_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
      'mateo.salazar@rivet.demo', '$2a$10$demoHashOnlyNotForLogin000000000000000000000000000', now(),
      '{"provider":"email","providers":["email"]}',
-     '{"full_name":"Mateo Salazar","role":"client","phone":"3105550104"}', now(), now())
+     '{"full_name":"Mateo Salazar","role":"client","phone":"3105550104"}', now(), now()),
+    (v_julian_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+     'julian.sinisterra@rivet.demo', '$2a$10$demoHashOnlyNotForLogin000000000000000000000000000', now(),
+     '{"provider":"email","providers":["email"]}',
+     '{"full_name":"Julián Darío Sinisterra","role":"contractor","phone":"3105550105"}', now(), now()),
+    (v_natalia_id, '00000000-0000-0000-0000-000000000000', 'authenticated', 'authenticated',
+     'natalia.gomez@rivet.demo', '$2a$10$demoHashOnlyNotForLogin000000000000000000000000000', now(),
+     '{"provider":"email","providers":["email"]}',
+     '{"full_name":"Natalia Gómez Restrepo","role":"contractor","phone":"3105550106"}', now(), now())
   on conflict (id) do nothing;
 
-  update public.profiles set avatar_url = 'Fondos/pro-pintura-rivet.jpg' where id = v_carlos_id;
-  update public.profiles set avatar_url = 'Fondos/pro-estuco-corona.jpg' where id = v_carolina_id;
-  update public.profiles set avatar_url = 'Fondos/hero-living-room.jpg' where id = v_laura_id;
-  update public.profiles set avatar_url = 'Fondos/hero-planning.jpg' where id = v_mateo_id;
+  update public.profiles
+  set avatar_url = 'Fondos/pro-pintura-rivet.jpg',
+      trade = 'Pintura arquitectónica y estuco',
+      zone = 'Cali · Sur (Ciudad Jardín, Pance)',
+      bio = 'Maestro pintor con 12 años en acabados residenciales, estuco plástico, veneciano y recuperación de muros con humedad.',
+      is_verified = true,
+      completed_jobs = 68,
+      portfolio_images = array['assets/hero/hero_living_room.jpg', 'assets/hero/hero_greenery.jpg']
+  where id = v_carlos_id;
+
+  update public.profiles
+  set avatar_url = 'Fondos/pro-estuco-corona.jpg',
+      trade = 'Acabados interiores y drywall',
+      zone = 'Cali · Oeste (El Peñón, Cristales)',
+      bio = 'Cuadrilla especializada en remodelación limpia de apartamentos ocupados, encintado láser y entrega con aseo.',
+      is_verified = true,
+      completed_jobs = 52,
+      portfolio_images = array['assets/hero/hero_lounge.jpg', 'assets/hero/hero_planning.jpg']
+  where id = v_carolina_id;
+
+  update public.profiles
+  set avatar_url = 'Fondos/hero-living-room.jpg',
+      zone = 'Cali · Sur (Ciudad Jardín)'
+  where id = v_laura_id;
+
+  update public.profiles
+  set avatar_url = 'Fondos/hero-planning.jpg',
+      zone = 'Cali · Sur (San Fernando)'
+  where id = v_mateo_id;
+
+  update public.profiles
+  set avatar_url = 'Fondos/hero-paint-roller.jpg',
+      trade = 'Impermeabilización y fachadas',
+      zone = 'Cali · Norte (Granada, La Flora)',
+      bio = 'Técnico en tratamiento de filtraciones, koraza elastomérica, sellado de fisuras y pintura de fachadas.',
+      is_verified = true,
+      completed_jobs = 44,
+      portfolio_images = array['assets/hero/hero_paint_roller.jpg']
+  where id = v_julian_id;
+
+  update public.profiles
+  set avatar_url = 'Fondos/hero-living-room.jpg',
+      trade = 'Pintura decorativa y microcemento',
+      zone = 'Cali · Oeste (San Antonio, Normandía)',
+      bio = 'Restauración de muros patrimoniales, paletas cálidas, tierras minerales y acabados satinados.',
+      is_verified = true,
+      completed_jobs = 37,
+      portfolio_images = array['assets/hero/hero_living_room.jpg']
+  where id = v_natalia_id;
+
+  -- Catálogo base de Bodega Rivet
+  insert into public.materials (id, name, brand, category, unit, client_price_cop, pro_price_cop, finish, in_stock)
+  values
+    ('c1111111-1111-4111-8111-111111111101', 'Pintura vinilo premium', 'Rivet', 'Pinturas', 'galón', 87000, 82000, 'Mate', true),
+    ('c1111111-1111-4111-8111-111111111102', 'Pintura vinilo lavable', 'Rivet', 'Pinturas', 'galón', 98000, 91000, 'Satinado', true),
+    ('c1111111-1111-4111-8111-111111111103', 'Estuco plástico blanco', 'Sika', 'Estuco', '5 galones', 120000, 112000, 'Liso', true),
+    ('c1111111-1111-4111-8111-111111111104', 'Estuco acrílico fino', 'Sika', 'Estuco', '5 galones', 95000, 88000, 'Liso', false),
+    ('c1111111-1111-4111-8111-111111111105', 'Porcelanato gris mate', 'Cerámica Andina', 'Acabados', 'm²', 62000, 57000, 'Mate', true),
+    ('c1111111-1111-4111-8111-111111111106', 'Porcelanato madera brillante', 'Cerámica Andina', 'Acabados', 'm²', 74000, 69000, 'Brillante', false),
+    ('c1111111-1111-4111-8111-111111111107', 'Cinta de enmascarar 48 mm', '3M', 'Accesorios', 'rollo', 9500, 8500, null, true),
+    ('c1111111-1111-4111-8111-111111111108', 'Rodillo de lana 9"', 'Rivet', 'Accesorios', 'unidad', 18000, 16000, null, true),
+    ('c1111111-1111-4111-8111-111111111109', 'Esmalte sintético blanco', 'Sika', 'Pinturas', 'galón', 104000, 99000, 'Brillante', true)
+  on conflict (id) do update set
+    name = excluded.name,
+    brand = excluded.brand,
+    category = excluded.category,
+    unit = excluded.unit,
+    client_price_cop = excluded.client_price_cop,
+    pro_price_cop = excluded.pro_price_cop,
+    finish = excluded.finish,
+    in_stock = excluded.in_stock;
 
   -- 2. Proyectos visibles (para Contratista) + Proyectos creados (como Cliente)
   insert into public.projects (id, client_id, title, description, city, neighborhood, status, budget_estimate_cop, photo_paths)

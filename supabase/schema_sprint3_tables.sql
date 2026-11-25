@@ -77,6 +77,26 @@ alter table public.proposals add column if not exists contractor_id uuid referen
 alter table public.proposals add column if not exists status text;
 alter table public.proposals add column if not exists updated_at timestamptz not null default now();
 
+-- Campos públicos de perfil para el directorio de contratistas y la zona del usuario.
+alter table public.profiles add column if not exists trade text not null default '';
+alter table public.profiles add column if not exists zone text not null default '';
+alter table public.profiles add column if not exists bio text not null default '';
+alter table public.profiles add column if not exists is_verified boolean not null default false;
+alter table public.profiles add column if not exists completed_jobs integer not null default 0 check (completed_jobs >= 0);
+alter table public.profiles add column if not exists portfolio_images text[] not null default '{}';
+
+create table if not exists public.project_materials (
+  id uuid primary key default gen_random_uuid(),
+  project_id uuid not null references public.projects(id) on delete cascade,
+  product_id text not null,
+  position integer not null default 0,
+  name text not null,
+  unit text not null default 'unidad',
+  unit_price_cop numeric(14,2) not null default 0 check (unit_price_cop >= 0),
+  quantity integer not null default 1 check (quantity > 0),
+  created_at timestamptz not null default now()
+);
+
 -- ------------------------------------------------------------------------------
 -- 2. Migración de estados heredados (parte de esta migración)
 --    projects: los valores del enum Dart anterior pasan al contrato nuevo.
@@ -261,6 +281,23 @@ create table if not exists public.cancellations (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.visit_requests (
+  id uuid primary key default gen_random_uuid(),
+  client_id uuid not null references public.profiles(id) on delete cascade,
+  contractor_id uuid not null references public.profiles(id) on delete cascade,
+  project_id uuid references public.projects(id) on delete set null,
+  address text not null check (char_length(address) between 1 and 300),
+  preferred_date text not null check (char_length(preferred_date) between 1 and 120),
+  time_slot text not null check (char_length(time_slot) between 1 and 120),
+  notes text not null default '' check (char_length(notes) <= 1000),
+  fee_cop numeric(14,2) not null default 0 check (fee_cop >= 0),
+  simulated_paid boolean not null default true,
+  status text not null default 'requested'
+    check (status in ('requested', 'confirmed', 'completed', 'cancelled')),
+  created_at timestamptz not null default now(),
+  check (client_id <> contractor_id)
+);
+
 -- ------------------------------------------------------------------------------
 -- 4. Índices
 -- ------------------------------------------------------------------------------
@@ -268,6 +305,9 @@ create index if not exists projects_client_id_idx on public.projects (client_id)
 create index if not exists projects_open_idx on public.projects (created_at desc) where status = 'open';
 create index if not exists projects_status_idx on public.projects (status);
 create index if not exists project_spaces_project_id_idx on public.project_spaces (project_id);
+create index if not exists project_materials_project_id_idx on public.project_materials (project_id);
+create index if not exists visit_requests_client_id_idx on public.visit_requests (client_id, created_at desc);
+create index if not exists visit_requests_contractor_id_idx on public.visit_requests (contractor_id, created_at desc);
 create index if not exists proposals_project_id_idx on public.proposals (project_id);
 create index if not exists proposals_contractor_id_idx on public.proposals (contractor_id);
 create index if not exists materials_category_idx on public.materials (category);

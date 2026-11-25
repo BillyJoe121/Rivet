@@ -12,9 +12,10 @@ do $$
 declare t text;
 begin
   foreach t in array array[
-    'projects', 'project_spaces', 'proposals', 'materials', 'agreements',
-    'agreement_milestones', 'progress_updates', 'conversations', 'messages',
-    'notifications', 'payments', 'payout_accounts', 'ratings', 'cancellations'
+    'projects', 'project_spaces', 'project_materials', 'proposals', 'materials',
+    'agreements', 'agreement_milestones', 'progress_updates', 'conversations',
+    'messages', 'notifications', 'payments', 'payout_accounts', 'ratings',
+    'cancellations', 'visit_requests'
   ] loop
     execute format('alter table public.%I enable row level security', t);
     execute format('revoke all on table public.%I from anon, authenticated', t);
@@ -23,6 +24,7 @@ end $$;
 
 grant select, insert, update, delete on public.projects to authenticated;
 grant select, insert, update, delete on public.project_spaces to authenticated;
+grant select, insert, update, delete on public.project_materials to authenticated;
 grant select, insert, update on public.proposals to authenticated;
 grant select on public.materials to authenticated;
 grant select, insert on public.agreements to authenticated;
@@ -47,15 +49,18 @@ grant update (bank_name, account_type, account_number_last4, holder_name,
 grant select, insert on public.ratings to authenticated;
 grant select, insert on public.cancellations to authenticated;
 grant update (status) on public.cancellations to authenticated;
+grant select, insert on public.visit_requests to authenticated;
+grant update (status) on public.visit_requests to authenticated;
 
 revoke all on public.contractor_rating_summary from anon;
 grant select on public.contractor_rating_summary to authenticated;
 
 -- ------------------------------------------------------------------------------
--- 1. profiles: el rol no se puede cambiar y el perfil solo lo crea el trigger
+-- 1. profiles: el rol y la verificación no se pueden cambiar por el cliente
 -- ------------------------------------------------------------------------------
 create or replace view public.public_profiles as
-  select id, full_name, role, avatar_url
+  select id, full_name, role, avatar_url, trade, zone, bio,
+         is_verified, completed_jobs, portfolio_images
   from public.profiles;
 
 revoke all on public.public_profiles from anon;
@@ -63,7 +68,8 @@ grant select on public.public_profiles to authenticated;
 
 revoke all on public.profiles from anon, authenticated;
 grant select on public.profiles to authenticated;
-grant update (full_name, phone, avatar_url, updated_at) on public.profiles to authenticated;
+grant update (full_name, phone, avatar_url, trade, zone, bio,
+              portfolio_images, updated_at) on public.profiles to authenticated;
 
 drop policy if exists "Users can insert their own profile" on public.profiles;
 
@@ -119,6 +125,27 @@ create policy "Project owner updates spaces" on public.project_spaces
 
 drop policy if exists "Project owner deletes spaces" on public.project_spaces;
 create policy "Project owner deletes spaces" on public.project_spaces
+  for delete to authenticated
+  using (public.is_project_owner(project_id));
+
+drop policy if exists "Materials follow project visibility" on public.project_materials;
+create policy "Materials follow project visibility" on public.project_materials
+  for select to authenticated
+  using (exists (select 1 from public.projects p where p.id = project_materials.project_id));
+
+drop policy if exists "Project owner inserts materials" on public.project_materials;
+create policy "Project owner inserts materials" on public.project_materials
+  for insert to authenticated
+  with check (public.is_project_owner(project_id));
+
+drop policy if exists "Project owner updates materials" on public.project_materials;
+create policy "Project owner updates materials" on public.project_materials
+  for update to authenticated
+  using (public.is_project_owner(project_id))
+  with check (public.is_project_owner(project_id));
+
+drop policy if exists "Project owner deletes materials" on public.project_materials;
+create policy "Project owner deletes materials" on public.project_materials
   for delete to authenticated
   using (public.is_project_owner(project_id));
 
@@ -406,3 +433,22 @@ create policy "Agreement parties resolve cancellations" on public.cancellations
   for update to authenticated
   using (public.agreement_role(agreement_id) is not null and status = 'requested')
   with check (public.agreement_role(agreement_id) is not null);
+
+-- ------------------------------------------------------------------------------
+-- 13. visit_requests: cliente solicita al contratista; ambas partes consultan
+-- ------------------------------------------------------------------------------
+drop policy if exists "Visit parties view requests" on public.visit_requests;
+create policy "Visit parties view requests" on public.visit_requests
+  for select to authenticated
+  using ((select auth.uid()) in (client_id, contractor_id));
+
+drop policy if exists "Client creates visit request" on public.visit_requests;
+create policy "Client creates visit request" on public.visit_requests
+  for insert to authenticated
+  with check (client_id = (select auth.uid()) and client_id <> contractor_id);
+
+drop policy if exists "Visit parties update status" on public.visit_requests;
+create policy "Visit parties update status" on public.visit_requests
+  for update to authenticated
+  using ((select auth.uid()) in (client_id, contractor_id))
+  with check ((select auth.uid()) in (client_id, contractor_id));
