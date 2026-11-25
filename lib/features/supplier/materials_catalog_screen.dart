@@ -9,7 +9,6 @@ import '../../core/widgets/widgets.dart';
 import '../../injection_container.dart';
 import 'catalog_filters.dart';
 import 'catalog_mock.dart';
-import 'domain/repositories/catalog_repository.dart';
 import 'material_detail_screen.dart';
 import 'material_price_tier.dart';
 import 'presentation/bloc/catalog_bloc.dart';
@@ -35,9 +34,7 @@ class MaterialsCatalogScreen extends StatelessWidget {
     String? preselectedProjectId,
   }) {
     return BlocProvider<CatalogBloc>(
-      create: (context) => resolveBloc<CatalogBloc>(
-        () => CatalogBloc.fromRepository(context.read<CatalogRepository>()),
-      )..add(const LoadCatalogProducts()),
+      create: (_) => sl<CatalogBloc>()..add(const LoadCatalogProducts()),
       child: MaterialsCatalogScreen(
         priceTier: priceTier,
         preselectedProjectId: preselectedProjectId,

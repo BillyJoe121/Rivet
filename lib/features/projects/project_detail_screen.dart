@@ -13,7 +13,6 @@ import '../messaging/messaging_screens.dart';
 import '../proposals/received_proposals_screen.dart';
 import '../supplier/material_price_tier.dart';
 import 'create_project_screen.dart';
-import 'domain/repositories/project_repository.dart';
 import 'presentation/bloc/projects_bloc.dart';
 import 'project_materials_screen.dart';
 
@@ -29,9 +28,7 @@ class ProjectDetailScreen extends StatelessWidget {
   /// Pantalla con su propio [ProjectsBloc].
   static Widget withBloc(Project project) {
     return BlocProvider<ProjectsBloc>(
-      create: (context) => resolveBloc<ProjectsBloc>(
-        () => ProjectsBloc.fromRepository(context.read<ProjectRepository>()),
-      ),
+      create: (_) => sl<ProjectsBloc>(),
       child: ProjectDetailScreen(project: project),
     );
   }

@@ -10,7 +10,6 @@ import '../../injection_container.dart';
 import 'create_project_screen.dart';
 import 'presentation/bloc/projects_bloc.dart';
 import 'project_detail_screen.dart';
-import 'domain/repositories/project_repository.dart';
 
 /// Pantalla de listado y filtrado de proyectos con Clean Architecture y BLoC (P-016).
 ///
@@ -29,9 +28,7 @@ class MyProjectsScreen extends StatelessWidget {
   /// Pantalla con su [ProjectsBloc] cargando los proyectos.
   static Widget withBloc({bool forContractor = false, bool showBidsOnly = false}) {
     return BlocProvider<ProjectsBloc>(
-      create: (context) => resolveBloc<ProjectsBloc>(
-        () => ProjectsBloc.fromRepository(context.read<ProjectRepository>()),
-      )..add(const LoadProjects()),
+      create: (_) => sl<ProjectsBloc>()..add(const LoadProjects()),
       child: MyProjectsScreen(
         forContractor: forContractor,
         showBidsOnly: showBidsOnly,

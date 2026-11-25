@@ -43,23 +43,13 @@ import 'features/supplier/presentation/bloc/catalog_bloc.dart';
 /// Contenedor central de dependencias de la aplicación.
 final GetIt sl = GetIt.instance;
 
-/// Resuelve [T] desde [sl] cuando el contenedor está inicializado, o usa
-/// [fallback] en entornos de prueba aislados.
-T resolveBloc<T extends Object>(T Function() fallback) =>
-    sl.isRegistered<T>() ? sl<T>() : fallback();
-
-/// Resuelve un BLoC parametrizado [T] desde [sl] o usa [fallback] en pruebas.
-T resolveBlocParam<T extends Object, P1, P2>(
-  P1 param1,
-  P2 param2,
-  T Function() fallback,
-) => sl.isRegistered<T>() ? sl<T>(param1: param1, param2: param2) : fallback();
-
-/// Registra repositorios, casos de uso y BLoCs de adentro hacia afuera.
+/// Configura repositorios, casos de uso y BLoCs de adentro hacia afuera.
 ///
 /// Los parámetros opcionales permiten inyectar implementaciones en memoria en
-/// pruebas automatizadas sin acoplar el grafo a Supabase.
-Future<void> initDependencies({
+/// pruebas automatizadas sin acoplar el grafo a Supabase. Con [allowOverride]
+/// en `true`, reemplaza los repositorios indicados y reconstruye los registros
+/// de casos de uso y BLoCs para evitar referencias obsoletas.
+void configureDependencies({
   AuthRepository? authRepository,
   ProjectRepository? projectRepository,
   ProposalRepository? proposalRepository,
@@ -68,41 +58,58 @@ Future<void> initDependencies({
   AgreementRepository? agreementRepository,
   MessagingRepository? messagingRepository,
   ProjectDraftRepository? projectDraftRepository,
-  bool reset = false,
-}) async {
-  if (reset) {
-    await sl.reset();
-  }
-  if (sl.isRegistered<AuthRepository>()) {
+  bool allowOverride = false,
+}) {
+  if (!allowOverride && sl.isRegistered<AuthRepository>()) {
     return;
   }
 
+  sl.allowReassignment = true;
+
   // Repositorios (una única instancia compartida por toda la app)
-  sl
-    ..registerLazySingleton<AuthRepository>(
+  if (authRepository != null || !sl.isRegistered<AuthRepository>()) {
+    sl.registerLazySingleton<AuthRepository>(
       () => authRepository ?? createAuthRepository(),
-    )
-    ..registerLazySingleton<ProjectRepository>(
+    );
+  }
+  if (projectRepository != null || !sl.isRegistered<ProjectRepository>()) {
+    sl.registerLazySingleton<ProjectRepository>(
       () => projectRepository ?? createProjectRepository(),
-    )
-    ..registerLazySingleton<ProposalRepository>(
+    );
+  }
+  if (proposalRepository != null || !sl.isRegistered<ProposalRepository>()) {
+    sl.registerLazySingleton<ProposalRepository>(
       () => proposalRepository ?? createProposalRepository(),
-    )
-    ..registerLazySingleton<CatalogRepository>(
+    );
+  }
+  if (catalogRepository != null || !sl.isRegistered<CatalogRepository>()) {
+    sl.registerLazySingleton<CatalogRepository>(
       () => catalogRepository ?? createCatalogRepository(),
-    )
-    ..registerLazySingleton<ContractorRepository>(
+    );
+  }
+  if (contractorRepository != null || !sl.isRegistered<ContractorRepository>()) {
+    sl.registerLazySingleton<ContractorRepository>(
       () => contractorRepository ?? createContractorRepository(),
-    )
-    ..registerLazySingleton<AgreementRepository>(
+    );
+  }
+  if (agreementRepository != null || !sl.isRegistered<AgreementRepository>()) {
+    sl.registerLazySingleton<AgreementRepository>(
       () => agreementRepository ?? createAgreementRepository(),
-    )
-    ..registerLazySingleton<MessagingRepository>(
+    );
+  }
+  if (messagingRepository != null || !sl.isRegistered<MessagingRepository>()) {
+    sl.registerLazySingleton<MessagingRepository>(
       () => messagingRepository ?? createMessagingRepository(),
-    )
-    ..registerLazySingleton<ProjectDraftRepository>(
+    );
+  }
+  if (projectDraftRepository != null ||
+      !sl.isRegistered<ProjectDraftRepository>()) {
+    sl.registerLazySingleton<ProjectDraftRepository>(
       () => projectDraftRepository ?? LocalProjectDraftRepository(),
-    )
+    );
+  }
+
+  sl
     // Casos de uso
     ..registerLazySingleton<GetCurrentUserUseCase>(
       () => GetCurrentUserUseCase(sl<AuthRepository>()),
@@ -170,6 +177,12 @@ Future<void> initDependencies({
     )
     ..registerLazySingleton<GetCatalogMaterialsUseCase>(
       () => GetCatalogMaterialsUseCase(sl<CatalogRepository>()),
+    )
+    ..registerLazySingleton<GetContractorsUseCase>(
+      () => GetContractorsUseCase(sl<ContractorRepository>()),
+    )
+    ..registerLazySingleton<RequestContractorVisitUseCase>(
+      () => RequestContractorVisitUseCase(sl<ContractorRepository>()),
     )
     ..registerLazySingleton<GetConversationsUseCase>(
       () => GetConversationsUseCase(sl<MessagingRepository>()),
@@ -254,7 +267,10 @@ Future<void> initDependencies({
       () => CatalogBloc(sl<GetCatalogMaterialsUseCase>()),
     )
     ..registerFactory<ContractorsBloc>(
-      () => ContractorsBloc.fromRepository(sl<ContractorRepository>()),
+      () => ContractorsBloc(
+        sl<GetContractorsUseCase>(),
+        sl<RequestContractorVisitUseCase>(),
+      ),
     )
     ..registerFactory<AgreementsBloc>(
       () => AgreementsBloc.fromRepository(sl<AgreementRepository>()),
@@ -290,4 +306,32 @@ Future<void> initDependencies({
         sl<LoadOlderMessagesUseCase>(),
       ),
     );
+}
+
+/// Inicializa o reinicia el contenedor [sl] de forma asíncrona.
+Future<void> initDependencies({
+  AuthRepository? authRepository,
+  ProjectRepository? projectRepository,
+  ProposalRepository? proposalRepository,
+  CatalogRepository? catalogRepository,
+  ContractorRepository? contractorRepository,
+  AgreementRepository? agreementRepository,
+  MessagingRepository? messagingRepository,
+  ProjectDraftRepository? projectDraftRepository,
+  bool reset = false,
+}) async {
+  if (reset) {
+    await sl.reset();
+  }
+  configureDependencies(
+    authRepository: authRepository,
+    projectRepository: projectRepository,
+    proposalRepository: proposalRepository,
+    catalogRepository: catalogRepository,
+    contractorRepository: contractorRepository,
+    agreementRepository: agreementRepository,
+    messagingRepository: messagingRepository,
+    projectDraftRepository: projectDraftRepository,
+    allowOverride: reset,
+  );
 }

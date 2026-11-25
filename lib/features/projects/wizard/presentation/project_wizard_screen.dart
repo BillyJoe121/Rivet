@@ -8,11 +8,6 @@ import '../../../../core/theme/theme.dart';
 import '../../../../core/utils/app_page_route.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../../../injection_container.dart';
-import '../../domain/repositories/project_repository.dart';
-import '../../domain/usecases/usecases.dart';
-import '../domain/estimate_materials_usecase.dart';
-import '../domain/project_draft_repository.dart';
-import '../domain/publish_project_wizard_usecase.dart';
 import 'bloc/project_wizard_bloc.dart';
 import 'widgets/wizard_steps_early.dart';
 import 'widgets/wizard_steps_late.dart';
@@ -20,27 +15,15 @@ import 'widgets/wizard_steps_late.dart';
 /// Asistente de 5 pasos para crear o editar un proyecto (Datos, Medidas, Fotos, Materiales, Publicar).
 ///
 /// Espera un [ProjectWizardBloc] en el contexto; [route] y [withBloc] lo
-/// arman con los repositorios inyectados. Al publicar cierra la pantalla y
-/// devuelve el [Project] guardado.
+/// resuelven desde GetIt. Al publicar cierra la pantalla y devuelve el [Project] guardado.
 class ProjectWizardScreen extends StatefulWidget {
   const ProjectWizardScreen({super.key});
 
   /// Pantalla con su [ProjectWizardBloc] listo, para crear o editar.
   static Widget withBloc({Project? initialProject}) {
     return BlocProvider<ProjectWizardBloc>(
-      create: (context) => resolveBloc<ProjectWizardBloc>(() {
-        final draftRepository = context.read<ProjectDraftRepository>();
-        final projectRepository = context.read<ProjectRepository>();
-        return ProjectWizardBloc(
-          draftRepository: draftRepository,
-          estimateMaterialsUseCase: const EstimateMaterialsUseCase(),
-          publishProjectWizardUseCase: PublishProjectWizardUseCase(
-            createProjectUseCase: CreateProjectUseCase(projectRepository),
-            updateProjectUseCase: UpdateProjectUseCase(projectRepository),
-            draftRepository: draftRepository,
-          ),
-        );
-      })..add(WizardInitialized(initialProject: initialProject)),
+      create: (_) => sl<ProjectWizardBloc>()
+        ..add(WizardInitialized(initialProject: initialProject)),
       child: const ProjectWizardScreen(),
     );
   }

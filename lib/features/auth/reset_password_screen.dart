@@ -6,8 +6,6 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../core/design_system/design_system.dart';
 import '../../injection_container.dart';
-import 'domain/repositories/auth_repository.dart';
-import 'domain/usecases/usecases.dart';
 import 'login_screen.dart';
 import 'presentation/bloc/reset_password/reset_password_bloc.dart';
 import 'widgets/signup_form_card.dart';
@@ -30,19 +28,10 @@ class ResetPasswordScreen extends StatelessWidget {
       );
     }
 
-    try {
-      context.read<ResetPasswordBloc>();
-      return const _ResetPasswordView();
-    } catch (_) {
-      return BlocProvider<ResetPasswordBloc>(
-        create: (_) => resolveBloc<ResetPasswordBloc>(
-          () => ResetPasswordBloc(
-            UpdatePasswordUseCase(context.read<AuthRepository>()),
-          ),
-        ),
-        child: const _ResetPasswordView(),
-      );
-    }
+    return BlocProvider<ResetPasswordBloc>(
+      create: (_) => sl<ResetPasswordBloc>(),
+      child: const _ResetPasswordView(),
+    );
   }
 }
 

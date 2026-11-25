@@ -9,8 +9,6 @@ import '../../core/models/models.dart';
 import '../../injection_container.dart';
 import '../home/app_shell.dart';
 import '../../core/design_system/design_system.dart';
-import 'domain/repositories/auth_repository.dart';
-import 'domain/usecases/usecases.dart';
 import 'presentation/bloc/auth/auth_bloc.dart';
 import 'forgot_password_screen.dart';
 import 'presentation/bloc/login/login_bloc.dart';
@@ -19,8 +17,7 @@ import 'widgets/login_card.dart';
 
 /// Pantalla de inicio de sesión gobernada por [LoginBloc] (Sprint 1).
 ///
-/// Implementa Clean Architecture conectando eventos y estados con el caso de uso
-/// de autenticación en Supabase.
+/// Implementa Clean Architecture resolviendo el BLoC desde GetIt (`sl`).
 class LoginScreen extends StatelessWidget {
   const LoginScreen({
     super.key,
@@ -40,17 +37,10 @@ class LoginScreen extends StatelessWidget {
       );
     }
 
-    try {
-      context.read<LoginBloc>();
-      return _LoginView(role: role);
-    } catch (_) {
-      return BlocProvider<LoginBloc>(
-        create: (_) => resolveBloc<LoginBloc>(
-          () => LoginBloc(SignInUseCase(context.read<AuthRepository>())),
-        ),
-        child: _LoginView(role: role),
-      );
-    }
+    return BlocProvider<LoginBloc>(
+      create: (_) => sl<LoginBloc>(),
+      child: _LoginView(role: role),
+    );
   }
 }
 

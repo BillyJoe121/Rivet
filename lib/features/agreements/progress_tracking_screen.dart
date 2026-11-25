@@ -25,9 +25,7 @@ class ProgressTrackingScreen extends StatelessWidget {
     bool asClient = true,
   }) {
     return BlocProvider<ProgressBloc>(
-      create: (context) => resolveBloc<ProgressBloc>(
-        () => ProgressBloc.fromRepository(context.read<AgreementRepository>()),
-      )..add(LoadProgressRequested(agreementId)),
+      create: (_) => sl<ProgressBloc>()..add(LoadProgressRequested(agreementId)),
       child: ProgressTrackingScreen(
         agreementId: agreementId,
         asClient: asClient,

@@ -4,21 +4,19 @@ import 'package:rivet/core/data/mock_data.dart';
 import 'package:rivet/core/models/models.dart';
 import 'package:rivet/features/agreements/agreements_module.dart';
 import 'package:rivet/features/auth/domain/repositories/auth_repository.dart';
+import 'package:rivet/features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'package:rivet/features/contractors/contractors_module.dart';
 import 'package:rivet/features/messaging/messaging_module.dart';
 import 'package:rivet/features/projects/domain/repositories/project_repository.dart';
-import 'package:rivet/features/projects/domain/usecases/usecases.dart';
 import 'package:rivet/features/projects/presentation/bloc/projects_bloc.dart';
 import 'package:rivet/features/projects/wizard/data/local_project_draft_repository.dart';
 import 'package:rivet/features/projects/wizard/domain/project_draft_repository.dart';
 import 'package:rivet/features/proposals/domain/repositories/proposal_repository.dart';
-import 'package:rivet/features/proposals/domain/usecases/accept_proposal_usecase.dart';
-import 'package:rivet/features/proposals/domain/usecases/get_received_proposals_usecase.dart';
 import 'package:rivet/features/proposals/presentation/bloc/proposals_bloc.dart';
 import 'package:rivet/features/supplier/catalog_mock.dart';
 import 'package:rivet/features/supplier/domain/repositories/catalog_repository.dart';
-import 'package:rivet/features/supplier/domain/usecases/get_catalog_materials_usecase.dart';
 import 'package:rivet/features/supplier/presentation/bloc/catalog_bloc.dart';
+import 'package:rivet/injection_container.dart';
 
 import 'auth_test_harness.dart';
 
@@ -166,12 +164,10 @@ class _InMemoryCatalogRepository implements CatalogRepository {
       CatalogMock.products.firstWhere((p) => p.id == productId);
 }
 
-/// Envuelve [child] con los mismos repositorios que la raíz de la app
-/// inyecta, todos en memoria (sin cliente de Supabase).
+/// Registra en GetIt los mismos repositorios que la raíz de la app inyecta,
+/// todos en memoria (sin cliente de Supabase), y provee [AuthBloc].
 ///
-/// Cada parámetro reemplaza el repositorio por defecto de ese módulo. También
-/// incluye el repositorio de autenticación y el `AuthBloc` mediante
-/// [withAuth].
+/// Cada parámetro reemplaza el repositorio por defecto de ese módulo.
 Widget withRepositories(
   Widget child, {
   AuthRepository? auth,
@@ -183,70 +179,47 @@ Widget withRepositories(
   MessagingRepository? messaging,
   ProjectDraftRepository? drafts,
 }) {
-  return MultiRepositoryProvider(
-    providers: [
-      RepositoryProvider<ProjectRepository>.value(
-        value: projects ?? _InMemoryProjectRepository(),
-      ),
-      RepositoryProvider<ProposalRepository>.value(
-        value: proposals ?? _InMemoryProposalRepository(),
-      ),
-      RepositoryProvider<CatalogRepository>.value(
-        value: catalog ?? _InMemoryCatalogRepository(),
-      ),
-      RepositoryProvider<ContractorRepository>.value(
-        value: contractors ?? LocalContractorRepository(),
-      ),
-      RepositoryProvider<AgreementRepository>.value(
-        value: agreements ?? LocalAgreementRepository(),
-      ),
-      RepositoryProvider<MessagingRepository>.value(
-        value: messaging ?? LocalMessagingRepository(),
-      ),
-      RepositoryProvider<ProjectDraftRepository>.value(
-        value: drafts ?? LocalProjectDraftRepository(),
-      ),
-    ],
-    child: withAuth(child, repository: auth),
+  configureDependencies(
+    authRepository: auth ?? InMemoryAuthRepository(),
+    projectRepository: projects ?? _InMemoryProjectRepository(),
+    proposalRepository: proposals ?? _InMemoryProposalRepository(),
+    catalogRepository: catalog ?? _InMemoryCatalogRepository(),
+    contractorRepository: contractors ?? LocalContractorRepository(),
+    agreementRepository: agreements ?? LocalAgreementRepository(),
+    messagingRepository: messaging ?? LocalMessagingRepository(),
+    projectDraftRepository: drafts ?? LocalProjectDraftRepository(),
+    allowOverride: true,
+  );
+  return BlocProvider<AuthBloc>(
+    create: (_) => sl<AuthBloc>()..add(const AuthCheckRequested()),
+    child: child,
   );
 }
 
-/// Arma los Bloc compartidos de la raíz (proyectos, propuestas y Bodega) con
-/// los repositorios del contexto; va dentro de [withRepositories].
+/// Arma los Bloc compartidos de la raíz (proyectos, propuestas y Bodega) desde
+/// GetIt; va dentro de [withRepositories].
 ///
 /// Con [load] en `true` cada Bloc pide sus datos al crearse, como en la app.
 Widget withAppBlocs(Widget child, {bool load = true}) {
   return MultiBlocProvider(
     providers: [
       BlocProvider<ProjectsBloc>(
-        create: (context) {
-          final repository = context.read<ProjectRepository>();
-          final bloc = ProjectsBloc(
-            GetMyProjectsUseCase(repository),
-            CreateProjectUseCase(repository),
-            GetProjectDetailUseCase(repository),
-            UpdateProjectUseCase(repository),
-          );
+        create: (_) {
+          final bloc = sl<ProjectsBloc>();
           if (load) bloc.add(const LoadProjects());
           return bloc;
         },
       ),
       BlocProvider<ProposalsBloc>(
-        create: (context) {
-          final repository = context.read<ProposalRepository>();
-          final bloc = ProposalsBloc(
-            GetReceivedProposalsUseCase(repository),
-            AcceptProposalUseCase(repository),
-          );
+        create: (_) {
+          final bloc = sl<ProposalsBloc>();
           if (load) bloc.add(const LoadReceivedProposals());
           return bloc;
         },
       ),
       BlocProvider<CatalogBloc>(
-        create: (context) {
-          final bloc = CatalogBloc(
-            GetCatalogMaterialsUseCase(context.read<CatalogRepository>()),
-          );
+        create: (_) {
+          final bloc = sl<CatalogBloc>();
           if (load) bloc.add(const LoadCatalogProducts());
           return bloc;
         },

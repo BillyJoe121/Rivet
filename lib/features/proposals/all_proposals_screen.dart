@@ -8,10 +8,8 @@ import '../../core/utils/app_page_route.dart';
 import '../../core/widgets/widgets.dart';
 import '../../injection_container.dart';
 import '../agreements/agreements_screens.dart';
-import '../projects/domain/repositories/project_repository.dart';
 import 'presentation/bloc/proposals_bloc.dart';
 import 'proposal_detail_screen.dart';
-import 'domain/repositories/proposal_repository.dart';
 import 'widgets/proposal_card.dart';
 
 /// Destino global "Cotizaciones" del menú Más: agrupa cotizaciones por proyecto.
@@ -21,12 +19,7 @@ class AllProposalsScreen extends StatelessWidget {
   /// Pantalla con su propio [ProposalsBloc] cargando las propuestas.
   static Widget withBloc() {
     return BlocProvider<ProposalsBloc>(
-      create: (context) => resolveBloc<ProposalsBloc>(
-        () => ProposalsBloc.fromRepository(
-          context.read<ProposalRepository>(),
-          projectRepository: context.read<ProjectRepository>(),
-        ),
-      )..add(const LoadReceivedProposals()),
+      create: (_) => sl<ProposalsBloc>()..add(const LoadReceivedProposals()),
       child: const AllProposalsScreen(),
     );
   }

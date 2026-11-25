@@ -5,8 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../core/design_system/design_system.dart';
 import '../../injection_container.dart';
-import 'domain/repositories/auth_repository.dart';
-import 'domain/usecases/usecases.dart';
 import 'presentation/bloc/forgot_password/forgot_password_bloc.dart';
 import 'widgets/forgot_password_cards.dart';
 
@@ -31,19 +29,10 @@ class ForgotPasswordScreen extends StatelessWidget {
       );
     }
 
-    try {
-      context.read<ForgotPasswordBloc>();
-      return const _ForgotPasswordView();
-    } catch (_) {
-      return BlocProvider<ForgotPasswordBloc>(
-        create: (_) => resolveBloc<ForgotPasswordBloc>(
-          () => ForgotPasswordBloc(
-            SendPasswordResetUseCase(context.read<AuthRepository>()),
-          ),
-        ),
-        child: const _ForgotPasswordView(),
-      );
-    }
+    return BlocProvider<ForgotPasswordBloc>(
+      create: (_) => sl<ForgotPasswordBloc>(),
+      child: const _ForgotPasswordView(),
+    );
   }
 }
 

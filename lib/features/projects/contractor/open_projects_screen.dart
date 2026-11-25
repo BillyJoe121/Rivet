@@ -8,7 +8,6 @@ import '../../../core/utils/app_page_route.dart';
 import '../../../core/widgets/widgets.dart';
 import '../../../injection_container.dart';
 import '../../supplier/material_price_tier.dart';
-import '../domain/repositories/project_repository.dart';
 import 'contractor_project_detail_screen.dart';
 import 'open_projects_bloc.dart';
 
@@ -18,10 +17,7 @@ class OpenProjectsScreen extends StatelessWidget {
 
   static Widget withBloc() {
     return BlocProvider<OpenProjectsBloc>(
-      create: (context) => resolveBloc<OpenProjectsBloc>(
-        () =>
-            OpenProjectsBloc.fromRepository(context.read<ProjectRepository>()),
-      )..add(const LoadOpenProjects()),
+      create: (_) => sl<OpenProjectsBloc>()..add(const LoadOpenProjects()),
       child: const OpenProjectsScreen(),
     );
   }

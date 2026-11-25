@@ -43,18 +43,14 @@ class AgreementSummaryScreen extends StatelessWidget {
     bool asClient = true,
   }) {
     return BlocProvider<AgreementsBloc>(
-      create: (context) =>
-          resolveBloc<AgreementsBloc>(
-            () => AgreementsBloc.fromRepository(
-              context.read<AgreementRepository>(),
-            ),
-          )..add(
-            PrepareAgreementRequested(
-              projectId: proposal.projectId,
-              projectTitle: projectTitle,
-              proposal: proposal,
-            ),
+      create: (_) => sl<AgreementsBloc>()
+        ..add(
+          PrepareAgreementRequested(
+            projectId: proposal.projectId,
+            projectTitle: projectTitle,
+            proposal: proposal,
           ),
+        ),
       child: AgreementSummaryScreen(
         proposal: proposal,
         projectTitle: projectTitle,
@@ -68,11 +64,7 @@ class AgreementSummaryScreen extends StatelessWidget {
     bool asClient = false,
   }) {
     return BlocProvider<AgreementsBloc>(
-      create: (context) => resolveBloc<AgreementsBloc>(
-        () => AgreementsBloc.fromRepository(
-          context.read<AgreementRepository>(),
-        ),
-      )..add(LoadAgreementById(agreementId)),
+      create: (_) => sl<AgreementsBloc>()..add(LoadAgreementById(agreementId)),
       child: AgreementSummaryScreen(
         agreementId: agreementId,
         asClient: asClient,

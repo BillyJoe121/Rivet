@@ -10,10 +10,8 @@ import '../../injection_container.dart';
 import '../agreements/agreements_screens.dart';
 import '../contractors/contractors_screens.dart';
 import '../messaging/messaging_screens.dart';
-import '../projects/domain/repositories/project_repository.dart';
 import '../supplier/material_price_tier.dart';
 import 'presentation/bloc/proposals_bloc.dart';
-import 'domain/repositories/proposal_repository.dart';
 
 /// Ficha técnica y detalle de una cotización para aceptación formal del cliente (P-031).
 class ProposalDetailScreen extends StatelessWidget {
@@ -24,12 +22,7 @@ class ProposalDetailScreen extends StatelessWidget {
   /// Pantalla con su propio [ProposalsBloc].
   static Widget withBloc(Proposal proposal) {
     return BlocProvider<ProposalsBloc>(
-      create: (context) => resolveBloc<ProposalsBloc>(
-        () => ProposalsBloc.fromRepository(
-          context.read<ProposalRepository>(),
-          projectRepository: context.read<ProjectRepository>(),
-        ),
-      ),
+      create: (_) => sl<ProposalsBloc>(),
       child: ProposalDetailScreen(proposal: proposal),
     );
   }

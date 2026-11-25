@@ -20,12 +20,7 @@ class ConversationsListScreen extends StatelessWidget {
 
   static Widget withBloc({UserRole? role}) {
     return BlocProvider<MessagingBloc>(
-      create: (context) =>
-          resolveBloc<MessagingBloc>(
-            () => MessagingBloc.fromRepository(
-              context.read<MessagingRepository>(),
-            ),
-          )..add(const LoadMessagingData()),
+      create: (_) => sl<MessagingBloc>()..add(const LoadMessagingData()),
       child: ConversationsListScreen(role: role),
     );
   }

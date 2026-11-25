@@ -9,7 +9,6 @@ import '../../../core/widgets/widgets.dart';
 import '../../../injection_container.dart';
 import '../../supplier/material_price_tier.dart';
 import '../../supplier/materials_catalog_screen.dart';
-import '../domain/repositories/proposal_repository.dart';
 import 'create_proposal_bloc.dart';
 
 /// Asistente de 3 pasos para crear o editar una propuesta (22:145820).
@@ -28,16 +27,10 @@ class CreateProposalScreen extends StatefulWidget {
     Proposal? initialProposal,
   }) {
     return BlocProvider<CreateProposalBloc>(
-      create: (context) =>
-          resolveBlocParam<CreateProposalBloc, String, Proposal?>(
-            project.id,
-            initialProposal,
-            () => CreateProposalBloc.fromRepository(
-              context.read<ProposalRepository>(),
-              projectId: project.id,
-              initialProposal: initialProposal,
-            ),
-          ),
+      create: (_) => sl<CreateProposalBloc>(
+        param1: project.id,
+        param2: initialProposal,
+      ),
       child: CreateProposalScreen(
         project: project,
         initialProposal: initialProposal,

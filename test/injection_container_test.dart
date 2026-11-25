@@ -152,11 +152,7 @@ void main() {
       final authBloc1 = sl<AuthBloc>();
       final authBloc2 = sl<AuthBloc>();
       final loginBloc = sl<LoginBloc>();
-      final signUpBloc = resolveBlocParam<SignUpBloc, UserRole, void>(
-        UserRole.contractor,
-        null,
-        () => throw StateError('SignUpBloc debe resolverse desde sl'),
-      );
+      final signUpBloc = sl<SignUpBloc>(param1: UserRole.contractor);
       final forgotBloc = sl<ForgotPasswordBloc>();
       final resetBloc = sl<ResetPasswordBloc>();
       final clientHomeBloc = sl<ClientHomeBloc>();
@@ -164,18 +160,11 @@ void main() {
       final projectsBloc2 = sl<ProjectsBloc>();
       final wizardBloc = sl<ProjectWizardBloc>();
       final proposalsBloc = sl<ProposalsBloc>();
-      final createProposalBloc =
-          resolveBlocParam<CreateProposalBloc, String, Proposal?>(
-            'proj-1',
-            null,
-            () =>
-                throw StateError('CreateProposalBloc debe resolverse desde sl'),
-          );
-      final myProposalsBloc = resolveBlocParam<MyProposalsBloc, int, void>(
-        1,
-        null,
-        () => throw StateError('MyProposalsBloc debe resolverse desde sl'),
+      final createProposalBloc = sl<CreateProposalBloc>(
+        param1: 'proj-1',
+        param2: null,
       );
+      final myProposalsBloc = sl<MyProposalsBloc>(param1: 1);
       final catalogBloc = sl<CatalogBloc>();
       final contractorsBloc = sl<ContractorsBloc>();
       final agreementsBloc = sl<AgreementsBloc>();
@@ -185,16 +174,24 @@ void main() {
       final openProjectsBloc = sl<OpenProjectsBloc>();
       final contractorHomeBloc = sl<ContractorHomeBloc>();
       final messagingBloc = sl<MessagingBloc>();
-      final resolvedCatalog = resolveBloc<CatalogBloc>(
-        () => throw StateError('No debe usar fallback cuando sl está listo'),
-      );
 
       expect(identical(authBloc1, authBloc2), isFalse);
       expect(identical(projectsBloc1, projectsBloc2), isFalse);
       expect(signUpBloc.state.role, UserRole.contractor);
       expect(createProposalBloc.state.projectId, 'proj-1');
       expect(myProposalsBloc.state.tabIndex, 1);
-      expect(resolvedCatalog, isA<CatalogBloc>());
+      expect(catalogBloc, isA<CatalogBloc>());
+      expect(
+        identical(sl<GetContractorsUseCase>(), sl<GetContractorsUseCase>()),
+        isTrue,
+      );
+      expect(
+        identical(
+          sl<RequestContractorVisitUseCase>(),
+          sl<RequestContractorVisitUseCase>(),
+        ),
+        isTrue,
+      );
 
       for (final bloc in [
         authBloc1,
@@ -219,7 +216,6 @@ void main() {
         openProjectsBloc,
         contractorHomeBloc,
         messagingBloc,
-        resolvedCatalog,
       ]) {
         await bloc.close();
       }

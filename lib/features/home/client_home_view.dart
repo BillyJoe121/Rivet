@@ -8,9 +8,7 @@ import '../../injection_container.dart';
 import '../auth/domain/entities/rivet_user.dart';
 import '../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../messaging/client_notifications_screen.dart';
-import '../projects/domain/repositories/project_repository.dart';
 import '../projects/project_detail_screen.dart';
-import '../proposals/domain/repositories/proposal_repository.dart';
 import 'client_home_bloc.dart';
 import 'widgets/client_home_cards.dart';
 
@@ -22,15 +20,10 @@ class ClientHomeView extends StatelessWidget {
   /// Abre la pestaña Proyectos del shell ("Ver todos").
   final VoidCallback onOpenProjects;
 
-  /// Crea el inicio del cliente conectado a [ClientHomeBloc] vía GetIt o contexto.
+  /// Crea el inicio del cliente conectado a [ClientHomeBloc] vía GetIt.
   static Widget withBloc({required VoidCallback onOpenProjects}) {
     return BlocProvider<ClientHomeBloc>(
-      create: (context) => resolveBloc<ClientHomeBloc>(
-        () => ClientHomeBloc.fromRepositories(
-          context.read<ProjectRepository>(),
-          context.read<ProposalRepository>(),
-        ),
-      )..add(const LoadClientHome()),
+      create: (_) => sl<ClientHomeBloc>()..add(const LoadClientHome()),
       child: ClientHomeView(onOpenProjects: onOpenProjects),
     );
   }

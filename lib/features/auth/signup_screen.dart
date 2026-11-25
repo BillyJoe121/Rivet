@@ -9,8 +9,6 @@ import '../../core/models/models.dart';
 import '../../injection_container.dart';
 import '../home/app_shell.dart';
 import '../../core/design_system/design_system.dart';
-import 'domain/repositories/auth_repository.dart';
-import 'domain/usecases/usecases.dart';
 import 'presentation/bloc/auth/auth_bloc.dart';
 import 'presentation/bloc/signup/signup_bloc.dart';
 import 'widgets/signup_form_card.dart';
@@ -40,22 +38,10 @@ class SignupScreen extends StatelessWidget {
       );
     }
 
-    try {
-      context.read<SignUpBloc>();
-      return _SignupView(initialRole: role);
-    } catch (_) {
-      return BlocProvider<SignUpBloc>(
-        create: (_) => resolveBlocParam<SignUpBloc, UserRole, void>(
-          role,
-          null,
-          () => SignUpBloc(
-            SignUpUseCase(context.read<AuthRepository>()),
-            initialRole: role,
-          ),
-        ),
-        child: _SignupView(initialRole: role),
-      );
-    }
+    return BlocProvider<SignUpBloc>(
+      create: (_) => sl<SignUpBloc>(param1: role),
+      child: _SignupView(initialRole: role),
+    );
   }
 }
 

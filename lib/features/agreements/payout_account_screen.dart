@@ -16,11 +16,8 @@ class PayoutAccountScreen extends StatefulWidget {
 
   static Widget withBloc() {
     return BlocProvider<PayoutAccountBloc>(
-      create: (context) => resolveBloc<PayoutAccountBloc>(
-        () => PayoutAccountBloc.fromRepository(
-          context.read<AgreementRepository>(),
-        ),
-      )..add(const LoadPayoutAccountRequested()),
+      create: (_) =>
+          sl<PayoutAccountBloc>()..add(const LoadPayoutAccountRequested()),
       child: const PayoutAccountScreen(),
     );
   }

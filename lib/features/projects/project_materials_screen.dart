@@ -10,7 +10,6 @@ import '../../injection_container.dart';
 import '../supplier/material_price_tier.dart';
 import '../supplier/materials_catalog_screen.dart';
 import 'presentation/bloc/projects_bloc.dart';
-import 'domain/repositories/project_repository.dart';
 
 /// Lista editable de materiales de un proyecto para el cliente (P-014).
 class ProjectMaterialsScreen extends StatelessWidget {
@@ -26,9 +25,7 @@ class ProjectMaterialsScreen extends StatelessWidget {
   /// Pantalla con su propio [ProjectsBloc] cargando el detalle del proyecto.
   static Widget withBloc(Project project) {
     return BlocProvider<ProjectsBloc>(
-      create: (context) => resolveBloc<ProjectsBloc>(
-        () => ProjectsBloc.fromRepository(context.read<ProjectRepository>()),
-      )..add(LoadProjectDetail(project.id)),
+      create: (_) => sl<ProjectsBloc>()..add(LoadProjectDetail(project.id)),
       child: ProjectMaterialsScreen(
         projectId: project.id,
         initialProject: project,

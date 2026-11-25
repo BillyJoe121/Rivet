@@ -18,9 +18,7 @@ class CancellationRefundScreen extends StatefulWidget {
 
   static Widget withBloc({required String agreementId}) {
     return BlocProvider<ClosureBloc>(
-      create: (context) => resolveBloc<ClosureBloc>(
-        () => ClosureBloc.fromRepository(context.read<AgreementRepository>()),
-      )..add(LoadClosureRequested(agreementId)),
+      create: (_) => sl<ClosureBloc>()..add(LoadClosureRequested(agreementId)),
       child: CancellationRefundScreen(agreementId: agreementId),
     );
   }

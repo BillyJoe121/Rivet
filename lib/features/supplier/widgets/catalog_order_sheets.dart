@@ -9,7 +9,6 @@ import '../../../injection_container.dart';
 import '../../projects/domain/repositories/project_repository.dart';
 import '../../projects/presentation/bloc/projects_bloc.dart';
 import '../../projects/wizard/domain/add_material_to_draft_usecase.dart';
-import '../../projects/wizard/domain/project_draft_repository.dart';
 import '../material_price_tier.dart';
 
 export 'order_material_now_sheet.dart';
@@ -24,18 +23,12 @@ Future<void> showAddMaterialToProjectSheet(
 }) {
   List<Project> projects = const [];
   ProjectsBloc? projectsBloc;
-  ProjectRepository? projectRepository;
   try {
     projectsBloc = context.read<ProjectsBloc>();
     projects = projectsBloc.state.projects;
   } catch (_) {}
-  try {
-    projectRepository = context.read<ProjectRepository>();
-  } catch (_) {
-    if (sl.isRegistered<ProjectRepository>()) {
-      projectRepository = sl<ProjectRepository>();
-    }
-  }
+  final projectRepository =
+      sl.isRegistered<ProjectRepository>() ? sl<ProjectRepository>() : null;
 
   return showAppBottomSheet<void>(
     context,
@@ -130,9 +123,7 @@ class _AddMaterialToProjectSheetState
     );
 
     if (_selectedProjectId == 'draft') {
-      AddMaterialToDraftUseCase(context.read<ProjectDraftRepository>())(
-        newItem,
-      );
+      sl<AddMaterialToDraftUseCase>()(newItem);
       Navigator.of(context).pop();
       ScaffoldMessenger.of(context)
         ..hideCurrentSnackBar()

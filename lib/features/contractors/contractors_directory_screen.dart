@@ -17,11 +17,7 @@ class ContractorsDirectoryScreen extends StatelessWidget {
   /// Pantalla con su propio [ContractorsBloc] cargando el directorio.
   static Widget withBloc() {
     return BlocProvider<ContractorsBloc>(
-      create: (context) => resolveBloc<ContractorsBloc>(
-        () => ContractorsBloc.fromRepository(
-          context.read<ContractorRepository>(),
-        ),
-      )..add(const LoadContractors()),
+      create: (_) => sl<ContractorsBloc>()..add(const LoadContractors()),
       child: const ContractorsDirectoryScreen(),
     );
   }

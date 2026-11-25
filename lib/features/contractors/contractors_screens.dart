@@ -264,11 +264,7 @@ class VisitRequestScreen extends StatefulWidget {
     String projectId = 'proj-101',
   }) {
     return BlocProvider<ContractorsBloc>(
-      create: (context) => resolveBloc<ContractorsBloc>(
-        () => ContractorsBloc.fromRepository(
-          context.read<ContractorRepository>(),
-        ),
-      ),
+      create: (_) => sl<ContractorsBloc>(),
       child: VisitRequestScreen(
         contractor: contractor,
         projectId: projectId,

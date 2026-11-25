@@ -60,9 +60,7 @@ class JobClosureScreen extends StatefulWidget {
 
   static Widget withBloc({required String agreementId, bool asClient = true}) {
     return BlocProvider<ClosureBloc>(
-      create: (context) => resolveBloc<ClosureBloc>(
-        () => ClosureBloc.fromRepository(context.read<AgreementRepository>()),
-      )..add(LoadClosureRequested(agreementId)),
+      create: (_) => sl<ClosureBloc>()..add(LoadClosureRequested(agreementId)),
       child: JobClosureScreen(agreementId: agreementId, asClient: asClient),
     );
   }

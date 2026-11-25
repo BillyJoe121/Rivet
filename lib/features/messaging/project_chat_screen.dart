@@ -28,14 +28,9 @@ class ProjectChatScreen extends StatefulWidget {
     String projectTitle = 'Proyecto en curso',
   }) {
     return BlocProvider<MessagingBloc>(
-      create: (context) =>
-          resolveBloc<MessagingBloc>(
-              () => MessagingBloc.fromRepository(
-                context.read<MessagingRepository>(),
-              ),
-            )
-            ..add(const LoadMessagingData())
-            ..add(SubscribeConversationRealtime(conversationId)),
+      create: (_) => sl<MessagingBloc>()
+        ..add(const LoadMessagingData())
+        ..add(SubscribeConversationRealtime(conversationId)),
       child: ProjectChatScreen(
         conversationId: conversationId,
         contractorName: contractorName,

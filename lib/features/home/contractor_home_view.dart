@@ -5,16 +5,13 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/design_system/design_system.dart';
 import '../../core/models/models.dart';
 import '../../injection_container.dart';
-import '../agreements/agreements_module.dart';
 import '../agreements/agreements_screens.dart';
 import '../auth/domain/entities/rivet_user.dart';
 import '../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../messaging/client_notifications_screen.dart';
 import '../projects/contractor/contractor_project_detail_screen.dart';
 import '../projects/contractor/open_projects_screen.dart';
-import '../projects/domain/repositories/project_repository.dart';
 import '../proposals/contractor/my_proposals_jobs_screen.dart';
-import '../proposals/domain/repositories/proposal_repository.dart';
 import 'contractor_home_bloc.dart';
 import 'widgets/pro_home_cards.dart';
 import 'widgets/pro_home_mock.dart';
@@ -41,13 +38,7 @@ class ContractorHomeView extends StatelessWidget {
     VoidCallback? onOpenMessages,
   }) {
     return BlocProvider<ContractorHomeBloc>(
-      create: (context) => resolveBloc<ContractorHomeBloc>(
-        () => ContractorHomeBloc.fromRepositories(
-          context.read<ProjectRepository>(),
-          context.read<ProposalRepository>(),
-          agreementRepository: context.read<AgreementRepository>(),
-        ),
-      )..add(const LoadContractorHome()),
+      create: (_) => sl<ContractorHomeBloc>()..add(const LoadContractorHome()),
       child: ContractorHomeView(
         onSwitchRole: onSwitchRole,
         onOpenProjects: onOpenProjects,

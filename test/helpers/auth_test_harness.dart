@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:rivet/core/models/models.dart';
 import 'package:rivet/features/auth/domain/entities/rivet_user.dart';
 import 'package:rivet/features/auth/domain/repositories/auth_repository.dart';
-import 'package:rivet/features/auth/domain/usecases/usecases.dart';
 import 'package:rivet/features/auth/presentation/bloc/auth/auth_bloc.dart';
+import 'package:rivet/injection_container.dart';
 
 /// Repositorio de autenticación en memoria para pruebas de widgets.
 class InMemoryAuthRepository implements AuthRepository {
@@ -78,17 +78,13 @@ class InMemoryAuthRepository implements AuthRepository {
   Stream<void> get onPasswordRecovery => const Stream.empty();
 }
 
-/// Envuelve [child] con el repositorio de autenticación y el [AuthBloc] que la
-/// raíz de la app inyecta en producción.
+/// Envuelve [child] configurando [AuthRepository] en GetIt y proveyendo
+/// [AuthBloc] como en la raíz de la aplicación.
 Widget withAuth(Widget child, {AuthRepository? repository}) {
   final repo = repository ?? InMemoryAuthRepository();
-  return RepositoryProvider<AuthRepository>.value(
-    value: repo,
-    child: BlocProvider<AuthBloc>(
-      create: (_) =>
-          AuthBloc(GetCurrentUserUseCase(repo), SignOutUseCase(repo))
-            ..add(const AuthCheckRequested()),
-      child: child,
-    ),
+  configureDependencies(authRepository: repo, allowOverride: true);
+  return BlocProvider<AuthBloc>(
+    create: (_) => sl<AuthBloc>()..add(const AuthCheckRequested()),
+    child: child,
   );
 }

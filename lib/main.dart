@@ -6,21 +6,16 @@ import 'core/config/supabase_config.dart';
 import 'core/theme/theme.dart';
 import 'core/utils/app_page_route.dart';
 import 'core/widgets/keyboard_dismisser.dart';
+import 'features/agreements/agreements_module.dart';
 import 'features/auth/auth_gate.dart';
 import 'features/auth/domain/repositories/auth_repository.dart';
-import 'features/auth/domain/usecases/usecases.dart';
 import 'features/auth/presentation/bloc/auth/auth_bloc.dart';
 import 'features/auth/reset_password_screen.dart';
-import 'features/agreements/agreements_module.dart';
 import 'features/contractors/contractors_module.dart';
 import 'features/messaging/messaging_module.dart';
-import 'features/projects/data/project_repository_factory.dart';
 import 'features/projects/domain/repositories/project_repository.dart';
-import 'features/projects/wizard/data/local_project_draft_repository.dart';
 import 'features/projects/wizard/domain/project_draft_repository.dart';
-import 'features/proposals/data/proposal_repository_factory.dart';
 import 'features/proposals/domain/repositories/proposal_repository.dart';
-import 'features/supplier/data/catalog_repository_factory.dart';
 import 'features/supplier/domain/repositories/catalog_repository.dart';
 import 'injection_container.dart';
 
@@ -31,28 +26,15 @@ Future<void> main() async {
   setupHttpOverrides();
   await SupabaseConfig.initialize();
   await initDependencies();
-  runApp(
-    RivetApp(
-      authRepository: sl<AuthRepository>(),
-      projectRepository: sl<ProjectRepository>(),
-      proposalRepository: sl<ProposalRepository>(),
-      catalogRepository: sl<CatalogRepository>(),
-      contractorRepository: sl<ContractorRepository>(),
-      agreementRepository: sl<AgreementRepository>(),
-      messagingRepository: sl<MessagingRepository>(),
-      projectDraftRepository: sl<ProjectDraftRepository>(),
-    ),
-  );
+  runApp(const RivetApp());
 }
 
-/// Aplicación principal Rivet configurada con el tema global y tokens de marca.
-///
-/// Recibe los repositorios ya armados y los comparte por contexto; los que no
-/// llegan se crean una sola vez al montar la app.
+/// Aplicación principal Rivet configurada con el tema global, tokens de marca
+/// y resolución centralizada de dependencias vía GetIt (`sl`).
 class RivetApp extends StatefulWidget {
   const RivetApp({
     super.key,
-    required this.authRepository,
+    this.authRepository,
     this.projectRepository,
     this.proposalRepository,
     this.catalogRepository,
@@ -62,8 +44,7 @@ class RivetApp extends StatefulWidget {
     this.projectDraftRepository,
   });
 
-  /// Repositorio de autenticación compartido por toda la app.
-  final AuthRepository authRepository;
+  final AuthRepository? authRepository;
   final ProjectRepository? projectRepository;
   final ProposalRepository? proposalRepository;
   final CatalogRepository? catalogRepository;
@@ -79,25 +60,33 @@ class RivetApp extends StatefulWidget {
 class _RivetAppState extends State<RivetApp> {
   StreamSubscription<void>? _recoverySubscription;
 
-  late final ProjectRepository _projectRepository =
-      widget.projectRepository ?? createProjectRepository();
-  late final ProposalRepository _proposalRepository =
-      widget.proposalRepository ?? createProposalRepository();
-  late final CatalogRepository _catalogRepository =
-      widget.catalogRepository ?? createCatalogRepository();
-  late final ContractorRepository _contractorRepository =
-      widget.contractorRepository ?? createContractorRepository();
-  late final AgreementRepository _agreementRepository =
-      widget.agreementRepository ?? createAgreementRepository();
-  late final MessagingRepository _messagingRepository =
-      widget.messagingRepository ?? createMessagingRepository();
-  late final ProjectDraftRepository _projectDraftRepository =
-      widget.projectDraftRepository ?? LocalProjectDraftRepository();
+  bool get _hasOverrides =>
+      widget.authRepository != null ||
+      widget.projectRepository != null ||
+      widget.proposalRepository != null ||
+      widget.catalogRepository != null ||
+      widget.contractorRepository != null ||
+      widget.agreementRepository != null ||
+      widget.messagingRepository != null ||
+      widget.projectDraftRepository != null;
 
   @override
   void initState() {
     super.initState();
-    _recoverySubscription = widget.authRepository.onPasswordRecovery.listen((_) {
+    if (_hasOverrides || !sl.isRegistered<AuthRepository>()) {
+      configureDependencies(
+        authRepository: widget.authRepository,
+        projectRepository: widget.projectRepository,
+        proposalRepository: widget.proposalRepository,
+        catalogRepository: widget.catalogRepository,
+        contractorRepository: widget.contractorRepository,
+        agreementRepository: widget.agreementRepository,
+        messagingRepository: widget.messagingRepository,
+        projectDraftRepository: widget.projectDraftRepository,
+        allowOverride: _hasOverrides,
+      );
+    }
+    _recoverySubscription = sl<AuthRepository>().onPasswordRecovery.listen((_) {
       rootNavigatorKey.currentState?.push(
         RivetPageRoute(builder: (_) => const ResetPasswordScreen()),
       );
@@ -139,41 +128,9 @@ class _RivetAppState extends State<RivetApp> {
 
   @override
   Widget build(BuildContext context) {
-    final authRepository = widget.authRepository;
-    return MultiRepositoryProvider(
-      providers: [
-        RepositoryProvider<AuthRepository>.value(value: authRepository),
-        RepositoryProvider<ProjectRepository>.value(value: _projectRepository),
-        RepositoryProvider<ProposalRepository>.value(
-          value: _proposalRepository,
-        ),
-        RepositoryProvider<CatalogRepository>.value(value: _catalogRepository),
-        RepositoryProvider<ContractorRepository>.value(
-          value: _contractorRepository,
-        ),
-        RepositoryProvider<AgreementRepository>.value(
-          value: _agreementRepository,
-        ),
-        RepositoryProvider<MessagingRepository>.value(
-          value: _messagingRepository,
-        ),
-        RepositoryProvider<ProjectDraftRepository>.value(
-          value: _projectDraftRepository,
-        ),
-      ],
-      child: BlocProvider<AuthBloc>(
-        create: (_) {
-          final bloc =
-              sl.isRegistered<AuthBloc>() &&
-                  identical(authRepository, sl<AuthRepository>())
-              ? sl<AuthBloc>()
-              : AuthBloc(
-                  GetCurrentUserUseCase(authRepository),
-                  SignOutUseCase(authRepository),
-                );
-          return bloc..add(const AuthCheckRequested());
-        },
-        child: MaterialApp(
+    return BlocProvider<AuthBloc>(
+      create: (_) => sl<AuthBloc>()..add(const AuthCheckRequested()),
+      child: MaterialApp(
         navigatorKey: rootNavigatorKey,
         title: 'Rivet · Cotizaciones para tu obra',
         debugShowCheckedModeBanner: false,
@@ -182,7 +139,6 @@ class _RivetAppState extends State<RivetApp> {
         builder: (context, child) =>
             KeyboardDismisser(child: child ?? const SizedBox.shrink()),
         home: const AuthGate(),
-        ),
       ),
     );
   }

@@ -21,9 +21,7 @@ class RegisterProgressScreen extends StatefulWidget {
 
   static Widget withBloc({required String agreementId}) {
     return BlocProvider<ProgressBloc>(
-      create: (context) => resolveBloc<ProgressBloc>(
-        () => ProgressBloc.fromRepository(context.read<AgreementRepository>()),
-      )..add(LoadProgressRequested(agreementId)),
+      create: (_) => sl<ProgressBloc>()..add(LoadProgressRequested(agreementId)),
       child: RegisterProgressScreen(agreementId: agreementId),
     );
   }
