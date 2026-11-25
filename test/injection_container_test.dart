@@ -239,4 +239,65 @@ void main() {
     }
     expect(violations, isEmpty);
   });
+
+  test('lib/ resuelve dependencias solo vía GetIt sin RepositoryProvider ni mocks', () {
+    final libDir = Directory('lib');
+    final diViolations = <String>[];
+    final mockViolations = <String>[];
+    final lineViolations = <String>[];
+
+    for (final entity in libDir.listSync(recursive: true)) {
+      if (entity is! File || !entity.path.endsWith('.dart')) continue;
+      final normalized = entity.path.replaceAll('\\', '/');
+      final fileName = normalized.split('/').last;
+
+      if (fileName.endsWith('_mock.dart') ||
+          fileName == 'mock_data.dart' ||
+          (fileName.startsWith('local_') &&
+              fileName.endsWith('_repository.dart') &&
+              fileName != 'local_project_draft_repository.dart')) {
+        mockViolations.add(normalized);
+      }
+
+      final lines = entity.readAsLinesSync();
+      if (lines.length > 500) {
+        lineViolations.add('$normalized (${lines.length} lines)');
+      }
+
+      for (var i = 0; i < lines.length; i++) {
+        final line = lines[i];
+        if (line.contains('RepositoryProvider') ||
+            line.contains('MultiRepositoryProvider') ||
+            line.contains('resolveBloc(') ||
+            line.contains('resolveBlocParam(')) {
+          diViolations.add('$normalized:${i + 1}: ${line.trim()}');
+        }
+      }
+    }
+
+    expect(diViolations, isEmpty);
+    expect(mockViolations, isEmpty);
+    expect(lineViolations, isEmpty);
+  });
+
+  test('lib/core/widgets/ mantiene una sola familia de componentes App*', () {
+    final widgetsDir = Directory('lib/core/widgets');
+    const forbiddenNames = {
+      'rv_button.dart',
+      'rv_header.dart',
+      'rv_page.dart',
+      'rv_surfaces.dart',
+      'pro_icon.dart',
+      'lucide_icons.dart',
+    };
+    final legacyFiles = <String>[];
+    for (final entity in widgetsDir.listSync(recursive: true)) {
+      if (entity is! File || !entity.path.endsWith('.dart')) continue;
+      final fileName = entity.path.replaceAll('\\', '/').split('/').last;
+      if (fileName.startsWith('pro_') || forbiddenNames.contains(fileName)) {
+        legacyFiles.add(entity.path.replaceAll('\\', '/'));
+      }
+    }
+    expect(legacyFiles, isEmpty);
+  });
 }

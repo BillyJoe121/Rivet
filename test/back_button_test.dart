@@ -37,7 +37,6 @@ void main() {
 
   final screens = <String, Widget>{
     'RivetScaffold': const RivetScaffold(title: 'Prueba', showHeroImage: false, body: SizedBox()),
-    'ProBackHeader': const Scaffold(body: ProBackHeader(title: 'Prueba')),
     'LoginScreen': const LoginScreen(),
     'ForgotPasswordScreen': const ForgotPasswordScreen(),
     'SignupScreen': const SignupScreen(),
