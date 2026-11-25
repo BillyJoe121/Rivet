@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
-import '../../core/models/models.dart';
-import '../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../../core/design_system/design_system.dart';
+import '../../core/models/models.dart';
 import '../agreements/payout_account_screen.dart';
+import '../auth/presentation/bloc/auth/auth_bloc.dart';
 import '../onboarding/welcome_screen.dart';
 import '../under_construction/under_construction_screen.dart';
 import 'widgets/account_profile_widgets.dart';
@@ -56,121 +57,132 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     final initials = displayName.trim().split(' ').map((p) => p.isNotEmpty ? p[0] : '').take(2).join().toUpperCase();
 
-    return ProScreen(
-      backgroundAsset: AppImages.headerGreenCream,
-      navWhenPushed: ProNavDestination.more,
-      footer: Padding(
-        padding: const EdgeInsets.fromLTRB(22, 0, 22, 8),
+    return RivetScaffold(
+      title: 'Mi perfil',
+      showBackButton: true,
+      onBack: widget.onBack,
+      backgroundImagePath: AppImages.headerGreenCream,
+      bottomBar: Padding(
+        padding: const EdgeInsets.fromLTRB(22, 8, 22, 8),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ProPrimaryButton.large('Guardar cambios', onTap: () => Navigator.of(context).maybePop()),
+            AppButton(
+              text: 'Guardar cambios',
+              showChevron: true,
+              onPressed: () => Navigator.of(context).maybePop(),
+            ),
             const SizedBox(height: 8),
             TextButton.icon(
               onPressed: _handleSignOut,
-              icon: const Icon(Icons.logout_rounded, color: Colors.redAccent, size: 20),
+              icon: const Icon(
+                Icons.logout_rounded,
+                color: Colors.redAccent,
+                size: 20,
+              ),
               label: const Text(
                 'Cerrar sesión',
-                style: TextStyle(color: Colors.redAccent, fontWeight: FontWeight.w600),
+                style: TextStyle(
+                  color: Colors.redAccent,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
             ),
           ],
         ),
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          ProBackHeader(
-            title: 'Mi perfil',
-            padding: const EdgeInsets.fromLTRB(24, 10, 24, 8),
-            gap: 6,
-            onBack: widget.onBack,
-          ),
-          const SizedBox(height: 31),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 22),
-            child: ProCard(
-              padding: const EdgeInsets.all(20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(22, 31, 22, 22),
+        child: AppCard(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ProfileHeaderCard(
+                initials: initials,
+                displayName: displayName,
+                roleTitle: widget.currentRole == UserRole.contractor
+                    ? 'Contratista profesional'
+                    : 'Cliente propietario',
+                onTapAvatar: () => showAccountRoleSheet(
+                  context,
+                  currentRole: widget.currentRole,
+                  onSwitchRole: widget.onSwitchRole,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
                 children: [
-                  ProfileHeaderCard(
-                    initials: initials,
-                    displayName: displayName,
-                    roleTitle: widget.currentRole == UserRole.contractor
-                        ? 'Contratista profesional'
-                        : 'Cliente propietario',
-                    onTapAvatar: () => showAccountRoleSheet(
-                      context,
-                      currentRole: widget.currentRole,
-                      onSwitchRole: widget.onSwitchRole,
+                  Expanded(
+                    child: Text(
+                      'Información personal',
+                      style: AppTypography.proportional(
+                        19,
+                        family: AppTypography.serif,
+                        weight: FontWeight.w600,
+                        color: AppColors.ink700,
+                        lineHeight: 22.8,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 14),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          'Información personal',
-                          style: AppTypography.proportional(19, family: AppTypography.serif, weight: FontWeight.w600, color: AppColors.ink700, lineHeight: 22.8),
-                        ),
+                  // Provisional: la edición real reemplazará esta pantalla.
+                  TextButton(
+                    onPressed: () => AppNavigator.push(
+                      context,
+                      const UnderConstructionScreen(section: 'Editar perfil'),
+                    ),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.brand700,
+                      minimumSize: const Size(48, 36),
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    ),
+                    child: Text(
+                      'Editar',
+                      style: AppTypography.labelStrongProportional.copyWith(
+                        color: AppColors.brand700,
                       ),
-                      // Provisional: la edición real reemplazará esta pantalla.
-                      TextButton(
-                        onPressed: () => AppNavigator.push(
-                          context,
-                          const UnderConstructionScreen(section: 'Editar perfil'),
-                        ),
-                        style: TextButton.styleFrom(
-                          foregroundColor: AppColors.brand700,
-                          minimumSize: const Size(48, 36),
-                          padding: const EdgeInsets.symmetric(horizontal: 8),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text('Editar', style: AppTypography.labelStrongProportional.copyWith(color: AppColors.brand700)),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Column(
-                    spacing: 14,
-                    children: [
-                      for (final (icon, title, value) in [
-                        (LucideIcon.user, 'Nombre visible', displayName),
-                        (LucideIcon.mail, 'Correo electrónico', displayEmail),
-                        (LucideIcon.phone, 'Número de contacto', displayPhone),
-                        (LucideIcon.mapPin, 'Ciudad / zona', displayZone),
-                      ])
-                        SizedBox(
-                          height: 40,
-                          child: ProOptionRow(icon: icon, title: title, subtitle: value, trailing: null),
-                        ),
-                      if (widget.currentRole == UserRole.contractor)
-                        SizedBox(
-                          height: 44,
-                          child: ProOptionRow(
-                            icon: LucideIcon.creditCard,
-                            title: 'Cuenta para recibir pagos',
-                            subtitle: 'Datos bancarios enmascarados',
-                            onTap: () => AppNavigator.push(
-                              context,
-                              PayoutAccountScreen.withBloc(),
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  const ProNote(
-                    text: 'Tu dirección exacta se mantiene privada. Solo compartiremos tu zona con profesionales verificados.',
+                    ),
                   ),
                 ],
               ),
-            ),
+              const SizedBox(height: 14),
+              Column(
+                spacing: 8,
+                children: [
+                  for (final (icon, title, value) in [
+                    (LucideIcons.user, 'Nombre visible', displayName),
+                    (LucideIcons.mail, 'Correo electrónico', displayEmail),
+                    (LucideIcons.phone, 'Número de contacto', displayPhone),
+                    (LucideIcons.mapPin, 'Ciudad / zona', displayZone),
+                  ])
+                    AppListTile(
+                      leadingIcon: icon,
+                      title: title,
+                      subtitle: value,
+                      showChevron: false,
+                    ),
+                  if (widget.currentRole == UserRole.contractor)
+                    AppListTile(
+                      leadingIcon: LucideIcons.creditCard,
+                      title: 'Cuenta para recibir pagos',
+                      subtitle: 'Datos bancarios enmascarados',
+                      onTap: () => AppNavigator.push(
+                        context,
+                        PayoutAccountScreen.withBloc(),
+                      ),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              const AppInfoBanner(
+                message:
+                    'Tu dirección exacta se mantiene privada. Solo compartiremos tu zona con profesionales verificados.',
+              ),
+            ],
           ),
-          const SizedBox(height: 22),
-        ],
+        ),
       ),
     );
   }

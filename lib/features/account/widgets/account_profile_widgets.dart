@@ -36,10 +36,16 @@ class ProfileHeaderCard extends StatelessWidget {
                 child: Stack(
                   clipBehavior: Clip.none,
                   children: [
-                    ProInitialsAvatar(
-                      initials.isNotEmpty ? initials : 'RV',
+                    AppAvatar(
+                      initials: initials.isNotEmpty ? initials : 'RV',
                       size: 88,
-                      textStyle: AppTypography.proportional(29, family: AppTypography.serif, weight: FontWeight.w400, color: AppColors.surface0, lineHeight: 34.8),
+                      textStyle: AppTypography.proportional(
+                        29,
+                        family: AppTypography.serif,
+                        weight: FontWeight.w400,
+                        color: AppColors.surface0,
+                        lineHeight: 34.8,
+                      ),
                     ),
                     Positioned(
                       right: -2,
@@ -91,11 +97,9 @@ class ProfileHeaderCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 14),
-        ProChip(
-          '✓ Perfil activo en Supabase',
-          background: AppColors.successLight,
-          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-          textStyle: AppTypography.proportional(11, color: AppColors.brand700, lineHeight: 13.2),
+        const AppBadge(
+          text: '✓ Perfil activo en Supabase',
+          variant: AppBadgeVariant.success,
         ),
       ],
     );

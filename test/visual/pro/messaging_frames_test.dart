@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rivet/core/design_system/design_system.dart';
-import 'package:rivet/features/messaging/notifications_screen.dart';
+import 'package:rivet/features/messaging/messaging_screens.dart';
 
+import '../../helpers/repositories_test_harness.dart';
 import 'pro_harness.dart';
 
 void main() {
@@ -14,9 +14,9 @@ void main() {
   ) async {
     await renderFrame(
       tester,
-      const NotificationsScreen(),
+      withRepositories(ConversationsListScreen.withBloc()),
       name: '22-146347',
-      nav: ProNavDestination.messages,
+      navIndex: 3,
     );
     expect(tester.takeException(), isNull);
   });

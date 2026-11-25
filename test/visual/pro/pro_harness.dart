@@ -42,14 +42,13 @@ Future<void> loadProFonts() async {
 }
 
 /// Pumps [screen] inside the frame chrome (status bar, gesture bar) and
-/// writes `build/visual/pro/<name>.png`. When [nav] is given, the bottom
+/// writes `build/visual/pro/<name>.png`. When [navIndex] is given, the bottom
 /// navigation is appended as the app shell would show it.
 Future<File> renderFrame(
   WidgetTester tester,
   Widget screen, {
   required String name,
-  ProNavDestination? nav,
-  bool navCentered = false,
+  int? navIndex,
   Color background = AppColors.paper100,
 }) async {
   tester.view.physicalSize = kFrameSize * 2;
@@ -58,12 +57,25 @@ Future<File> renderFrame(
 
   final key = GlobalKey();
   Widget body = screen;
-  if (nav != null) {
+  if (navIndex != null) {
     body = Builder(
       builder: (context) => Column(
         children: [
-          Expanded(child: MediaQuery.removePadding(context: context, removeBottom: true, child: screen)),
-          ProBottomNav(active: nav, centered: navCentered, onSelect: (_) {}),
+          Expanded(
+            child: MediaQuery.removePadding(
+              context: context,
+              removeBottom: true,
+              child: screen,
+            ),
+          ),
+          Material(
+            type: MaterialType.transparency,
+            child: AppBottomNav(
+              destinations: AppNavDestinations.professional,
+              currentIndex: navIndex,
+              onSelected: (_) {},
+            ),
+          ),
         ],
       ),
     );

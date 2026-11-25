@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/core/models/models.dart';
-import 'package:rivet/core/widgets/app_back_button.dart';
-import 'package:rivet/core/widgets/pro_rows.dart';
-import 'package:rivet/core/widgets/pro_surfaces.dart';
+import 'package:rivet/core/widgets/widgets.dart';
 import 'package:rivet/features/home/app_shell.dart';
 import 'package:rivet/features/projects/my_projects_screen.dart';
 import 'package:rivet/features/projects/project_detail_screen.dart';
@@ -110,7 +108,7 @@ void main() {
 
     expect(find.text('Proyectos disponibles'), findsNothing);
     expect(find.text('Trabajos activos'), findsNothing);
-    expect(find.byType(ProInitialsAvatar), findsNothing);
+    expect(find.byType(AppAvatar), findsNothing);
   });
 
   testWidgets('La campana del inicio (client) abre ClientNotificationsScreen', (tester) async {
@@ -130,7 +128,7 @@ void main() {
   testWidgets('Una entrada de actividad reciente abre la sección correspondiente', (tester) async {
     await pumpShell(tester, UserRole.contractor);
 
-    final row = find.byType(ProOptionRow).at(1);
+    final row = find.byType(AppListTile).at(1);
     await tester.ensureVisible(row);
     await tester.tap(row);
     await tester.pumpAndSettle();

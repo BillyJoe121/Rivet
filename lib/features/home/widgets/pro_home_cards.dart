@@ -1,7 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../../../core/design_system/design_system.dart';
-import 'pro_home_mock.dart';
+
+/// Proyecto resumido en tarjetas de inicio del contratista.
+class ProProjectSummary {
+  const ProProjectSummary({
+    required this.title,
+    required this.category,
+    required this.location,
+    required this.image,
+    this.badge,
+    this.stagesDone,
+    this.stagesTotal,
+    this.progress,
+  });
+
+  final String title;
+  final String category;
+  final String location;
+  final String image;
+  final String? badge;
+  final int? stagesDone;
+  final int? stagesTotal;
+
+  /// Avance mostrado en la barra; si falta, se usa etapas hechas / total.
+  final double? progress;
+}
+
+/// Evento de actividad reciente en el inicio del contratista.
+class ProActivity {
+  const ProActivity(this.icon, this.title, this.detail);
+
+  final IconData icon;
+  final String title;
+  final String detail;
+}
 
 /// Tarjeta oscura "Nuevos proyectos cerca de ti" con un proyecto destacado.
 class ProFeaturedProjectCard extends StatelessWidget {
@@ -12,13 +46,18 @@ class ProFeaturedProjectCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProCard(
-      color: AppColors.brand800,
+    return AppCard(
+      backgroundColor: AppColors.brand800,
       padding: const EdgeInsets.all(13),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text('Nuevos proyectos cerca de ti', style: AppTypography.subheadingProportional.copyWith(color: AppColors.surface0)),
+          Text(
+            'Nuevos proyectos cerca de ti',
+            style: AppTypography.subheadingProportional.copyWith(
+              color: AppColors.surface0,
+            ),
+          ),
           const SizedBox(height: 9),
           ProProjectCard(project: project, imageSize: 78, onTap: onTap),
         ],
@@ -30,7 +69,12 @@ class ProFeaturedProjectCard extends StatelessWidget {
 /// Tarjeta de proyecto con foto, datos y estado o progreso. Con [onTap] se
 /// puede tocar y muestra un chevron a la derecha.
 class ProProjectCard extends StatelessWidget {
-  const ProProjectCard({super.key, required this.project, this.imageSize = 72, this.onTap});
+  const ProProjectCard({
+    super.key,
+    required this.project,
+    this.imageSize = 72,
+    this.onTap,
+  });
 
   final ProProjectSummary project;
   final double imageSize;
@@ -40,14 +84,29 @@ class ProProjectCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final done = project.stagesDone;
     final total = project.stagesTotal;
-    return ProCard(
-      radius: AppSpacing.radiusCard,
+    return AppCard(
+      borderRadius: BorderRadius.circular(AppSpacing.radiusCard),
       borderWidth: AppSpacing.strokeHairline,
       padding: const EdgeInsets.all(7),
       onTap: onTap,
       child: Row(
         children: [
-          ProImage(project.image, width: imageSize, height: imageSize),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+            child: Image.asset(
+              project.image,
+              width: imageSize,
+              height: imageSize,
+              fit: BoxFit.cover,
+              cacheWidth: 320,
+              gaplessPlayback: true,
+              errorBuilder: (_, _, _) => Container(
+                width: imageSize,
+                height: imageSize,
+                color: AppColors.brandLight,
+              ),
+            ),
+          ),
           const SizedBox(width: 9),
           Expanded(
             child: Column(
@@ -56,31 +115,36 @@ class ProProjectCard extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Expanded(child: Text(project.title, style: AppTypography.labelStrongProportional)),
+                    Expanded(
+                      child: Text(
+                        project.title,
+                        style: AppTypography.labelStrongProportional,
+                      ),
+                    ),
                     if (project.badge != null) ...[
                       const SizedBox(width: 4),
-                      ProChip(
-                        project.badge!,
-                        background: AppColors.warningLight,
-                        padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
-                        textStyle: AppTypography.proportional(11, color: AppColors.sun300, lineHeight: 13.2),
+                      AppBadge(
+                        text: project.badge!,
+                        variant: AppBadgeVariant.warning,
+                        compact: true,
                       ),
                     ],
                   ],
                 ),
                 const SizedBox(height: 3),
                 Text(
-                  '${project.category}\n♧ ${project.location}',
-                  style: AppTypography.proportional(11, color: AppColors.ink500, lineHeight: 12.65),
+                  '${project.category}\n${project.location}',
+                  style: AppTypography.proportional(
+                    11,
+                    color: AppColors.ink500,
+                    lineHeight: 12.65,
+                  ),
                 ),
                 if (done != null && total != null) ...[
                   const SizedBox(height: 3),
-                  Row(
-                    children: [
-                      Expanded(child: ProProgressBar(value: project.progress ?? done / total)),
-                      const SizedBox(width: 8),
-                      Text('$done de $total etapas', style: AppTypography.proportional(9, color: AppColors.ink500, lineHeight: 10.8)),
-                    ],
+                  AppProgressBar(
+                    value: project.progress ?? done / total,
+                    label: '$done de $total etapas',
                   ),
                 ],
               ],
@@ -88,7 +152,11 @@ class ProProjectCard extends StatelessWidget {
           ),
           if (onTap != null) ...[
             const SizedBox(width: 4),
-            const ProIcon(LucideIcon.chevronRight, size: 18, color: AppColors.ink500),
+            const Icon(
+              LucideIcons.chevronRight,
+              size: 18,
+              color: AppColors.ink500,
+            ),
           ],
         ],
       ),
@@ -96,7 +164,7 @@ class ProProjectCard extends StatelessWidget {
   }
 }
 
-/// Tarjeta de actividad reciente con filas separadas por líneas de 0.5 px.
+/// Tarjeta de actividad reciente con filas separadas por líneas de 1 px.
 class ProActivityCard extends StatelessWidget {
   const ProActivityCard({super.key, required this.items, this.onTap});
 
@@ -105,20 +173,17 @@ class ProActivityCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProCard(
+    return AppCard(
       padding: const EdgeInsets.all(4),
       child: Column(
         children: [
-          for (final item in items)
-            SizedBox(
-              height: 40,
-              child: ProOptionRow(
-                icon: item.icon,
-                title: item.title,
-                subtitle: item.detail,
-                titleStyle: AppTypography.proportional(12, weight: FontWeight.w600, lineHeight: 15.6),
-                onTap: onTap == null ? null : () => onTap!(item),
-              ),
+          for (var i = 0; i < items.length; i++)
+            AppListTile(
+              leadingIcon: items[i].icon,
+              title: items[i].title,
+              subtitle: items[i].detail,
+              showDivider: i < items.length - 1,
+              onTap: onTap == null ? null : () => onTap!(items[i]),
             ),
         ],
       ),
