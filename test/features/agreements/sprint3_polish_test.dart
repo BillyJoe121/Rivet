@@ -7,6 +7,7 @@ import 'package:rivet/features/messaging/messaging_screens.dart';
 import 'package:rivet/features/projects/domain/repositories/project_repository.dart';
 import 'package:rivet/features/proposals/domain/repositories/proposal_repository.dart';
 
+import '../../helpers/local_agreement_repository.dart';
 import '../../helpers/repositories_test_harness.dart';
 
 class _StubProjectRepo implements ProjectRepository {

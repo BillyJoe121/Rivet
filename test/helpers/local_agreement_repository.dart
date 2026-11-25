@@ -1,7 +1,7 @@
-import '../../../core/models/models.dart';
-import '../domain/agreements_domain.dart';
-import '../domain/closure_domain.dart';
-import '../domain/progress_domain.dart';
+import 'package:rivet/core/models/models.dart';
+import 'package:rivet/features/agreements/domain/agreements_domain.dart';
+import 'package:rivet/features/agreements/domain/closure_domain.dart';
+import 'package:rivet/features/agreements/domain/progress_domain.dart';
 
 class LocalAgreementRepository implements AgreementRepository {
   final Map<String, WorkAgreement> _byProposalId = {};

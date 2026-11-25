@@ -18,6 +18,9 @@ import 'package:rivet/injection_container.dart';
 
 import 'auth_test_harness.dart';
 import 'catalog_mock.dart';
+import 'local_agreement_repository.dart';
+import 'local_contractor_repository.dart';
+import 'local_messaging_repository.dart';
 import 'mock_data.dart';
 
 class _InMemoryProjectRepository implements ProjectRepository {

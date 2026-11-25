@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/core/models/models.dart';
 import 'package:rivet/features/agreements/agreements_module.dart';
 
+import '../../helpers/local_agreement_repository.dart';
+
 void main() {
   final sampleProposal = Proposal(
     id: 'prop-prog-1',

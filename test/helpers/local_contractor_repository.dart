@@ -1,5 +1,5 @@
-import '../../../core/models/models.dart';
-import '../domain/contractors_domain.dart';
+import 'package:rivet/core/models/models.dart';
+import 'package:rivet/features/contractors/domain/contractors_domain.dart';
 
 class LocalContractorRepository implements ContractorRepository {
   final List<VisitRequest> _visits = [];

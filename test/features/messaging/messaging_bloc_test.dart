@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/features/messaging/messaging_module.dart';
 
+import '../../helpers/local_messaging_repository.dart';
+
 class _RealtimeFakeMessagingRepo extends LocalMessagingRepository {
   final msgController = StreamController<ChatMessage>.broadcast();
   final notifController = StreamController<ClientNotificationItem>.broadcast();

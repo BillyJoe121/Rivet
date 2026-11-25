@@ -1,4 +1,4 @@
-import '../domain/messaging_domain.dart';
+import 'package:rivet/features/messaging/domain/messaging_domain.dart';
 
 class LocalMessagingRepository implements MessagingRepository {
   LocalMessagingRepository()

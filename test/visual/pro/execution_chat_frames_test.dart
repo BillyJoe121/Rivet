@@ -1,9 +1,9 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/core/models/models.dart';
-import 'package:rivet/features/agreements/agreements_module.dart';
 import 'package:rivet/features/agreements/agreements_screens.dart';
 import 'package:rivet/features/messaging/messaging_screens.dart';
 
+import '../../helpers/local_agreement_repository.dart';
 import '../../helpers/repositories_test_harness.dart';
 import 'pro_harness.dart';
 

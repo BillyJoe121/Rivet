@@ -47,8 +47,25 @@ Map<String, dynamic> surfaceToRow(
   };
 }
 
-/// Convierte una fila de `projects` (con `project_spaces` y el perfil público
-/// del cliente anidados) al modelo.
+/// Fila de `project_materials` lista para insertar.
+Map<String, dynamic> materialToRow(
+  ProjectMaterial material, {
+  required String projectId,
+  required int position,
+}) {
+  return {
+    'project_id': projectId,
+    'product_id': material.productId,
+    'position': position,
+    'name': material.name,
+    'unit': material.unit,
+    'unit_price_cop': material.unitPriceCop,
+    'quantity': material.quantity,
+  };
+}
+
+/// Convierte una fila de `projects` (con `project_spaces`, `project_materials`
+/// y el perfil público del cliente anidados) al modelo.
 Project projectFromRow(Map<String, dynamic> row) {
   final client = row['client'] as Map<String, dynamic>? ?? const {};
   final spaces = [...(row['project_spaces'] as List? ?? const [])]
@@ -57,6 +74,17 @@ Project projectFromRow(Map<String, dynamic> row) {
         _toInt((b as Map)['position']),
       ),
     );
+  final rawMaterials = [...(row['project_materials'] as List? ?? const [])]
+    ..sort(
+      (a, b) => _toInt((a as Map)['position']).compareTo(
+        _toInt((b as Map)['position']),
+      ),
+    );
+  final rawPhotos = row['photo_paths'] as List? ?? const [];
+  final photoAssets = [
+    for (final path in rawPhotos)
+      if (path != null && path.toString().isNotEmpty) path.toString(),
+  ];
 
   return Project(
     id: row['id'].toString(),
@@ -76,13 +104,26 @@ Project projectFromRow(Map<String, dynamic> row) {
           photoUrl: space['photo_url'] as String?,
         ),
     ],
+    materials: [
+      for (final mat in rawMaterials.cast<Map<String, dynamic>>())
+        ProjectMaterial(
+          productId: mat['product_id']?.toString() ?? mat['id'].toString(),
+          name: mat['name'] as String? ?? '',
+          unit: mat['unit'] as String? ?? 'unidad',
+          unitPriceCop: _toInt(mat['unit_price_cop']),
+          quantity: _toInt(mat['quantity']),
+        ),
+    ],
     status: projectStatusFromDb(row['status'] as String?),
     createdAt:
         DateTime.tryParse(row['created_at']?.toString() ?? '') ??
         DateTime.now(),
     budgetEstimateCop: _toInt(row['budget_estimate_cop']),
     description: row['description'] as String? ?? '',
-    imageAsset: kDefaultProjectImageAsset,
+    imageAsset: photoAssets.isNotEmpty
+        ? photoAssets.first
+        : kDefaultProjectImageAsset,
+    photoAssets: photoAssets,
     aiReviewAuthorized: row['ai_review_authorized'] as bool? ?? false,
   );
 }

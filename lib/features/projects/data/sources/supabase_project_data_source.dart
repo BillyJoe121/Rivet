@@ -14,7 +14,7 @@ class SupabaseProjectDataSource {
   final SupabaseClient? _client;
 
   static const _select =
-      '*, project_spaces(*), client:public_profiles(full_name)';
+      '*, project_spaces(*), project_materials(*), client:public_profiles(full_name)';
 
   static const noConnectionMessage =
       'No pudimos conectarnos con Rivet. Revisa tu conexión e inténtalo de nuevo.';
@@ -95,6 +95,10 @@ class SupabaseProjectDataSource {
       final client = _requireClient();
       final user = _requireUser(client);
 
+      final photoPaths = imageAsset != null && imageAsset.isNotEmpty
+          ? [imageAsset]
+          : const <String>[];
+
       final row = await client
           .from('projects')
           .insert({
@@ -105,6 +109,7 @@ class SupabaseProjectDataSource {
             'neighborhood': neighborhood,
             'status': projectStatusToDb(ProjectStatus.published),
             'budget_estimate_cop': budgetEstimateCop,
+            'photo_paths': photoPaths,
           })
           .select(_select)
           .single();
@@ -113,18 +118,23 @@ class SupabaseProjectDataSource {
       final spaces = await _insertSurfaces(client, projectId, surfaces);
 
       final created = projectFromRow({...row, 'project_spaces': spaces});
-      return created.copyWith(imageAsset: imageAsset);
+      return imageAsset != null && imageAsset.isNotEmpty
+          ? created.copyWith(imageAsset: imageAsset)
+          : created;
     });
   }
 
-  /// Guarda los datos del proyecto y reemplaza sus superficies.
-  ///
-  /// La lista de materiales y las fotos todavía no tienen tabla propia: se
-  /// conservan en el objeto devuelto, pero no se guardan en la base.
+  /// Guarda los datos del proyecto y reemplaza sus superficies y materiales.
   Future<Project> updateProject(Project project) {
     return _guard(updateMessage, () async {
       final client = _requireClient();
       _requireUser(client);
+
+      final photoPaths = project.photoAssets.isNotEmpty
+          ? project.photoAssets
+          : (project.imageAsset != null && project.imageAsset!.isNotEmpty
+                ? [project.imageAsset!]
+                : const <String>[]);
 
       await client
           .from('projects')
@@ -135,6 +145,7 @@ class SupabaseProjectDataSource {
             'neighborhood': project.neighborhood,
             'status': projectStatusToDb(project.status),
             'budget_estimate_cop': project.budgetEstimateCop,
+            'photo_paths': photoPaths,
             'ai_review_authorized': project.aiReviewAuthorized,
             'updated_at': DateTime.now().toUtc().toIso8601String(),
           })
@@ -142,11 +153,33 @@ class SupabaseProjectDataSource {
           .select('id')
           .single();
 
-      await client.from('project_spaces').delete().eq('project_id', project.id);
+      await client
+          .from('project_spaces')
+          .delete()
+          .eq('project_id', project.id);
       final spaces = await _insertSurfaces(client, project.id, project.surfaces);
 
-      final saved = projectFromRow({'project_spaces': spaces, 'id': project.id});
-      return project.copyWith(surfaces: saved.surfaces);
+      await client
+          .from('project_materials')
+          .delete()
+          .eq('project_id', project.id);
+      final materials = await _insertMaterials(
+        client,
+        project.id,
+        project.materials,
+      );
+
+      final saved = projectFromRow({
+        'id': project.id,
+        'project_spaces': spaces,
+        'project_materials': materials,
+        'photo_paths': photoPaths,
+      });
+      return project.copyWith(
+        surfaces: saved.surfaces,
+        materials: saved.materials,
+        photoAssets: saved.photoAssets,
+      );
     });
   }
 
@@ -161,6 +194,19 @@ class SupabaseProjectDataSource {
         surfaceToRow(surfaces[i], projectId: projectId, position: i),
     ];
     return client.from('project_spaces').insert(rows).select();
+  }
+
+  Future<List<Map<String, dynamic>>> _insertMaterials(
+    SupabaseClient client,
+    String projectId,
+    List<ProjectMaterial> materials,
+  ) async {
+    if (materials.isEmpty) return const [];
+    final rows = [
+      for (var i = 0; i < materials.length; i++)
+        materialToRow(materials[i], projectId: projectId, position: i),
+    ];
+    return client.from('project_materials').insert(rows).select();
   }
 
   SupabaseClient _requireClient() {

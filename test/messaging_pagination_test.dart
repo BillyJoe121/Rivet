@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/features/messaging/messaging_module.dart';
 import 'package:rivet/features/messaging/project_chat_screen.dart';
 
+import 'helpers/local_messaging_repository.dart';
 import 'helpers/repositories_test_harness.dart';
 
 class _PaginatedMessagingRepository extends LocalMessagingRepository {
