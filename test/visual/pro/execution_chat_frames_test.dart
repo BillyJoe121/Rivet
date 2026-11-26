@@ -31,7 +31,9 @@ void main() {
     observations: 'Incluye resanes.',
   );
 
-  testWidgets('66-14265 Registrar avance', skip: !fontsAvailable, (tester) async {
+  testWidgets('66-14265 Registrar avance', skip: !fontsAvailable, (
+    tester,
+  ) async {
     final repo = LocalAgreementRepository();
     final agreement = await repo.prepareAgreement(
       projectId: 'proj-1',
@@ -50,7 +52,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('22-145438 Seguimiento de obra', skip: !fontsAvailable, (tester) async {
+  testWidgets('22-145438 Seguimiento de obra', skip: !fontsAvailable, (
+    tester,
+  ) async {
     final repo = LocalAgreementRepository();
     final agreement = await repo.prepareAgreement(
       projectId: 'proj-1',
@@ -69,7 +73,9 @@ void main() {
     expect(tester.takeException(), isNull);
   });
 
-  testWidgets('22-145219 Chat de proyecto', skip: !fontsAvailable, (tester) async {
+  testWidgets('22-145219 Chat de proyecto', skip: !fontsAvailable, (
+    tester,
+  ) async {
     await renderFrame(
       tester,
       withRepositories(

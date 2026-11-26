@@ -272,6 +272,9 @@ void main() {
             line.contains('resolveBlocParam(')) {
           diViolations.add('$normalized:${i + 1}: ${line.trim()}');
         }
+        if (line.contains("'conv-001'") || line.contains("'proj-101'")) {
+          mockViolations.add('$normalized:${i + 1}: ${line.trim()}');
+        }
       }
     }
 

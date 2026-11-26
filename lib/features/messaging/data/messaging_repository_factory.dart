@@ -12,6 +12,15 @@ class MessagingRepositoryImpl implements MessagingRepository {
       _dataSource.getConversations();
 
   @override
+  Future<ChatConversation> ensureConversation({
+    required String projectId,
+    required String contractorId,
+  }) => _dataSource.ensureConversation(
+    projectId: projectId,
+    contractorId: contractorId,
+  );
+
+  @override
   Future<ChatConversation> sendMessage({
     required String conversationId,
     required String text,

@@ -205,6 +205,9 @@ void configureDependencies({
     ..registerLazySingleton<LoadOlderMessagesUseCase>(
       () => LoadOlderMessagesUseCase(sl<MessagingRepository>()),
     )
+    ..registerLazySingleton<EnsureConversationUseCase>(
+      () => EnsureConversationUseCase(sl<MessagingRepository>()),
+    )
     // BLoCs (instancia nueva por pantalla o flujo)
     ..registerFactory<AuthBloc>(
       () => AuthBloc(sl<GetCurrentUserUseCase>(), sl<SignOutUseCase>()),
@@ -304,6 +307,7 @@ void configureDependencies({
         sl<MarkNotificationReadUseCase>(),
         sl<MessagingRepository>(),
         sl<LoadOlderMessagesUseCase>(),
+        sl<EnsureConversationUseCase>(),
       ),
     );
 }

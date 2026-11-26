@@ -240,27 +240,15 @@ class ProjectDetailScreen extends StatelessWidget {
                       }
                     },
                   ),
-                  AppListTile(
-                    leadingIcon: LucideIcons.messageSquare,
-                    title: 'Mensajes del proyecto',
-                    subtitle: 'Abrir conversación con el contratista',
-                    showDivider: false,
-                    onTap: () => _openAndReload(
-                      context,
-                      ConversationsListScreen.route(),
-                    ),
-                  ),
                 ],
                 AppListTile(
                   leadingIcon: LucideIcons.messageSquare,
-                  title: 'Conversaciones y contraofertas',
-                  subtitle: 'Abrir chat con contratistas interesados',
+                  title: 'Mensajes del proyecto',
+                  subtitle: 'Abrir conversación con contratistas',
                   showDivider: false,
-                  onTap: () => Navigator.of(context).push(
-                    ProjectChatScreen.route(
-                      conversationId: 'conv-001',
-                      projectTitle: currentProject.title,
-                    ),
+                  onTap: () => _openAndReload(
+                    context,
+                    ConversationsListScreen.route(),
                   ),
                 ),
               ],

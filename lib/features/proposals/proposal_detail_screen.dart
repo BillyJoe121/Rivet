@@ -117,7 +117,8 @@ class _ProposalDetailView extends StatelessWidget {
                   icon: LucideIcons.messageSquare,
                   onPressed: () => Navigator.of(context).push(
                     ProjectChatScreen.route(
-                      conversationId: 'conv-001',
+                      projectId: currentProposal.projectId,
+                      contractorId: currentProposal.contractor.id,
                       contractorName: currentProposal.contractor.name,
                     ),
                   ),

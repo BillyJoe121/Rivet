@@ -67,6 +67,53 @@ class SupabaseMessagingDataSource {
     });
   }
 
+  Future<ChatConversation> ensureConversation({
+    required String projectId,
+    required String contractorId,
+  }) {
+    return _guard('No pudimos iniciar la conversación del proyecto.', () async {
+      final client = _requireSession();
+      final userId = client.auth.currentUser!.id;
+      final projectRow = await client
+          .from('projects')
+          .select('client_id')
+          .eq('id', projectId)
+          .maybeSingle();
+      if (projectRow == null) {
+        throw const MessagingFailure(
+          'No encontramos el proyecto para iniciar la conversación.',
+        );
+      }
+
+      final projectClientId = projectRow['client_id'] as String;
+      final resolvedContractorId =
+          userId == projectClientId ? contractorId : userId;
+
+      final existing = await client
+          .from('conversations')
+          .select()
+          .eq('project_id', projectId)
+          .eq('client_id', projectClientId)
+          .eq('contractor_id', resolvedContractorId)
+          .maybeSingle();
+      if (existing != null) {
+        return _hydrateConversation(client, existing, userId);
+      }
+
+      final inserted = await client
+          .from('conversations')
+          .insert({
+            'project_id': projectId,
+            'client_id': projectClientId,
+            'contractor_id': resolvedContractorId,
+            'last_message_at': DateTime.now().toUtc().toIso8601String(),
+          })
+          .select()
+          .single();
+      return _hydrateConversation(client, inserted, userId);
+    });
+  }
+
   Future<ChatConversation> sendMessage({
     required String conversationId,
     required String text,

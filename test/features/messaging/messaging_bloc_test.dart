@@ -65,4 +65,26 @@ void main() {
     await repo.msgController.close();
     await repo.notifController.close();
   });
+
+  test('OpenProjectConversationRequested crea o resuelve conversación y activa activeConversationId', () async {
+    final repo = LocalMessagingRepository();
+    final bloc = MessagingBloc.fromRepository(repo);
+
+    bloc.add(
+      const OpenProjectConversationRequested(
+        projectId: 'proj-nuevo-42',
+        contractorId: 'con-99',
+      ),
+    );
+    await Future<void>.delayed(Duration.zero);
+
+    expect(bloc.state.status, MessagingStatus.success);
+    expect(bloc.state.activeConversationId, isNotNull);
+    final active = bloc.state.conversationById(bloc.state.activeConversationId!);
+    expect(active, isNotNull);
+    expect(active!.projectId, 'proj-nuevo-42');
+    expect(active.contractorId, 'con-99');
+
+    await bloc.close();
+  });
 }

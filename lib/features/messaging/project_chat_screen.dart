@@ -13,26 +13,48 @@ import 'messaging_module.dart';
 class ProjectChatScreen extends StatefulWidget {
   const ProjectChatScreen({
     super.key,
-    required this.conversationId,
+    this.conversationId = '',
+    this.projectId,
+    this.contractorId,
     this.contractorName = 'Contratista',
     this.projectTitle = 'Proyecto en curso',
   });
 
   final String conversationId;
+  final String? projectId;
+  final String? contractorId;
   final String contractorName;
   final String projectTitle;
 
   static Widget withBloc({
-    required String conversationId,
+    String conversationId = '',
+    String? projectId,
+    String? contractorId,
     String contractorName = 'Contratista',
     String projectTitle = 'Proyecto en curso',
   }) {
     return BlocProvider<MessagingBloc>(
-      create: (_) => sl<MessagingBloc>()
-        ..add(const LoadMessagingData())
-        ..add(SubscribeConversationRealtime(conversationId)),
+      create: (_) {
+        final bloc = sl<MessagingBloc>()..add(const LoadMessagingData());
+        if (conversationId.isNotEmpty) {
+          bloc.add(SubscribeConversationRealtime(conversationId));
+        } else if (projectId != null &&
+            projectId.isNotEmpty &&
+            contractorId != null &&
+            contractorId.isNotEmpty) {
+          bloc.add(
+            OpenProjectConversationRequested(
+              projectId: projectId,
+              contractorId: contractorId,
+            ),
+          );
+        }
+        return bloc;
+      },
       child: ProjectChatScreen(
         conversationId: conversationId,
+        projectId: projectId,
+        contractorId: contractorId,
         contractorName: contractorName,
         projectTitle: projectTitle,
       ),
@@ -40,13 +62,17 @@ class ProjectChatScreen extends StatefulWidget {
   }
 
   static Route<void> route({
-    required String conversationId,
+    String conversationId = '',
+    String? projectId,
+    String? contractorId,
     String contractorName = 'Contratista',
     String projectTitle = 'Proyecto en curso',
   }) {
     return RivetPageRoute<void>(
       builder: (_) => withBloc(
         conversationId: conversationId,
+        projectId: projectId,
+        contractorId: contractorId,
         contractorName: contractorName,
         projectTitle: projectTitle,
       ),
@@ -83,9 +109,25 @@ class _ProjectChatScreenState extends State<ProjectChatScreen> {
         }
       },
       builder: (context, state) {
+        final effectiveId = widget.conversationId.isNotEmpty
+            ? widget.conversationId
+            : (state.activeConversationId ?? '');
+        final hasParticipants =
+            widget.projectId != null &&
+            widget.projectId!.isNotEmpty &&
+            widget.contractorId != null &&
+            widget.contractorId!.isNotEmpty;
         final conv =
-            state.conversationById(widget.conversationId) ??
-            (state.conversations.isNotEmpty ? state.conversations.first : null);
+            (effectiveId.isNotEmpty
+                ? state.conversationById(effectiveId)
+                : null) ??
+            (hasParticipants
+                ? state.conversationByParticipants(
+                    projectId: widget.projectId!,
+                    contractorId: widget.contractorId!,
+                  )
+                : null);
+        final sendTargetId = conv?.id ?? effectiveId;
 
         return RivetScaffold(
           title: 'Conversación',
@@ -105,14 +147,18 @@ class _ProjectChatScreenState extends State<ProjectChatScreen> {
           ],
           bottomBar: _ChatComposerBar(
             controller: _messageController,
-            onSend: () {
-              final targetId = conv?.id ?? widget.conversationId;
-              final text = _messageController.text;
-              _messageController.clear();
-              context.read<MessagingBloc>().add(
-                SendChatMessageRequested(conversationId: targetId, text: text),
-              );
-            },
+            onSend: sendTargetId.isEmpty
+                ? () {}
+                : () {
+                    final text = _messageController.text;
+                    _messageController.clear();
+                    context.read<MessagingBloc>().add(
+                      SendChatMessageRequested(
+                        conversationId: sendTargetId,
+                        text: text,
+                      ),
+                    );
+                  },
             onCounterOffer: conv == null
                 ? null
                 : () => _openCounterOfferSheet(context, conv.id),

@@ -140,6 +140,11 @@ class MessagingFailure implements Exception {
 abstract class MessagingRepository {
   Future<List<ChatConversation>> getConversations();
 
+  Future<ChatConversation> ensureConversation({
+    required String projectId,
+    required String contractorId,
+  });
+
   Future<ChatConversation> sendMessage({
     required String conversationId,
     required String text,
@@ -273,4 +278,24 @@ class LoadOlderMessagesUseCase {
     before: before,
     limit: limit,
   );
+}
+
+class EnsureConversationUseCase {
+  const EnsureConversationUseCase(this._repository);
+  final MessagingRepository _repository;
+
+  Future<ChatConversation> call({
+    required String projectId,
+    required String contractorId,
+  }) {
+    if (projectId.trim().isEmpty || contractorId.trim().isEmpty) {
+      throw const MessagingFailure(
+        'Selecciona un proyecto y un contratista válidos para iniciar la conversación.',
+      );
+    }
+    return _repository.ensureConversation(
+      projectId: projectId.trim(),
+      contractorId: contractorId.trim(),
+    );
+  }
 }

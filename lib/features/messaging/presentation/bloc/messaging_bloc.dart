@@ -4,145 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../domain/messaging_domain.dart';
 
-sealed class MessagingEvent {
-  const MessagingEvent();
-}
-
-final class LoadMessagingData extends MessagingEvent {
-  const LoadMessagingData();
-}
-
-final class SubscribeConversationRealtime extends MessagingEvent {
-  const SubscribeConversationRealtime(this.conversationId);
-  final String conversationId;
-}
-
-final class SubscribeNotificationsRealtime extends MessagingEvent {
-  const SubscribeNotificationsRealtime();
-}
-
-final class _RealtimeMessageArrived extends MessagingEvent {
-  const _RealtimeMessageArrived({
-    required this.conversationId,
-    required this.message,
-  });
-
-  final String conversationId;
-  final ChatMessage message;
-}
-
-final class _RealtimeNotificationArrived extends MessagingEvent {
-  const _RealtimeNotificationArrived(this.notification);
-  final ClientNotificationItem notification;
-}
-
-final class SendChatMessageRequested extends MessagingEvent {
-  const SendChatMessageRequested({
-    required this.conversationId,
-    required this.text,
-  });
-  final String conversationId;
-  final String text;
-}
-
-final class SendCounterOfferRequested extends MessagingEvent {
-  const SendCounterOfferRequested({
-    required this.conversationId,
-    required this.amountCop,
-    required this.estimatedDays,
-    required this.note,
-  });
-  final String conversationId;
-  final int amountCop;
-  final int estimatedDays;
-  final String note;
-}
-
-final class RespondCounterOfferRequested extends MessagingEvent {
-  const RespondCounterOfferRequested({
-    required this.conversationId,
-    required this.messageId,
-    required this.accepted,
-  });
-  final String conversationId;
-  final String messageId;
-  final bool accepted;
-}
-
-final class MarkNotificationAsRead extends MessagingEvent {
-  const MarkNotificationAsRead(this.notificationId);
-  final String notificationId;
-}
-
-final class LoadOlderMessagesRequested extends MessagingEvent {
-  const LoadOlderMessagesRequested(this.conversationId, {this.limit = 20});
-  final String conversationId;
-  final int limit;
-}
-
-enum MessagingStatus { initial, loading, success, failure }
-
-class MessagingState {
-  const MessagingState({
-    this.status = MessagingStatus.initial,
-    this.conversations = const [],
-    this.notifications = const [],
-    this.errorMessage,
-    this.isSessionExpired = false,
-    this.isPermissionDenied = false,
-    this.isLoadingOlder = false,
-    this.hasMoreByConversation = const {},
-  });
-
-  final MessagingStatus status;
-  final List<ChatConversation> conversations;
-  final List<ClientNotificationItem> notifications;
-  final String? errorMessage;
-  final bool isSessionExpired;
-  final bool isPermissionDenied;
-  final bool isLoadingOlder;
-  final Map<String, bool> hasMoreByConversation;
-
-  bool get isLoading => status == MessagingStatus.loading;
-  int get unreadNotificationsCount =>
-      notifications.where((n) => !n.isRead).length;
-
-  bool hasMoreMessages(String conversationId) =>
-      hasMoreByConversation[conversationId] ?? true;
-
-  ChatConversation? conversationById(String id) {
-    for (final c in conversations) {
-      if (c.id == id) return c;
-    }
-    return null;
-  }
-
-  MessagingState copyWith({
-    MessagingStatus? status,
-    List<ChatConversation>? conversations,
-    List<ClientNotificationItem>? notifications,
-    String? errorMessage,
-    bool clearError = false,
-    bool? isSessionExpired,
-    bool? isPermissionDenied,
-    bool? isLoadingOlder,
-    Map<String, bool>? hasMoreByConversation,
-  }) {
-    return MessagingState(
-      status: status ?? this.status,
-      conversations: conversations ?? this.conversations,
-      notifications: notifications ?? this.notifications,
-      errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
-      isSessionExpired:
-          clearError ? false : (isSessionExpired ?? this.isSessionExpired),
-      isPermissionDenied:
-          clearError ? false : (isPermissionDenied ?? this.isPermissionDenied),
-      isLoadingOlder: isLoadingOlder ?? this.isLoadingOlder,
-      hasMoreByConversation:
-          hasMoreByConversation ?? this.hasMoreByConversation,
-    );
-  }
-}
+part 'messaging_event_state.dart';
 
 class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
   MessagingBloc(
@@ -154,11 +16,16 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
     this._markNotificationReadUseCase, [
     this._repository,
     LoadOlderMessagesUseCase? loadOlderMessagesUseCase,
+    EnsureConversationUseCase? ensureConversationUseCase,
   ]) : _loadOlderMessagesUseCase =
            loadOlderMessagesUseCase ??
            (_repository != null ? LoadOlderMessagesUseCase(_repository) : null),
+       _ensureConversationUseCase =
+           ensureConversationUseCase ??
+           (_repository != null ? EnsureConversationUseCase(_repository) : null),
        super(const MessagingState()) {
     on<LoadMessagingData>(_onLoad);
+    on<OpenProjectConversationRequested>(_onOpenProjectConversation);
     on<SubscribeConversationRealtime>(_onSubscribeConversation);
     on<SubscribeNotificationsRealtime>(_onSubscribeNotifications);
     on<_RealtimeMessageArrived>(_onRealtimeMessage);
@@ -180,6 +47,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
       MarkNotificationReadUseCase(repository),
       repository,
       LoadOlderMessagesUseCase(repository),
+      EnsureConversationUseCase(repository),
     );
   }
 
@@ -191,6 +59,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
   final MarkNotificationReadUseCase _markNotificationReadUseCase;
   final MessagingRepository? _repository;
   final LoadOlderMessagesUseCase? _loadOlderMessagesUseCase;
+  final EnsureConversationUseCase? _ensureConversationUseCase;
 
   StreamSubscription<ChatMessage>? _messagesSub;
   StreamSubscription<ClientNotificationItem>? _notificationsSub;
@@ -225,6 +94,34 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
           notifications: notifs,
         ),
       );
+    } catch (e) {
+      emit(_failureState(e));
+    }
+  }
+
+  Future<void> _onOpenProjectConversation(
+    OpenProjectConversationRequested event,
+    Emitter<MessagingState> emit,
+  ) async {
+    final useCase = _ensureConversationUseCase;
+    if (useCase == null) return;
+    emit(state.copyWith(status: MessagingStatus.loading, clearError: true));
+    try {
+      final conv = await useCase(
+        projectId: event.projectId,
+        contractorId: event.contractorId,
+      );
+      emit(
+        state.copyWith(
+          status: MessagingStatus.success,
+          conversations: _replaceConv(state.conversations, conv),
+          activeConversationId: conv.id,
+          clearError: true,
+        ),
+      );
+      if (!isClosed) {
+        add(SubscribeConversationRealtime(conv.id));
+      }
     } catch (e) {
       emit(_failureState(e));
     }
@@ -305,6 +202,7 @@ class MessagingBloc extends Bloc<MessagingEvent, MessagingState> {
         state.copyWith(
           status: MessagingStatus.success,
           conversations: _replaceConv(state.conversations, updated),
+          activeConversationId: updated.id,
           clearError: true,
         ),
       );

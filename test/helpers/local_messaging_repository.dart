@@ -110,6 +110,29 @@ class LocalMessagingRepository implements MessagingRepository {
       List<ChatConversation>.unmodifiable(_conversations);
 
   @override
+  Future<ChatConversation> ensureConversation({
+    required String projectId,
+    required String contractorId,
+  }) async {
+    for (final c in _conversations) {
+      if (c.projectId == projectId && c.contractorId == contractorId) {
+        return c;
+      }
+    }
+    final created = ChatConversation(
+      id: 'conv-${_conversations.length + 1}',
+      projectId: projectId,
+      projectTitle: 'Proyecto Rivet',
+      contractorId: contractorId,
+      contractorName: 'Contratista Rivet',
+      contractorSpecialty: 'Contratista Rivet',
+      messages: const [],
+    );
+    _conversations.insert(0, created);
+    return created;
+  }
+
+  @override
   Future<ChatConversation> sendMessage({
     required String conversationId,
     required String text,
