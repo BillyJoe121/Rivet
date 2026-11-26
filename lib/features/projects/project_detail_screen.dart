@@ -215,8 +215,7 @@ class ProjectDetailScreen extends StatelessWidget {
                     title: 'Seguimiento de obra y checklist',
                     subtitle: 'Revisar avances, fotos y confirmar hitos',
                     onTap: () async {
-                      final agr = await context
-                          .read<AgreementRepository>()
+                      final agr = await sl<AgreementRepository>()
                           .getAgreementForProject(currentProject.id);
                       if (!context.mounted) return;
                       if (agr != null) {

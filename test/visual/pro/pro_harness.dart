@@ -15,7 +15,8 @@ const String kOutputDir = 'build/visual/pro';
 
 /// Fonts come from `assets/fonts` when bundled, or from the shared spec folder.
 final List<String> _fontDirs = [
-  if (Platform.environment['RIVET_FONTS_DIR'] != null) Platform.environment['RIVET_FONTS_DIR']!,
+  if (Platform.environment['RIVET_FONTS_DIR'] != null)
+    Platform.environment['RIVET_FONTS_DIR']!,
   'assets/fonts',
   '../Rivet-figma-spec/fonts',
 ];
@@ -23,17 +24,22 @@ final List<String> _fontDirs = [
 bool fontsLoaded = false;
 
 /// True when the TTF files exist, so visual tests can be skipped otherwise.
-bool get fontsAvailable => _fontDirs.any((d) => File('$d/Roboto-Regular.ttf').existsSync());
+bool get fontsAvailable =>
+    _fontDirs.any((d) => File('$d/Roboto-Regular.ttf').existsSync());
 
 Future<void> loadProFonts() async {
   if (fontsLoaded) return;
-  final dir = _fontDirs.firstWhere((d) => File('$d/Roboto-Regular.ttf').existsSync());
+  final dir = _fontDirs.firstWhere(
+    (d) => File('$d/Roboto-Regular.ttf').existsSync(),
+  );
   for (final family in [AppTypography.sans, AppTypography.serif]) {
     final loader = FontLoader(family);
     for (final weight in ['Regular', 'Medium', 'SemiBold', 'Bold']) {
       final file = File('$dir/$family-$weight.ttf');
       if (file.existsSync()) {
-        loader.addFont(Future.value(ByteData.sublistView(file.readAsBytesSync())));
+        loader.addFont(
+          Future.value(ByteData.sublistView(file.readAsBytesSync())),
+        );
       }
     }
     await loader.load();
@@ -86,7 +92,10 @@ Future<File> renderFrame(
       key: key,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData(fontFamily: AppTypography.sans, scaffoldBackgroundColor: background),
+        theme: ThemeData(
+          fontFamily: AppTypography.sans,
+          scaffoldBackgroundColor: background,
+        ),
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(context).copyWith(
             padding: const EdgeInsets.only(top: 36, bottom: 24),
@@ -95,8 +104,20 @@ Future<File> renderFrame(
           child: Stack(
             children: [
               child!,
-              const Positioned(top: 0, left: 0, right: 0, height: 36, child: _StatusBar()),
-              const Positioned(left: 0, right: 0, bottom: 0, height: 24, child: _GestureBar()),
+              const Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 36,
+                child: _StatusBar(),
+              ),
+              const Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 24,
+                child: _GestureBar(),
+              ),
             ],
           ),
         ),
@@ -109,7 +130,8 @@ Future<File> renderFrame(
   await _precache(tester);
   await tester.pump();
 
-  final boundary = key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+  final boundary =
+      key.currentContext!.findRenderObject()! as RenderRepaintBoundary;
   final bytes = await tester.runAsync(() async {
     final image = await boundary.toImage(pixelRatio: 2);
     final data = await image.toByteData(format: ui.ImageByteFormat.png);
@@ -141,15 +163,30 @@ class _StatusBar extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 25),
       child: Row(
         children: [
-          Text('9:41', style: AppTypography.proportional(14, weight: FontWeight.w600, color: AppColors.statusInk, lineHeight: 16.40625)),
+          Text(
+            '9:41',
+            style: AppTypography.proportional(
+              14,
+              weight: FontWeight.w600,
+              color: AppColors.statusInk,
+              lineHeight: 16.40625,
+            ),
+          ),
           const Spacer(),
           Container(
             width: 9,
             height: 9,
-            decoration: const BoxDecoration(color: Color(0xFF192421), shape: BoxShape.circle),
+            decoration: const BoxDecoration(
+              color: Color(0xFF192421),
+              shape: BoxShape.circle,
+            ),
           ),
           const Spacer(),
-          const SizedBox(width: 51, height: 14, child: CustomPaint(painter: _ConnectionPainter())),
+          const SizedBox(
+            width: 51,
+            height: 14,
+            child: CustomPaint(painter: _ConnectionPainter()),
+          ),
         ],
       ),
     );
@@ -167,7 +204,13 @@ class _ConnectionPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.8;
     for (final r in [3.0, 6.5, 10.0]) {
-      canvas.drawArc(Rect.fromCircle(center: const Offset(7, 13), radius: r), -2.3, 1.6, false, wifi);
+      canvas.drawArc(
+        Rect.fromCircle(center: const Offset(7, 13), radius: r),
+        -2.3,
+        1.6,
+        false,
+        wifi,
+      );
     }
     canvas.drawPath(
       Path()
@@ -177,7 +220,10 @@ class _ConnectionPainter extends CustomPainter {
         ..close(),
       ink,
     );
-    canvas.drawRRect(RRect.fromLTRBR(42, 0, 51, 14, const Radius.circular(1)), ink);
+    canvas.drawRRect(
+      RRect.fromLTRBR(42, 0, 51, 14, const Radius.circular(1)),
+      ink,
+    );
   }
 
   @override
@@ -195,7 +241,10 @@ class _GestureBar extends StatelessWidget {
       child: Container(
         width: 108,
         height: 4,
-        decoration: BoxDecoration(color: AppColors.gestureBar, borderRadius: BorderRadius.circular(2)),
+        decoration: BoxDecoration(
+          color: AppColors.gestureBar,
+          borderRadius: BorderRadius.circular(2),
+        ),
       ),
     );
   }

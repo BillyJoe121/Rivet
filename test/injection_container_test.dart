@@ -311,7 +311,8 @@ void main() {
         if (line.contains('RepositoryProvider') ||
             line.contains('MultiRepositoryProvider') ||
             line.contains('resolveBloc(') ||
-            line.contains('resolveBlocParam(')) {
+            line.contains('resolveBlocParam(') ||
+            RegExp(r'\.(read|watch|select)<\w*Repository>').hasMatch(line)) {
           diViolations.add('$normalized:${i + 1}: ${line.trim()}');
         }
         if (line.contains("'conv-001'") || line.contains("'proj-101'")) {

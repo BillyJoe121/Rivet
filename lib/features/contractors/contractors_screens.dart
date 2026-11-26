@@ -157,7 +157,10 @@ class ContractorProfileScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           // 2. Evidencia visual: Portafolio de trabajos recientes
-          AppSectionHeader(title: 'Trabajos recientes', count: portfolio.length),
+          AppSectionHeader(
+            title: 'Trabajos recientes',
+            count: portfolio.length,
+          ),
           const SizedBox(height: AppSpacing.sm),
           if (portfolio.isEmpty)
             const AppEmptyState(
@@ -172,7 +175,8 @@ class ContractorProfileScreen extends StatelessWidget {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: portfolio.length,
-                separatorBuilder: (_, _) => const SizedBox(width: AppSpacing.md),
+                separatorBuilder: (_, _) =>
+                    const SizedBox(width: AppSpacing.md),
                 itemBuilder: (context, index) => _PortfolioCard(
                   source: portfolio[index],
                   caption: 'Obra reciente ${index + 1}',
@@ -203,10 +207,8 @@ class _PortfolioCard extends StatelessWidget {
             cacheWidth: 430,
             cacheHeight: 204,
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
-              height: 102,
-              color: AppColors.brandLight,
-            ),
+            errorBuilder: (_, _, _) =>
+                Container(height: 102, color: AppColors.brandLight),
           )
         : Image.asset(
             source,
@@ -216,10 +218,8 @@ class _PortfolioCard extends StatelessWidget {
             cacheHeight: 204,
             gaplessPlayback: true,
             fit: BoxFit.cover,
-            errorBuilder: (_, _, _) => Container(
-              height: 102,
-              color: AppColors.brandLight,
-            ),
+            errorBuilder: (_, _, _) =>
+                Container(height: 102, color: AppColors.brandLight),
           );
 
     return SizedBox(
