@@ -22,21 +22,12 @@ class LoginScreen extends StatelessWidget {
   const LoginScreen({
     super.key,
     this.role = UserRole.client,
-    this.loginBloc,
   });
 
   final UserRole role;
-  final LoginBloc? loginBloc;
 
   @override
   Widget build(BuildContext context) {
-    if (loginBloc != null) {
-      return BlocProvider<LoginBloc>.value(
-        value: loginBloc!,
-        child: _LoginView(role: role),
-      );
-    }
-
     return BlocProvider<LoginBloc>(
       create: (_) => sl<LoginBloc>(),
       child: _LoginView(role: role),

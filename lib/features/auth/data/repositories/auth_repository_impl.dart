@@ -31,7 +31,10 @@ class AuthRepositoryImpl implements AuthRepository {
     } on AuthException catch (e) {
       throw _mapAuthException(e);
     } catch (e) {
-      throw Exception('Error al registrar usuario: ${e.toString()}');
+      if (e is AuthFailure) rethrow;
+      throw const AuthFailure(
+        'No pudimos completar tu registro. Verifica tu conexión e intenta de nuevo.',
+      );
     }
   }
 
@@ -48,7 +51,10 @@ class AuthRepositoryImpl implements AuthRepository {
     } on AuthException catch (e) {
       throw _mapAuthException(e);
     } catch (e) {
-      throw Exception('Error al iniciar sesión: ${e.toString()}');
+      if (e is AuthFailure) rethrow;
+      throw const AuthFailure(
+        'No pudimos iniciar sesión. Verifica tu conexión e intenta de nuevo.',
+      );
     }
   }
 
@@ -83,16 +89,26 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> signOut() async {
     try {
       await _dataSource.signOut();
+    } on AuthException catch (e) {
+      throw _mapAuthException(e);
     } catch (e) {
-      throw Exception('Error al cerrar sesión: ${e.toString()}');
+      if (e is AuthFailure) rethrow;
+      throw const AuthFailure('No pudimos cerrar tu sesión. Intenta nuevamente.');
     }
   }
 
   @override
   Future<RivetUser?> getCurrentUser() async {
-    final user = await _dataSource.restoreSessionUser();
-    if (user == null) return null;
-    return await _dataSource.getProfile(user.id);
+    try {
+      final user = await _dataSource.restoreSessionUser();
+      if (user == null) return null;
+      return await _dataSource.getProfile(user.id);
+    } on AuthException catch (e) {
+      throw _mapAuthException(e);
+    } catch (e) {
+      if (e is AuthFailure) rethrow;
+      throw const AuthFailure('No pudimos restaurar tu sesión.');
+    }
   }
 
   @override

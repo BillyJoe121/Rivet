@@ -2,27 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/core/theme/theme.dart';
 import 'package:rivet/core/widgets/app_button.dart';
-import 'package:rivet/features/auth/domain/usecases/update_password_usecase.dart';
-import 'package:rivet/features/auth/presentation/bloc/reset_password/reset_password_bloc.dart';
 import 'package:rivet/features/auth/reset_password_screen.dart';
+import 'package:rivet/injection_container.dart';
 
+import '../../helpers/auth_test_harness.dart';
 import 'reset_password_bloc_test.dart';
 
 void main() {
   late FakeUpdatePasswordAuthRepository fakeRepo;
-  late ResetPasswordBloc bloc;
 
   setUp(() {
     fakeRepo = FakeUpdatePasswordAuthRepository();
-    bloc = ResetPasswordBloc(UpdatePasswordUseCase(fakeRepo));
   });
 
-  tearDown(() => bloc.close());
+  tearDown(() async {
+    await sl.reset();
+  });
 
   Widget buildScreen() {
-    return MaterialApp(
-      theme: AppTheme.lightTheme,
-      home: ResetPasswordScreen(resetPasswordBloc: bloc),
+    return withAuth(
+      MaterialApp(
+        theme: AppTheme.lightTheme,
+        home: const ResetPasswordScreen(),
+      ),
+      repository: fakeRepo,
     );
   }
 

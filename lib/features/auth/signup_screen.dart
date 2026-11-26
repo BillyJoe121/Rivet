@@ -19,24 +19,15 @@ class SignupScreen extends StatelessWidget {
   const SignupScreen({
     super.key,
     this.initialRole = UserRole.client,
-    this.signUpBloc,
   });
 
   final UserRole initialRole;
-  final SignUpBloc? signUpBloc;
 
   @override
   Widget build(BuildContext context) {
     final role = initialRole == UserRole.supplier
         ? UserRole.client
         : initialRole;
-
-    if (signUpBloc != null) {
-      return BlocProvider<SignUpBloc>.value(
-        value: signUpBloc!,
-        child: _SignupView(initialRole: role),
-      );
-    }
 
     return BlocProvider<SignUpBloc>(
       create: (_) => sl<SignUpBloc>(param1: role),

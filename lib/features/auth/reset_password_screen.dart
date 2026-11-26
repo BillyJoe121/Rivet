@@ -12,22 +12,10 @@ import 'widgets/signup_form_card.dart';
 
 /// Pantalla para definir una nueva contraseña tras abrir el enlace de recuperación.
 class ResetPasswordScreen extends StatelessWidget {
-  const ResetPasswordScreen({
-    super.key,
-    this.resetPasswordBloc,
-  });
-
-  final ResetPasswordBloc? resetPasswordBloc;
+  const ResetPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    if (resetPasswordBloc != null) {
-      return BlocProvider<ResetPasswordBloc>.value(
-        value: resetPasswordBloc!,
-        child: const _ResetPasswordView(),
-      );
-    }
-
     return BlocProvider<ResetPasswordBloc>(
       create: (_) => sl<ResetPasswordBloc>(),
       child: const _ResetPasswordView(),

@@ -28,11 +28,6 @@ create policy "Users can view their own profile"
   using ((select auth.uid()) = id);
 
 drop policy if exists "Users can insert their own profile" on public.profiles;
-create policy "Users can insert their own profile"
-  on public.profiles
-  for insert
-  to authenticated
-  with check ((select auth.uid()) = id);
 
 drop policy if exists "Users can update their own profile" on public.profiles;
 create policy "Users can update their own profile"
@@ -40,7 +35,10 @@ create policy "Users can update their own profile"
   for update
   to authenticated
   using ((select auth.uid()) = id)
-  with check ((select auth.uid()) = id);
+  with check (
+    (select auth.uid()) = id
+    and role = (select p.role from public.profiles p where p.id = (select auth.uid()))
+  );
 
 -- 4. Trigger automático al registrar usuario en Supabase Auth
 create or replace function public.handle_new_user()
@@ -62,19 +60,23 @@ begin
     updated_at = now();
   return new;
 end;
-$$ language plpgsql security definer;
+$$ language plpgsql security definer set search_path = public;
+
+revoke all on function public.handle_new_user() from public, anon, authenticated;
 
 drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
--- Conceder permisos de lectura y escritura al rol autenticado
-grant select, insert, update on public.profiles to authenticated;
-revoke select on public.profiles from anon;
+-- Conceder permisos mínimos de lectura y actualización al rol autenticado
+revoke all on public.profiles from anon, authenticated;
+grant select on public.profiles to authenticated;
+grant update (full_name, phone, avatar_url, updated_at) on public.profiles to authenticated;
 
 -- 5. Datos públicos de un perfil (sin correo ni teléfono) para mostrar a otros usuarios
-create or replace view public.public_profiles as
+create or replace view public.public_profiles
+  with (security_invoker = false) as
   select id, full_name, role, avatar_url
   from public.profiles;
 

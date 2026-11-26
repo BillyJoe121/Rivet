@@ -13,22 +13,10 @@ import 'widgets/forgot_password_cards.dart';
 /// Envía instrucciones por correo mediante el caso de uso sin revelar si el usuario
 /// existe (principio OWASP de privacidad y prevención de enumeración).
 class ForgotPasswordScreen extends StatelessWidget {
-  const ForgotPasswordScreen({
-    super.key,
-    this.forgotPasswordBloc,
-  });
-
-  final ForgotPasswordBloc? forgotPasswordBloc;
+  const ForgotPasswordScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    if (forgotPasswordBloc != null) {
-      return BlocProvider<ForgotPasswordBloc>.value(
-        value: forgotPasswordBloc!,
-        child: const _ForgotPasswordView(),
-      );
-    }
-
     return BlocProvider<ForgotPasswordBloc>(
       create: (_) => sl<ForgotPasswordBloc>(),
       child: const _ForgotPasswordView(),
