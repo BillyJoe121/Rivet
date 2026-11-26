@@ -2,14 +2,21 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rivet/core/models/models.dart';
 import 'package:rivet/core/widgets/widgets.dart';
+import 'package:rivet/features/auth/domain/entities/rivet_user.dart';
 import 'package:rivet/features/home/app_shell.dart';
 import 'package:rivet/features/projects/my_projects_screen.dart';
 import 'package:rivet/features/projects/project_detail_screen.dart';
+import 'package:rivet/features/supplier/material_price_tier.dart';
 import 'package:rivet/features/supplier/materials_catalog_screen.dart';
+import 'package:rivet/injection_container.dart';
 
+import 'helpers/auth_test_harness.dart';
 import 'helpers/repositories_test_harness.dart';
 
 void main() {
+  tearDown(() async {
+    await sl.reset();
+  });
   Future<void> pumpShell(WidgetTester tester, UserRole role) async {
     await tester.pumpWidget(
       withRepositories(
@@ -167,4 +174,64 @@ void main() {
       expect(find.text('Información personal'), findsNothing);
     });
   }
+
+  testWidgets(
+    'Bodega en AppShell asigna MaterialPriceTier según rol y verificación',
+    (tester) async {
+      await pumpShell(tester, UserRole.client);
+      await tester.tap(find.text('Bodega'));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<MaterialsCatalogScreen>(find.byType(MaterialsCatalogScreen))
+            .priceTier,
+        MaterialPriceTier.client,
+      );
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await pumpShell(tester, UserRole.contractor);
+      await tester.tap(find.text('Más'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Bodega'));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<MaterialsCatalogScreen>(find.byType(MaterialsCatalogScreen))
+            .priceTier,
+        MaterialPriceTier.unverifiedPro,
+      );
+
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpWidget(
+        withAuth(
+          withRepositories(
+            withAppBlocs(
+              const MaterialApp(home: AppShell(initialRole: UserRole.contractor)),
+              load: false,
+            ),
+          ),
+          repository: InMemoryAuthRepository(
+            currentUser: const RivetUser(
+              id: 'pro-verified-1',
+              email: 'pro@rivet.co',
+              fullName: 'Carlos Verificado',
+              role: UserRole.contractor,
+              isVerified: true,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Más'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Bodega'));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<MaterialsCatalogScreen>(find.byType(MaterialsCatalogScreen))
+            .priceTier,
+        MaterialPriceTier.verifiedPro,
+      );
+    },
+  );
 }

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../core/models/models.dart';
 import '../../core/theme/theme.dart';
 import '../../core/widgets/app_back_button.dart';
 import '../../core/widgets/app_bottom_nav.dart';
 import '../../core/widgets/app_more_menu.dart';
+import '../auth/presentation/bloc/auth/auth_bloc.dart';
+import '../supplier/material_price_tier.dart';
 import 'client_home_view.dart';
 import 'contractor_home_view.dart';
 import '../account/profile_screen.dart';
@@ -158,7 +161,7 @@ class _AppShellState extends State<AppShell> {
                   enabled: entry.key == _page,
                   child: _TabNavigator(
                     navigatorKey: entry.value,
-                    builder: (_) => _buildPage(entry.key),
+                    builder: (tabContext) => _buildPage(tabContext, entry.key),
                   ),
                 ),
               ),
@@ -185,7 +188,21 @@ class _AppShellState extends State<AppShell> {
     );
   }
 
-  Widget _buildPage(_Page page) {
+  MaterialPriceTier _catalogPriceTier(BuildContext context) {
+    if (_isClient) return MaterialPriceTier.client;
+    try {
+      final isVerified = context.select(
+        (AuthBloc bloc) => bloc.state.user?.isVerified ?? false,
+      );
+      return isVerified
+          ? MaterialPriceTier.verifiedPro
+          : MaterialPriceTier.unverifiedPro;
+    } catch (_) {
+      return MaterialPriceTier.unverifiedPro;
+    }
+  }
+
+  Widget _buildPage(BuildContext context, _Page page) {
     return switch (page) {
       _Page.home =>
         _isContractor
@@ -206,7 +223,9 @@ class _AppShellState extends State<AppShell> {
         _isClient
             ? ContractorsDirectoryScreen.withBloc()
             : UnderConstructionScreen(section: _sectionName(page)),
-      _Page.catalog => MaterialsCatalogScreen.withBloc(),
+      _Page.catalog => MaterialsCatalogScreen.withBloc(
+        priceTier: _catalogPriceTier(context),
+      ),
       _Page.proposals =>
         _isClient
             ? AllProposalsScreen.withBloc()

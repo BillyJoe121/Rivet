@@ -208,6 +208,42 @@ void configureDependencies({
     ..registerLazySingleton<EnsureConversationUseCase>(
       () => EnsureConversationUseCase(sl<MessagingRepository>()),
     )
+    ..registerLazySingleton<PrepareAgreementUseCase>(
+      () => PrepareAgreementUseCase(sl<AgreementRepository>()),
+    )
+    ..registerLazySingleton<AcceptAgreementUseCase>(
+      () => AcceptAgreementUseCase(sl<AgreementRepository>()),
+    )
+    ..registerLazySingleton<ProcessSimulatedPaymentUseCase>(
+      () => ProcessSimulatedPaymentUseCase(sl<AgreementRepository>()),
+    )
+    ..registerLazySingleton<ConfirmWorkCompletionUseCase>(
+      () => ConfirmWorkCompletionUseCase(sl<AgreementRepository>()),
+    )
+    ..registerLazySingleton<GetProgressUpdatesUseCase>(
+      () => GetProgressUpdatesUseCase(sl<AgreementRepository>()),
+    )
+    ..registerLazySingleton<ConfirmMilestoneUseCase>(
+      () => ConfirmMilestoneUseCase(sl<AgreementRepository>()),
+    )
+    ..registerLazySingleton<SubmitProgressUpdateUseCase>(
+      () => SubmitProgressUpdateUseCase(sl<AgreementRepository>()),
+    )
+    ..registerLazySingleton<SubmitRatingUseCase>(
+      () => SubmitRatingUseCase(sl<AgreementRepository>()),
+    )
+    ..registerLazySingleton<RequestCancellationUseCase>(
+      () => RequestCancellationUseCase(sl<AgreementRepository>()),
+    )
+    ..registerLazySingleton<ResolveCancellationUseCase>(
+      () => ResolveCancellationUseCase(sl<AgreementRepository>()),
+    )
+    ..registerLazySingleton<GetPayoutAccountUseCase>(
+      () => GetPayoutAccountUseCase(sl<AgreementRepository>()),
+    )
+    ..registerLazySingleton<SavePayoutAccountUseCase>(
+      () => SavePayoutAccountUseCase(sl<AgreementRepository>()),
+    )
     // BLoCs (instancia nueva por pantalla o flujo)
     ..registerFactory<AuthBloc>(
       () => AuthBloc(sl<GetCurrentUserUseCase>(), sl<SignOutUseCase>()),
@@ -276,25 +312,45 @@ void configureDependencies({
       ),
     )
     ..registerFactory<AgreementsBloc>(
-      () => AgreementsBloc.fromRepository(sl<AgreementRepository>()),
+      () => AgreementsBloc(
+        sl<PrepareAgreementUseCase>(),
+        sl<AcceptAgreementUseCase>(),
+        sl<ProcessSimulatedPaymentUseCase>(),
+        sl<ConfirmWorkCompletionUseCase>(),
+        sl<AgreementRepository>(),
+      ),
     )
     ..registerFactory<ProgressBloc>(
-      () => ProgressBloc.fromRepository(sl<AgreementRepository>()),
+      () => ProgressBloc(
+        sl<AgreementRepository>(),
+        sl<GetProgressUpdatesUseCase>(),
+        sl<ConfirmMilestoneUseCase>(),
+        sl<SubmitProgressUpdateUseCase>(),
+      ),
     )
     ..registerFactory<ClosureBloc>(
-      () => ClosureBloc.fromRepository(sl<AgreementRepository>()),
+      () => ClosureBloc(
+        sl<AgreementRepository>(),
+        sl<SubmitRatingUseCase>(),
+        sl<RequestCancellationUseCase>(),
+        sl<ResolveCancellationUseCase>(),
+      ),
     )
     ..registerFactory<PayoutAccountBloc>(
-      () => PayoutAccountBloc.fromRepository(sl<AgreementRepository>()),
+      () => PayoutAccountBloc(
+        sl<GetPayoutAccountUseCase>(),
+        sl<SavePayoutAccountUseCase>(),
+      ),
     )
     ..registerFactory<OpenProjectsBloc>(
-      () => OpenProjectsBloc.fromRepository(sl<ProjectRepository>()),
+      () => OpenProjectsBloc(sl<GetOpenProjectsUseCase>()),
     )
     ..registerFactory<ContractorHomeBloc>(
-      () => ContractorHomeBloc.fromRepositories(
+      () => ContractorHomeBloc(
+        sl<GetOpenProjectsUseCase>(),
+        sl<GetMyProposalsUseCase>(),
         sl<ProjectRepository>(),
-        sl<ProposalRepository>(),
-        agreementRepository: sl<AgreementRepository>(),
+        sl<AgreementRepository>(),
       ),
     )
     ..registerFactory<MessagingBloc>(

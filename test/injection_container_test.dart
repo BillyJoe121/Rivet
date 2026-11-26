@@ -126,6 +126,38 @@ void main() {
         isTrue,
       );
       expect(
+        identical(
+          sl<EnsureConversationUseCase>(),
+          sl<EnsureConversationUseCase>(),
+        ),
+        isTrue,
+      );
+      expect(
+        identical(
+          sl<PrepareAgreementUseCase>(),
+          sl<PrepareAgreementUseCase>(),
+        ),
+        isTrue,
+      );
+      expect(
+        identical(
+          sl<GetProgressUpdatesUseCase>(),
+          sl<GetProgressUpdatesUseCase>(),
+        ),
+        isTrue,
+      );
+      expect(
+        identical(sl<SubmitRatingUseCase>(), sl<SubmitRatingUseCase>()),
+        isTrue,
+      );
+      expect(
+        identical(
+          sl<GetPayoutAccountUseCase>(),
+          sl<GetPayoutAccountUseCase>(),
+        ),
+        isTrue,
+      );
+      expect(
         identical(sl<AcceptProposalUseCase>(), sl<AcceptProposalUseCase>()),
         isTrue,
       );
@@ -262,6 +294,16 @@ void main() {
       final lines = entity.readAsLinesSync();
       if (lines.length > 500) {
         lineViolations.add('$normalized (${lines.length} lines)');
+      }
+
+      if (normalized == 'lib/injection_container.dart') {
+        for (var i = 0; i < lines.length; i++) {
+          final line = lines[i];
+          if (line.contains('.fromRepository(') ||
+              line.contains('.fromRepositories(')) {
+            diViolations.add('$normalized:${i + 1}: ${line.trim()}');
+          }
+        }
       }
 
       for (var i = 0; i < lines.length; i++) {

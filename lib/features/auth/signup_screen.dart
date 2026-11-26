@@ -16,10 +16,7 @@ import 'widgets/signup_parts.dart';
 
 /// Registro de usuarios conectado a Supabase y gestionado por [SignUpBloc] (Sprint 1).
 class SignupScreen extends StatelessWidget {
-  const SignupScreen({
-    super.key,
-    this.initialRole = UserRole.client,
-  });
+  const SignupScreen({super.key, this.initialRole = UserRole.client});
 
   final UserRole initialRole;
 
@@ -234,7 +231,10 @@ class _SignupViewState extends State<_SignupView>
                             gradient: LinearGradient(
                               begin: Alignment.topCenter,
                               end: Alignment.bottomCenter,
-                              colors: [AppColors.paperTransparent, AppColors.paper100],
+                              colors: [
+                                AppColors.paperTransparent,
+                                AppColors.paper100,
+                              ],
                             ),
                           ),
                         ),
