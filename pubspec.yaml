@@ -67,7 +67,6 @@ flutter:
   assets:
     - .env
     - Fondos/
-    - Pantallas/
     - assets/hero/
 
   fonts:
